@@ -87,10 +87,11 @@ VW=1536; VH=2720
 SHADOW="879,1615 1033,1777 1195,1789 1277,1825 1254,1862 956,1876 606,1886 486,1862 447,1763 452,1717 649,1647"
 BUSPOLY="852,1400 1050,1378 1320,1405 1360,1470 1392,1510 1392,1568 1352,1572 1352,1772 1255,1794 1060,1788 1000,1762 910,1718 858,1688"
 convert -size ${VW}x$VH xc:white -fill "rgb(153,176,207)" -draw "polygon $SHADOW" \
-  -draw "polygon 1000,1770 1360,1770 1360,1812 1230,1822 1040,1812" -blur 0x10 $T/shadow.png
-convert -size ${VW}x$VH xc:black -fill white -draw "polygon 100,1260 816,1260 816,1565 795,1585 795,1765 785,1790 770,1802 742,1806 738,1826 668,1828 660,1806 476,1806 470,1826 420,1830 400,1846 100,1846" -blur 0x2 $T/truckbody.png   # контур фуры
+  -draw "polygon 858,1690 1000,1764 1360,1770 1360,1812 1230,1822 1040,1815 950,1790 852,1730" -blur 0x10 $T/shadow.png
+convert -size ${VW}x$VH xc:black -fill white -draw "polygon 100,1260 812,1260 812,1565 788,1585 788,1765 780,1786 766,1796 742,1792 738,1818 668,1820 660,1792 476,1792 470,1816 420,1826 400,1840 100,1840" -blur 0x1.5 $T/truckbody.png   # контур фуры
 convert $T/shadow.png \( -size ${VW}x$VH xc:white \) $T/truckbody.png -composite $T/shadow-notruck.png   # на кузов фуры тень не кладём
-convert -size ${VW}x$VH xc:black -fill white -draw "polygon $BUSPOLY" -draw "rectangle 1340,1290 1536,1798" -blur 0x4 $T/mbus.png
+convert -size ${VW}x$VH xc:black -fill white -draw "polygon $BUSPOLY" -draw "rectangle 1340,1290 1536,1798" \
+  -morphology Erode Disk:10 -blur 0x3 $T/mbus.png   # контур с запасом сужен: дорога у кузова — наша, с нашей тенью
 convert intro-mobile-only-truck.png $T/shadow-notruck.png -compose multiply -composite \
   -compose over intro-mobile-only-bus.png $T/mbus.png -composite intro-mobile-photo-updated.png
 convert intro-mobile-only-truck.png -crop 731x320+805+1850 +repage $T/roadsrc.png
