@@ -8,6 +8,8 @@ const PHONE_DISPLAY = '+353 [номер]';   // как номер выгляди
 const FACEBOOK_URL = 'https://www.facebook.com/'; // ссылка на страницу; '' — ссылка не показывается
 const LANGS = { pl: 'pl', pt: 'pt-BR', ru: 'ru', en: 'en' }; // папка → код языка
 const DEFAULT_LANG = 'en';
+// Корень сайта: сохранённый язык (localStorage 'lang') → язык браузера (только если true) → английский
+const DETECT_BROWSER_LANGUAGE = false;
 const BRAND = { name: 'Celtic Rainbow', sub: 'Truck & Bus School' }; // название в шапке и подвале
 const BRAND_FULL = `${BRAND.name} ${BRAND.sub}`;
 
@@ -96,29 +98,57 @@ for (const lang of Object.keys(LANGS)) {
 for (const f of ['styles.css', 'ride.js', 'route.js', 'vehicle.js', 'gallery.js', 'menu.js']) fs.copyFileSync(`src/${f}`, `dist/${f}`);
 if (fs.existsSync('src/assets')) fs.cpSync('src/assets', 'dist/assets', { recursive: true }); // фото и кадры ролика: ../assets/…
 
-// Демо выбора транспорта: src/choose → dist/choose. Звуки мотора подключаются, только если файлы есть
+// Экран выбора транспорта: src/choose/index.html — шаблон → dist/<язык>/choose/index.html.
+// Общие файлы (стили, скрипты, кадры, звуки) — один раз в dist/choose-assets/.
+// Звуки мотора подключаются, только если файлы есть
 const SOUND_FILES = { truck: 'engine-truck.mp3', bus: 'engine-bus.mp3' };
-for (const dir of ['choose']) {
-  fs.cpSync(`src/${dir}`, `dist/${dir}`, { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });
+fs.mkdirSync('dist/choose-assets', { recursive: true });
+for (const f of ['choose.css', 'hud.css', 'choose.js', 'sound.js']) fs.copyFileSync(`src/choose/${f}`, `dist/choose-assets/${f}`);
+for (const d of ['img', 'media']) {
+  fs.cpSync(`src/choose/${d}`, `dist/choose-assets/${d}`, { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });
 }
 const sounds = Object.fromEntries(Object.entries(SOUND_FILES)
   .filter(([, f]) => fs.existsSync(`src/choose/media/${f}`))
-  .map(([k, f]) => [k, `media/${f}`]));
-const chooseHtml = fs.readFileSync('dist/choose/index.html', 'utf8');
-if (!chooseHtml.includes('data-sounds="{}"')) throw new Error('choose/index.html: нет атрибута data-sounds="{}"');
+  .map(([k, f]) => [k, `../../choose-assets/media/${f}`]));
+const chooseTpl = fs.readFileSync('src/choose/index.html', 'utf8');
+if (!chooseTpl.includes('data-sounds="{}"')) throw new Error('choose/index.html: нет атрибута data-sounds="{}"');
 // ?v=<хэш содержимого> у картинок: поменяли кадр — меняется ссылка, браузер не покажет старый из кэша
 const stamp = (file) => crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex').slice(0, 8);
-fs.writeFileSync('dist/choose/index.html', chooseHtml
-  .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}"`)
-  .replace(/img\/[\w-]+\.webp/g, (src) => `${src}?v=${stamp(`dist/choose/${src}`)}`));
+for (const lang of Object.keys(LANGS)) {
+  const t = locales[lang];
+  const b = {
+    htmlLang: LANGS[lang],
+    langCode: lang.toUpperCase(),
+    brandName: esc(BRAND.name),
+    brandSub: esc(BRAND.sub),
+    brandFull: esc(BRAND_FULL),
+    waHref: esc(wa(t.waHello)),
+    telHref: `tel:+${PHONE}`,
+    langItems: Object.keys(LANGS).map((dir) =>
+      `<li><a href="../../${dir}/choose/" lang="${LANGS[dir]}" hreflang="${LANGS[dir]}" data-lang="${dir}"${dir === lang ? ' aria-current="page"' : ''}><span>${esc(locales[dir].langName)}</span>${dir === lang ? icon('i-check', 'icon icon--sm') : ''}</a></li>`).join(''),
+  };
+  const html = chooseTpl.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+    if (key in b) return b[key];
+    if (!(key in t)) throw new Error(`choose, ${lang}: в словаре нет ключа "${key}"`);
+    return esc(t[key]);
+  })
+    .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}"`)
+    .replace(/choose-assets\/img\/[\w-]+\.webp/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`)
+    .replace(/choose-assets\/[\w-]+\.(css|js)/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`);
+  fs.mkdirSync(`dist/${lang}/choose`, { recursive: true });
+  fs.writeFileSync(`dist/${lang}/choose/index.html`, html);
+}
 
-// Корень: отправляет на язык браузера, без JS показывает ссылки
+// Корень: сохранённый язык → (если DETECT_BROWSER_LANGUAGE) язык браузера → английский; всегда на экран выбора.
+// Без JS показывает ссылки
 const dirs = Object.keys(LANGS);
 fs.writeFileSync('dist/index.html', `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(BRAND_FULL)}</title><link rel="icon" href="assets/favicon.png">
-<script>var l=(navigator.language||'').slice(0,2).toLowerCase();location.replace((${JSON.stringify(dirs)}.indexOf(l)>-1?l:'${DEFAULT_LANG}')+'/');</script>
-</head><body>${dirs.map((d) => `<p><a href="${d}/">${esc(locales[d].langName)}</a></p>`).join('')}</body></html>
+<script>(function(){var L=${JSON.stringify(dirs)},l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(L.indexOf(l)<0){l=null;if(${DETECT_BROWSER_LANGUAGE}){var b=(navigator.language||'').slice(0,2).toLowerCase();if(L.indexOf(b)>-1)l=b;}}
+location.replace((l||'${DEFAULT_LANG}')+'/choose/'+location.search);})();</script>
+</head><body>${dirs.map((d) => `<p><a href="${d}/choose/">${esc(locales[d].langName)}</a></p>`).join('')}</body></html>
 `);
 
 console.log('Готово: dist/');

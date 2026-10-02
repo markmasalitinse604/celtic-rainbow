@@ -30,6 +30,20 @@
     });
   }
 
+  // Смена языка (список на ПК и плитки в панели): запоминаем язык (localStorage 'lang') и сохраняем строку запроса
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('.lang-menu__list a[hreflang], .lang-grid a[hreflang]');
+    if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    const lang = a.dataset.lang || a.getAttribute('hreflang').slice(0, 2).toLowerCase();
+    try { localStorage.setItem('lang', lang); } catch (_) { /* приватный режим — не страшно */ }
+    if (location.search) {
+      e.preventDefault();
+      const url = new URL(a.href);
+      url.search = location.search;
+      location.assign(url);
+    }
+  });
+
   // Список языков: закрывается кликом мимо и клавишей Esc
   const menus = document.querySelectorAll('details.lang-menu');
   document.addEventListener('click', (e) => {

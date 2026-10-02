@@ -1,12 +1,21 @@
-/* Страница выбора транспорта (/choose/). Стиль временный, нейтральный — только для теста механики. */
+/* Экран выбора транспорта (/<язык>/choose/): сцена, заголовок, подписи. Шапка и нижняя панель — hud.css.
+   Телефон в портрете = (max-aspect-ratio: 4/5), как <source> вертикальных кадров и SETS.v в choose.js. */
 *, *::before, *::after { box-sizing: border-box; }
+:root {
+  --gold: #F2B84B;
+  --ink: #0E1113;
+  --pill-bg: rgba(14, 17, 19, .46);
+  --pill-border: rgba(255, 255, 255, .42);
+  --ui: "Overpass", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Oswald", "Arial Narrow", system-ui, sans-serif;
+}
 html, body { margin: 0; height: 100%; background: #111; color: #fff; }
-body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+body { font: 16px/1.4 var(--ui); overflow: hidden; }
 
 .choose { position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
 
 /* Слои: все одинакового размера и кадрирования, переключение — плавная смена прозрачности.
-   object-position задаёт choose.js (POS текущего набора кадров): по нему же считаются рамки машин. */
+   object-position задаёт choose.js (pos текущего набора кадров): по нему же считаются рамки машин. */
 .layer {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: var(--pos, 53% 60%);
@@ -21,47 +30,82 @@ body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
 .zones { position: absolute; inset: 0; z-index: 100; pointer-events: none; }
 .zone {
   position: absolute; margin: 0; padding: 0; border: 0; border-radius: 12px;
-  background: none; color: inherit; font: inherit; cursor: pointer; pointer-events: auto;
+  background: none; cursor: pointer; pointer-events: auto;
 }
-
-/* Подпись — под машиной, по центру рамки (входит в кнопку: по ней тоже можно нажать) */
-.label {
-  position: absolute; padding: .5em 1em; border-radius: 999px;
-  background: rgb(0 0 0 / .55); font-weight: 700; font-size: clamp(14px, 1.6vw, 22px);
-  white-space: nowrap; transition: background .2s, color .2s;
-}
-.zone .label { left: 50%; top: calc(100% + 14px); transform: translateX(-50%); }
-.zone:focus-visible .label,
-.choose[data-shown="truck"] .zone--truck .label, .choose[data-shown="bus"] .zone--bus .label {
-  background: #FFCE1F; color: #1D2226;
-}
-
-/* Видимый фокус (жёлтое кольцо, как на основном сайте) */
-.zone:focus-visible { outline: 4px solid #FFCE1F; outline-offset: 6px; }
+.zone:focus-visible { outline: 4px solid var(--gold); outline-offset: 6px; }
 .zone:focus:not(:focus-visible) { outline: none; }
 
-.title {
-  position: absolute; top: 0; left: 0; right: 0; margin: 0; padding: 4vh 16px 8vh;
-  text-align: center; font-size: clamp(26px, 4.4vw, 60px); line-height: 1.1;
-  background: linear-gradient(rgb(0 0 0 / .55), transparent);
-  pointer-events: none; transition: opacity 400ms;
+/* Затемнение снизу (под подписи и ссылку) */
+.shade {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 34%; z-index: 1; pointer-events: none;
+  background: linear-gradient(transparent, rgba(14, 17, 19, .55));
 }
-.choose.is-chosen .title, .choose.is-chosen .label { opacity: 0; transition: opacity 400ms; }
+
+/* Заголовок: подсказка золотом, под ней заголовок Oswald. На ПК начинается около 18% высоты экрана */
+.heading {
+  position: absolute; left: 16px; right: 16px; z-index: 2; margin: 0; text-align: center; pointer-events: none;
+  /* лёгкая подложка под текстом: читается и на светлом небе */
+  background: radial-gradient(ellipse 60% 75% at 50% 50%, rgba(14, 17, 19, .32), transparent 75%);
+  top: var(--heading-top, max(96px, 18.5vh));
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .45);
+}
+.heading__hint {
+  margin: 0 0 6px; color: var(--gold); font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .7), 0 0 14px rgba(0, 0, 0, .55);
+}
+.heading__title {
+  margin: 0; font-family: var(--display); font-weight: 600; text-transform: uppercase; letter-spacing: .02em;
+  font-size: clamp(30px, 4.2vw, 56px); line-height: 1.08;
+}
+
+/* Подписи машин: один общий ряд на высоте --labels-y (считает choose.js), X — по центру своей машины */
+.labels { position: absolute; left: 0; right: 0; top: var(--labels-y, 85%); z-index: 3; height: 0; }
+.label {
+  position: absolute; left: var(--x, 50%); top: 0; transform: translateX(-50%);
+  display: flex; align-items: center; justify-content: center; height: 46px; padding: 0 20px;
+  border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; background: rgba(14, 17, 19, .7);
+  font-size: 16px; font-weight: 800; white-space: nowrap; cursor: pointer; transition: background .2s, color .2s;
+}
+.label__sep { margin: 0 .55em 0 .35em; } /* у «·» в Overpass глиф смещён влево */
+.choose[data-shown="truck"] .label[data-side="truck"], .choose[data-shown="bus"] .label[data-side="bus"],
+.choose[data-shown="truck-lit"] .label[data-side="truck"], .choose[data-shown="bus-lit"] .label[data-side="bus"],
+.choose:has(.zone--truck:focus-visible) .label[data-side="truck"],
+.choose:has(.zone--bus:focus-visible) .label[data-side="bus"] {
+  background: var(--gold); border-color: var(--gold); color: var(--ink);
+}
+
+/* «Пока не знаю» — внизу по центру, около 92% высоты */
+.skip {
+  position: absolute; left: 0; right: 0; top: 92%; z-index: 3; transform: translateY(-50%);
+  display: block; width: max-content; max-width: calc(100% - 32px); margin: 0 auto; line-height: 1.35;
+  color: rgba(255, 255, 255, .9); font-size: 14px; font-weight: 600; text-decoration: none; text-align: center;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .6);
+}
+.skip .hud__icon { display: inline-block; width: 16px; height: 16px; margin-left: 4px; vertical-align: -3px; }
+.skip:hover { color: #fff; text-decoration: underline; }
+.skip:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; border-radius: 4px; }
 
 .blackout {
-  position: absolute; inset: 0; background: #000; opacity: 0;
-  transition: opacity 500ms ease; pointer-events: none; z-index: 5;
+  position: fixed; inset: 0; background: #000; opacity: 0;
+  transition: opacity 500ms ease; pointer-events: none; z-index: 1000;
 }
 .choose.is-leaving .blackout { opacity: 1; }
 
-/* Телефон в портрете: вертикальный кадр, машины рядом — подпись в две строки, чтобы не вылезала за край */
+/* Телефон в портрете */
 @media (max-aspect-ratio: 4/5) {
-  .label { font-size: 14px; text-align: center; padding: .45em .9em; }
-  .label__cat { display: block; font-size: 12px; font-weight: 600; }
-  .label__dot { display: none; }
-  .title { padding-top: 6vh; font-size: clamp(26px, 8vw, 38px); }
+  .heading { top: var(--heading-top, 84px); display: flex; flex-direction: column-reverse; }
+  .heading__title { font-size: clamp(22px, 6.5vw, 30px); }
+  .heading__hint { margin: 8px 0 0; font-size: 11px; letter-spacing: .12em; }
+  .label {
+    flex-direction: column; width: 104px; height: 48px; padding: 0 6px; gap: 0;
+    font-size: 15px; line-height: 1.1; white-space: normal; text-align: center;
+  }
+  .label__sep { display: none; }
+  .label__cat { font-size: 12px; font-weight: 700; }
+  .skip { top: 81%; font-size: 14px; }
+  .shade { height: 45%; background: linear-gradient(transparent, rgba(14, 17, 19, .7)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .layer, .title, .label, .blackout { transition: none !important; }
+  .layer, .label, .blackout { transition: none !important; }
 }
