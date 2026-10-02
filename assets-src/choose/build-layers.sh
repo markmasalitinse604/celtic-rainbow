@@ -89,8 +89,8 @@ SHADOW="879,1615 1033,1777 1195,1789 1277,1825 1254,1862 956,1876 606,1886 486,1
 BUSPOLY="852,1400 1050,1378 1320,1405 1360,1470 1392,1510 1392,1568 1352,1572 1352,1772 1255,1794 1060,1788 1000,1762 910,1718 858,1688"
 convert -size ${VW}x$VH xc:white -fill "rgb(153,176,207)" -draw "polygon $SHADOW" \
   -draw "polygon 1000,1770 1360,1770 1360,1812 1230,1822 1040,1812" -blur 0x10 $T/shadow.png
-convert -size ${VW}x$VH xc:black -fill white -draw "rectangle 104,1267 790,1840" -blur 0x3 $T/truckbody.png
-convert $T/shadow.png xc:white[${VW}x$VH] $T/truckbody.png -composite $T/shadow-notruck.png   # на кузов фуры тень не кладём
+convert -size ${VW}x$VH xc:black -fill white -draw "polygon 100,1260 816,1260 816,1565 795,1585 795,1765 785,1790 770,1802 742,1806 738,1826 668,1828 660,1806 476,1806 470,1826 420,1830 400,1846 100,1846" -blur 0x2 $T/truckbody.png   # контур фуры
+convert $T/shadow.png \( -size ${VW}x$VH xc:white \) $T/truckbody.png -composite $T/shadow-notruck.png   # на кузов фуры тень не кладём
 convert -size ${VW}x$VH xc:black -fill white -draw "polygon $BUSPOLY" -draw "rectangle 1340,1290 1536,1798" -blur 0x4 $T/mbus.png
 convert intro-mobile-only-truck.png $T/shadow-notruck.png -compose multiply -composite \
   -compose over intro-mobile-only-bus.png $T/mbus.png -composite intro-mobile-photo-updated.png
