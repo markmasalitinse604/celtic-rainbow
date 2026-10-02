@@ -1,5 +1,6 @@
 // Сборка сайта: node build.js  →  dist/pl, dist/pt, dist/ru, dist/en
 const fs = require('fs');
+const crypto = require('crypto');
 
 const SITE_URL = 'https://example.ie';   // заменить на настоящий домен
 const PHONE = '353000000000';            // для WhatsApp и звонков: только цифры, без + и пробелов
@@ -105,7 +106,11 @@ const sounds = Object.fromEntries(Object.entries(SOUND_FILES)
   .map(([k, f]) => [k, `media/${f}`]));
 const chooseHtml = fs.readFileSync('dist/choose/index.html', 'utf8');
 if (!chooseHtml.includes('data-sounds="{}"')) throw new Error('choose/index.html: нет атрибута data-sounds="{}"');
-fs.writeFileSync('dist/choose/index.html', chooseHtml.replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}"`));
+// ?v=<хэш содержимого> у картинок: поменяли кадр — меняется ссылка, браузер не покажет старый из кэша
+const stamp = (file) => crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex').slice(0, 8);
+fs.writeFileSync('dist/choose/index.html', chooseHtml
+  .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}"`)
+  .replace(/img\/[\w-]+\.webp/g, (src) => `${src}?v=${stamp(`dist/choose/${src}`)}`));
 
 // Корень: отправляет на язык браузера, без JS показывает ссылки
 const dirs = Object.keys(LANGS);

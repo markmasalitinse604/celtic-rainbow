@@ -74,44 +74,48 @@ for pair in both:${BOTH:-intro-photo} truck:intro-only-truck-updated bus:intro-o
 done
 
 # --- 4. Вертикальная сцена для телефонов (1536x2720) ---
-# Источники: intro-mobile-only-truck.png и intro-mobile-only-bus.png (совпадают между собой) и intro-mobile-photo.png
-# (общий кадр, меньше и чуть смещён: подогнан как v = (1.8631, 1.8705)*p + (-6, -16.5)).
-# Общий кадр = «только фура» + кузов автобуса (по контуру) и всё справа от него из «только автобуса»;
-# тень автобуса (диагональная полоса под передом фуры) переносится с исходного общего кадра как затемнение:
-# отношение размытых яркостей «исходный кадр / только фура», только на дороге.
-# «Только автобус» = общий кадр + фура и вся дорога слева от автобуса (с его тенью) из «только автобуса».
-# Фар в вертикальных кадрах нет: свет переносится из горизонтальных слоёв (подгонка по машине: v = s*h + d).
-VW=1536; VH=2720; C="1536x900+0+1200"   # вырезка, где стоят машины (координаты масок ниже — внутри неё, y-1200)
-BUSPOLY="852,200 1050,178 1320,205 1360,270 1392,310 1392,368 1352,372 1352,572 1255,594 1060,588 1000,562 910,518 858,488"
-convert intro-mobile-photo.png -define distort:viewport=${VW}x$VH+0+0 \
-  -distort AffineProjection "1.8631,0,0,1.8705,-6,-16.5" +repage -crop $C +repage -colorspace gray -blur 0x8 $T/A.png
-convert intro-mobile-only-truck.png -crop $C +repage -colorspace gray -blur 0x8 $T/B.png
-convert $T/A.png $T/B.png -fx "min(1,max(0.35,u/(v+0.004)))" $T/F.png
-convert -size 1536x900 xc:black -fill white -draw "rectangle 0,400 1536,900" \
-  -fill black -draw "rectangle 98,67 814,645" -draw "rectangle 814,0 1536,590" -blur 0x12 $T/Rv.png   # дорога без машин
-convert $T/F.png $T/Rv.png -fx "1-(1-u)*v" $T/Fm.png
-convert -size 1536x900 xc:black -fill white -draw "polygon $BUSPOLY" -draw "rectangle 1340,90 1536,598" -blur 0x4 $T/mbus.png
-convert intro-mobile-only-truck.png -crop $C +repage $T/Fm.png -compose multiply -composite \
-  -compose over \( intro-mobile-only-bus.png -crop $C +repage \) $T/mbus.png -composite $T/bothC.png
-convert intro-mobile-only-truck.png $T/bothC.png -geometry +0+1200 -composite intro-mobile-photo-updated.png
-convert -size ${VW}x$VH xc:black -fill white \
-  -draw "polygon 0,1230 836,1230 836,1560 852,1560 852,2000 0,2000" -blur 0x10 $T/vm-truck.png
-convert intro-mobile-photo-updated.png intro-mobile-only-bus.png $T/vm-truck.png -composite intro-mobile-only-bus-updated.png
-vlight() { # тип s dx dy зона-mvg(или пусто) out
+# Источники: intro-mobile-only-truck.png и intro-mobile-only-bus.png (совпадают между собой; общий кадр
+# intro-mobile-photo.png меньше и смещён — по нему сняты форма и цвет тени автобуса).
+# Тень автобуса нейросеть в «только автобусе» нарисовала плоским прямоугольником, поэтому она рисуется заново:
+# одна мягкая синеватая полоса (форма и цвет сняты с исходного общего кадра) + контактная тень под днищем,
+# одинаковая для общего кадра и слоя «только автобус».
+# Общий кадр = «только фура» × тень (кроме кузова фуры) + кузов автобуса (по контуру) и всё справа от него
+# из «только автобуса». «Только автобус»: на месте фуры — «только автобус», а дорога там (где был прямоугольник
+# тени без фактуры) — пустая дорога из «только фуры» правее и ниже (тот же гравий), сверху та же тень.
+# Фар в вертикальных кадрах нет: свечение фар переносится из горизонтальных слоёв (подгонка по машине:
+# v = s*h + d), пятно света на дороге перед автобусом нарисовано мягкими эллипсами.
+VW=1536; VH=2720
+SHADOW="879,1615 1033,1777 1195,1789 1277,1825 1254,1862 956,1876 606,1886 486,1862 447,1763 452,1717 649,1647"
+BUSPOLY="852,1400 1050,1378 1320,1405 1360,1470 1392,1510 1392,1568 1352,1572 1352,1772 1255,1794 1060,1788 1000,1762 910,1718 858,1688"
+convert -size ${VW}x$VH xc:white -fill "rgb(153,176,207)" -draw "polygon $SHADOW" \
+  -draw "polygon 1000,1770 1360,1770 1360,1812 1230,1822 1040,1812" -blur 0x10 $T/shadow.png
+convert -size ${VW}x$VH xc:black -fill white -draw "rectangle 104,1267 790,1840" -blur 0x3 $T/truckbody.png
+convert $T/shadow.png xc:white[${VW}x$VH] $T/truckbody.png -composite $T/shadow-notruck.png   # на кузов фуры тень не кладём
+convert -size ${VW}x$VH xc:black -fill white -draw "polygon $BUSPOLY" -draw "rectangle 1340,1290 1536,1798" -blur 0x4 $T/mbus.png
+convert intro-mobile-only-truck.png $T/shadow-notruck.png -compose multiply -composite \
+  -compose over intro-mobile-only-bus.png $T/mbus.png -composite intro-mobile-photo-updated.png
+convert intro-mobile-only-truck.png -crop 731x320+805+1850 +repage $T/roadsrc.png
+convert intro-mobile-only-bus.png $T/roadsrc.png -geometry +205+1650 -composite $T/bus-road.png
+convert -size ${VW}x$VH xc:black -fill white -draw "rectangle 225,1662 920,1965" -blur 0x10 $T/mroad.png
+convert intro-mobile-only-bus.png $T/bus-road.png $T/mroad.png -composite $T/bus-noshadow.png
+convert -size ${VW}x$VH xc:black -fill white -draw "polygon 0,1230 836,1230 836,1560 852,1560 852,1990 0,1990" -blur 0x10 \
+  \( -size ${VW}x$VH xc:black -fill white -draw "rectangle 0,1760 900,1990" -blur 0x30 \) -compose lighten -composite $T/vm-truck.png
+convert intro-mobile-only-truck.png $T/bus-noshadow.png $T/vm-truck.png -composite $T/shadow.png -compose multiply -composite \
+  -compose over intro-mobile-only-bus.png $T/mbus.png -composite intro-mobile-only-bus-updated.png
+vlight() { # тип s dx dy -> $T/vl-тип.png (свет фар из горизонтального слоя, перенесённый на вертикальный кадр)
   convert intro-$1-only-light-updated.png intro-only-$1-updated.png -compose difference -composite \
-    -virtual-pixel black -define distort:viewport=${VW}x$VH+0+0 -distort AffineProjection "$2,0,0,$2,$3,$4" +repage $T/vl.png
-  if [ -n "$5" ]; then   # только фары и пятно на дороге; справа от передней части автобуса — ничего
-    convert -size ${VW}x$VH xc:black -fill white -draw "$5" -blur 0x22 \
-      \( -size ${VW}x$VH xc:white -fill black -draw "rectangle 1388,1450 1536,1800" -blur 0x4 \) \
-      -compose multiply -composite $T/vz.png
-    convert $T/vl.png $T/vz.png -compose multiply -composite $T/vl.png
-  fi
-  convert "$6" $T/vl.png -compose plus -composite "$7"
+    -virtual-pixel black -define distort:viewport=${VW}x$VH+0+0 -distort AffineProjection "$2,0,0,$2,$3,$4" +repage $T/vl-$1.png
 }
-vlight truck 0.6718 -140.2 986.6 "" intro-mobile-only-truck.png intro-mobile-truck-light-updated.png
-vlight bus 0.7001 -251.4 947.2 \
-  "ellipse 1083,1723 75,48 0,360 ellipse 1328,1718 62,45 0,360 ellipse 1200,1865 310,90 0,360" \
-  intro-mobile-only-bus-updated.png intro-mobile-bus-light-updated.png
+vlight truck 0.6718 -140.2 986.6
+convert intro-mobile-only-truck.png $T/vl-truck.png -compose plus -composite intro-mobile-truck-light-updated.png
+vlight bus 0.7001 -251.4 947.2
+convert -size ${VW}x$VH xc:black -fill white -draw "ellipse 1083,1723 62,40 0,360 ellipse 1322,1718 50,36 0,360" -blur 0x12 \
+  \( -size ${VW}x$VH xc:white -fill black -draw "rectangle 1349,1600 1536,1800" -blur 0x2 \) -compose multiply -composite $T/lampzone.png
+convert $T/vl-bus.png $T/lampzone.png -compose multiply -composite $T/lamps.png
+convert -size ${VW}x$VH xc:black -fill "rgb(255,248,232)" -draw "ellipse 1110,1858 175,48 0,360 ellipse 1345,1850 150,44 0,360" \
+  -blur 0x30 -evaluate multiply 0.5 $T/pool.png
+convert intro-mobile-only-bus-updated.png $T/lamps.png -compose plus -composite $T/pool.png -compose screen -composite \
+  intro-mobile-bus-light-updated.png
 for pair in both:intro-mobile-photo-updated truck:intro-mobile-only-truck bus:intro-mobile-only-bus-updated \
             truck-lit:intro-mobile-truck-light-updated bus-lit:intro-mobile-bus-light-updated; do
   n=${pair%%:*}; f=${pair#*:}
