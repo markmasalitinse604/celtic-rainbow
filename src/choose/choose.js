@@ -68,7 +68,7 @@
     hideTimer = setTimeout(() => {
       for (const [k, img] of Object.entries(sceneLayers)) if (k !== 'both' && img !== top) hideInstantly(img);
       top.style.zIndex = zTop = 2; // под ним никого не осталось — сбрасываем счётчик
-    }, reduceMotion ? 0 : FADE_IN);
+    }, FADE_IN);
   }
 
   // Остальные кадры текущего набора — сразу после загрузки страницы: при наведении не будет пустого кадра

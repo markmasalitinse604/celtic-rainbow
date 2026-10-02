@@ -107,5 +107,6 @@ body { font: 16px/1.4 var(--ui); overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .layer, .label, .blackout { transition: none !important; }
+  /* смена кадров — плавное проявление, а не движение: оставляем и при «уменьшить движение» */
+  .label { transition: none !important; }
 }
