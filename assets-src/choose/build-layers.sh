@@ -82,8 +82,7 @@ done
 # Общий кадр = «только фура» × тень (кроме кузова фуры) + кузов автобуса (по контуру) и всё справа от него
 # из «только автобуса». «Только автобус»: на месте фуры — «только автобус», а дорога там (где был прямоугольник
 # тени без фактуры) — пустая дорога из «только фуры» правее и ниже (тот же гравий), сверху та же тень.
-# Фар в вертикальных кадрах нет: свечение фар переносится из горизонтальных слоёв (подгонка по машине:
-# v = s*h + d), пятно света на дороге перед автобусом нарисовано мягкими эллипсами.
+# Фары — из кадров генератора с горящими фарами (см. addlight ниже).
 VW=1536; VH=2720
 SHADOW="879,1615 1033,1777 1195,1789 1277,1825 1254,1862 956,1876 606,1886 486,1862 447,1763 452,1717 649,1647"
 BUSPOLY="852,1400 1050,1378 1320,1405 1360,1470 1392,1510 1392,1568 1352,1572 1352,1772 1255,1794 1060,1788 1000,1762 910,1718 858,1688"
@@ -102,20 +101,30 @@ convert -size ${VW}x$VH xc:black -fill white -draw "polygon 0,1230 836,1230 836,
   \( -size ${VW}x$VH xc:black -fill white -draw "rectangle 0,1760 900,1990" -blur 0x30 \) -compose lighten -composite $T/vm-truck.png
 convert intro-mobile-only-truck.png $T/bus-noshadow.png $T/vm-truck.png -composite $T/shadow.png -compose multiply -composite \
   -compose over intro-mobile-only-bus.png $T/mbus.png -composite intro-mobile-only-bus-updated.png
-vlight() { # тип s dx dy -> $T/vl-тип.png (свет фар из горизонтального слоя, перенесённый на вертикальный кадр)
-  convert intro-$1-only-light-updated.png intro-only-$1-updated.png -compose difference -composite \
-    -virtual-pixel black -define distort:viewport=${VW}x$VH+0+0 -distort AffineProjection "$2,0,0,$2,$3,$4" +repage $T/vl-$1.png
+# Фары: настоящие кадры из генератора — intro-mobile-truck-light.png / intro-mobile-bus-light.png (редактирование
+# «только фуры» / «только автобуса», чуть сдвинуты и масштабированы — подогнаны по машине и фону). Берётся только
+# прибавка света «с фарами − без фар»: у самих фар резко, на дороге мягко, и только в зоне фар и света перед машиной.
+# Она добавляется на наши слои без фар — фон и тень остаются те же, что в слоях без фар, ничего не прыгает.
+addlight() { # кадр-с-фарами "sx,sy,dx,dy" кадр-без-фар слой вырезка зона-света фары(mvg) результат
+  local C=$5; IFS='x+' read cw ch cx cy <<<"$C"
+  convert "$1" -virtual-pixel edge -define distort:viewport=${VW}x$VH+0+0 \
+    -distort AffineProjection "$(echo $2 | awk -F, '{print $1",0,0,"$2","$3","$4}')" +repage -crop $C +repage $T/la.png
+  convert "$3" -crop $C +repage $T/lr.png
+  convert $T/la.png $T/lr.png -fx "max(0,u-v)" $T/ld.png
+  convert $T/ld.png -blur 0x3 $T/ldb.png
+  convert -size ${cw}x$ch xc:black -fill white -draw "translate -$cx,-$cy $7" -blur 0x10 $T/llm.png
+  convert $T/ldb.png $T/ld.png $T/llm.png -composite $T/ldd.png
+  convert -size ${cw}x$ch xc:black -fill white -draw "translate -$cx,-$cy polygon $6" -blur 0x25 $T/lzm.png
+  convert $T/ldd.png $T/lzm.png -compose multiply -composite $T/ldz.png
+  convert "$4" -crop $C +repage $T/ldz.png -compose plus -composite $T/lc.png
+  convert "$4" $T/lc.png -geometry +$cx+$cy -compose over -composite "$8"
 }
-vlight truck 0.6718 -140.2 986.6
-convert intro-mobile-only-truck.png $T/vl-truck.png -compose plus -composite intro-mobile-truck-light-updated.png
-vlight bus 0.7001 -251.4 947.2
-convert -size ${VW}x$VH xc:black -fill white -draw "ellipse 1083,1723 62,40 0,360 ellipse 1322,1718 50,36 0,360" -blur 0x12 \
-  \( -size ${VW}x$VH xc:white -fill black -draw "rectangle 1349,1600 1536,1800" -blur 0x2 \) -compose multiply -composite $T/lampzone.png
-convert $T/vl-bus.png $T/lampzone.png -compose multiply -composite $T/lamps.png
-convert -size ${VW}x$VH xc:black -fill "rgb(255,248,232)" -draw "ellipse 1110,1858 175,48 0,360 ellipse 1345,1850 150,44 0,360" \
-  -blur 0x30 -evaluate multiply 0.5 $T/pool.png
-convert intro-mobile-only-bus-updated.png $T/lamps.png -compose plus -composite $T/pool.png -compose screen -composite \
-  intro-mobile-bus-light-updated.png
+addlight intro-mobile-truck-light.png 0.9880,0.9895,9.25,14.75 intro-mobile-only-truck.png intro-mobile-only-truck.png \
+  1150x950+250+1560 "380,1600 830,1600 830,1830 1350,2150 1350,2480 300,2480 380,1830" \
+  "ellipse 470,1765 70,50 0,360 ellipse 750,1760 70,50 0,360" intro-mobile-truck-light-updated.png
+addlight intro-mobile-bus-light.png 0.9885,0.9955,10,6 intro-mobile-only-bus.png intro-mobile-only-bus-updated.png \
+  620x1120+916+1600 "990,1620 1400,1620 1536,1700 1536,2720 980,2720 980,1850" \
+  "ellipse 1083,1723 60,40 0,360 ellipse 1328,1718 55,38 0,360" intro-mobile-bus-light-updated.png
 for pair in both:intro-mobile-photo-updated truck:intro-mobile-only-truck bus:intro-mobile-only-bus-updated \
             truck-lit:intro-mobile-truck-light-updated bus-lit:intro-mobile-bus-light-updated; do
   n=${pair%%:*}; f=${pair#*:}
