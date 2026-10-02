@@ -102,13 +102,18 @@
     ride.classList.add('ride--ready');
   }
 
-  // Сцена идёт строго за прокруткой, с очень короткой инерцией (~0,1 с), чтобы сгладить рывки колеса мыши
-  let cur = getProgress(), raf = 0, last = 0;
+  // Сцена идёт строго за прокруткой, с очень короткой инерцией (~0,1 с), чтобы сгладить рывки колеса мыши.
+  // Во время прокрутки соседние кадры смешиваются (плавно), а когда прокрутка остановилась на SNAP_DELAY,
+  // сцена мягко доезжает до ближайшего целого кадра: в покое на экране всегда один чёткий кадр, без двоения
+  // (колесо с щелчками почти всегда останавливает прокрутку между кадрами).
+  const SNAP_DELAY = 120; // мс
+  let cur = getProgress(), raf = 0, last = 0, snap = false, snapTimer = 0;
   function tick(now) {
     raf = 0;
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60;
     last = now;
-    const target = getProgress();
+    let target = getProgress();
+    if (snap && set) target = Math.round(target * (set.count - 1)) / (set.count - 1);
     cur = reduceMotion ? target : cur + (target - cur) * (1 - Math.pow(0.65, dt * 60));
     if (Math.abs(target - cur) < 0.0002) cur = target;
     draw(cur);
@@ -120,7 +125,12 @@
   }
   function request() { if (!raf) raf = requestAnimationFrame(tick); }
 
-  window.addEventListener('scroll', request, { passive: true });
+  window.addEventListener('scroll', () => {
+    snap = false;
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(() => { snap = true; request(); }, SNAP_DELAY);
+    request();
+  }, { passive: true });
   window.addEventListener('resize', () => {
     const s = pickSet();
     if (s !== set) load(s); else shown = null;
