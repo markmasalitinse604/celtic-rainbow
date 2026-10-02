@@ -6,7 +6,7 @@ body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
 .choose { position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
 
 /* Слои: все одинакового размера и кадрирования, переключение — плавная смена прозрачности.
-   object-position задаёт choose.js (SPLIT, POS_Y): по нему же считаются рамки машин. */
+   object-position задаёт choose.js (POS текущего набора кадров): по нему же считаются рамки машин. */
 .layer {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: var(--pos, 53% 60%);
@@ -31,15 +31,14 @@ body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
   white-space: nowrap; transition: background .2s, color .2s;
 }
 .zone .label { left: 50%; top: calc(100% + 14px); transform: translateX(-50%); }
-.zone:focus-visible .label, .panel:focus-visible .label,
+.zone:focus-visible .label,
 .choose[data-shown="truck"] .zone--truck .label, .choose[data-shown="bus"] .zone--bus .label {
   background: #FFCE1F; color: #1D2226;
 }
 
 /* Видимый фокус (жёлтое кольцо, как на основном сайте) */
 .zone:focus-visible { outline: 4px solid #FFCE1F; outline-offset: 6px; }
-.panel:focus-visible { outline: 4px solid #FFCE1F; outline-offset: -8px; }
-.zone:focus:not(:focus-visible), .panel:focus:not(:focus-visible) { outline: none; }
+.zone:focus:not(:focus-visible) { outline: none; }
 
 .title {
   position: absolute; top: 0; left: 0; right: 0; margin: 0; padding: 4vh 16px 8vh;
@@ -55,22 +54,14 @@ body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
 }
 .choose.is-leaving .blackout { opacity: 1; }
 
-/* Телефон в портрете: две панели друг под другом, сцена скрыта */
-.panels { display: none; }
+/* Телефон в портрете: вертикальный кадр, машины рядом — подпись в две строки, чтобы не вылезала за край */
 @media (max-aspect-ratio: 4/5) {
-  .scene { display: none; }
-  .panels { position: absolute; inset: 0; display: flex; flex-direction: column; }
-  .panel {
-    position: relative; flex: 1; margin: 0; padding: 0; border: 0; overflow: hidden;
-    background: #111; color: inherit; font: inherit; cursor: pointer;
-    transition: opacity 400ms ease;
-  }
-  .panel + .panel { border-top: 2px solid #111; }
-  .panel .label { left: 50%; transform: translateX(-50%); bottom: 10%; font-size: 16px; }
-  .panel.is-hidden { opacity: 0; }
-  .title { padding-top: 3vh; font-size: clamp(24px, 7vw, 34px); }
+  .label { font-size: 14px; text-align: center; padding: .45em .9em; }
+  .label__cat { display: block; font-size: 12px; font-weight: 600; }
+  .label__dot { display: none; }
+  .title { padding-top: 6vh; font-size: clamp(26px, 8vw, 38px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .layer, .panel, .title, .label, .blackout { transition: none !important; }
+  .layer, .title, .label, .blackout { transition: none !important; }
 }

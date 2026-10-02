@@ -1,28 +1,26 @@
 // Выбор транспорта: наведение показывает одну машину, клик — фары, звук мотора и переход к ролику
 (() => {
-  // Рамки машин на исходных фото: [лево, верх, право, низ] в долях ширины/высоты фото (с зеркалами и колёсами).
-  // Наведение и клик работают только внутри рамок. Поменяли фото — перемерьте.
-  const BOXES = {
-    truck: [0.112, 0.302, 0.525, 0.826],
-    bus: [0.540, 0.408, 0.876, 0.798],
+  // Два набора кадров. Для каждого: размер исходника, кадрирование слоёв (object-position, доли) и рамки машин
+  // [лево, верх, право, низ] в долях кадра (с зеркалами и колёсами). Наведение и клик — только внутри рамок.
+  // Поменяли фото — перемерьте рамки. Горизонтальный: по X кадрирование — середина промежутка между машинами.
+  const SETS = {
+    h: { w: 2720, h: 1536, pos: [0.53, 0.6], sizes: 'max(100vw, 177vh)',
+      boxes: { truck: [0.112, 0.302, 0.525, 0.826], bus: [0.540, 0.408, 0.876, 0.798] } },
+    v: { w: 1536, h: 2720, pos: [0.49, 0.57], sizes: 'max(100vw, 56.5vh)', // телефон в портрете
+      boxes: { truck: [0.068, 0.468, 0.526, 0.676], bus: [0.551, 0.503, 0.906, 0.660] } },
   };
-  // Кадрирование слоёв (как object-position в choose.css): по X — середина промежутка между машинами,
-  // поэтому на любом экране он остаётся на той же доле ширины.
-  const SPLIT = 0.53, POS_Y = 0.6;
   const HYST = 0.012;         // рамку показанной машины расширяем на столько (доля фото), чтобы у края не мигало
   const SWITCH_DELAY = 150;   // мс: задержка перед уходом из рамки / сменой машины
   const LIT_HOLD = 1600;      // мс: сколько горят фары до затемнения
   const FADE_OUT = 500;       // мс: затемнение перед переходом (как .blackout в choose.css)
   const FADE_IN = 400;        // мс: проявление слоя (как transition у .layer в choose.css)
-  const IMG_W = 2720, IMG_H = 1536; // размер исходных фото
 
   const root = document.getElementById('choose');
   const scene = document.getElementById('scene');
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const phone = matchMedia('(max-aspect-ratio: 4/5)');
+  const portrait = matchMedia('(max-aspect-ratio: 4/5)'); // как media у <source> в index.html
+  let set = portrait.matches ? SETS.v : SETS.h;
   const SOUNDS = JSON.parse(root.dataset.sounds || '{}'); // { truck: 'media/…mp3', bus: … } — только существующие
-
-  root.style.setProperty('--pos', `${SPLIT * 100}% ${POS_Y * 100}%`);
 
   // ---------- Слои ----------
   const sceneLayers = {};
@@ -64,32 +62,38 @@
     }, reduceMotion ? 0 : FADE_IN);
   }
 
-  // Подгрузка остальных кадров сразу после загрузки страницы: при наведении не будет пустого кадра
+  // Остальные кадры текущего набора — сразу после загрузки страницы: при наведении не будет пустого кадра
   function preload() {
-    const box = phone.matches ? document.getElementById('panels') : scene;
-    box.querySelectorAll('img[data-srcset]').forEach((img) => {
-      img.srcset = img.dataset.srcset;
-      img.removeAttribute('data-srcset');
-      img.loading = 'eager';
+    const key = set === SETS.v ? 'v' : 'h';
+    Object.values(sceneLayers).forEach((img) => {
+      if (!img.dataset[key] || img.dataset.loaded === key) return;
+      img.sizes = set.sizes;
+      img.srcset = img.dataset[key];
+      img.dataset.loaded = key;
       img.decode().catch(() => {}); // декодируем заранее, чтобы первый показ не дал пустой кадр
     });
   }
+  function applySet() {
+    set = portrait.matches ? SETS.v : SETS.h;
+    root.style.setProperty('--pos', `${set.pos[0] * 100}% ${set.pos[1] * 100}%`);
+  }
+  applySet();
   if (document.readyState === 'complete') preload(); else addEventListener('load', preload);
-  phone.addEventListener('change', preload); // повернули телефон — догружаем другой набор
+  portrait.addEventListener('change', () => { applySet(); preload(); placeZones(); }); // повернули телефон
 
   // ---------- Рамки: кнопки ровно над машинами ----------
   const zones = [...scene.querySelectorAll('.zone')];
 
-  // Как фото лежит на экране при object-fit: cover и object-position SPLIT / POS_Y
+  // Как кадр лежит на экране при object-fit: cover и object-position текущего набора
   function frame() {
     const r = scene.getBoundingClientRect();
-    const k = Math.max(r.width / IMG_W, r.height / IMG_H), dw = IMG_W * k, dh = IMG_H * k;
-    return { r, dw, dh, x: (r.width - dw) * SPLIT, y: (r.height - dh) * POS_Y };
+    const k = Math.max(r.width / set.w, r.height / set.h), dw = set.w * k, dh = set.h * k;
+    return { r, dw, dh, x: (r.width - dw) * set.pos[0], y: (r.height - dh) * set.pos[1] };
   }
   function placeZones() {
     const f = frame();
     zones.forEach((z) => {
-      const [x0, y0, x1, y1] = BOXES[z.dataset.side];
+      const [x0, y0, x1, y1] = set.boxes[z.dataset.side];
       z.style.left = `${f.x + x0 * f.dw}px`;
       z.style.top = `${f.y + y0 * f.dh}px`;
       z.style.width = `${(x1 - x0) * f.dw}px`;
@@ -117,7 +121,7 @@
     if (shown !== 'truck' && shown !== 'bus') return false;
     const f = frame();
     const fx = (e.clientX - f.r.left - f.x) / f.dw, fy = (e.clientY - f.r.top - f.y) / f.dh;
-    const [x0, y0, x1, y1] = BOXES[shown];
+    const [x0, y0, x1, y1] = set.boxes[shown];
     return fx > x0 - HYST && fx < x1 + HYST && fy > y0 - HYST && fy < y1 + HYST;
   }
 
@@ -143,25 +147,7 @@
     btn.addEventListener('click', () => choose(btn.dataset.side));
   });
 
-  // ---------- Телефон: одно нажатие — весь сценарий ----------
-  document.querySelectorAll('.panel').forEach((panel) => {
-    panel.addEventListener('click', () => choose(panel.dataset.side, panel));
-  });
-
-  // Кадрирование панели по машине: точка data-focus (доли фото) — в центре панели
-  function focusPanels() {
-    document.querySelectorAll('.panel .layer').forEach((img) => {
-      const [fx, fy] = img.dataset.focus.split(' ').map(Number);
-      const W = img.clientWidth, H = img.clientHeight;
-      if (!W || !H) return;
-      const k = Math.max(W / IMG_W, H / IMG_H), dw = IMG_W * k, dh = IMG_H * k;
-      const px = dw > W ? Math.min(1, Math.max(0, (W / 2 - fx * dw) / (W - dw))) : 0.5;
-      const py = dh > H ? Math.min(1, Math.max(0, (H / 2 - fy * dh) / (H - dh))) : 0.5;
-      img.style.objectPosition = `${(px * 100).toFixed(2)}% ${(py * 100).toFixed(2)}%`;
-    });
-  }
-  focusPanels();
-  addEventListener('resize', focusPanels);
+  // На телефоне наведения нет: нажатие на машину сразу запускает весь сценарий (click выше)
 
   // ---------- Выбор ----------
   function playSound(side) {
@@ -172,20 +158,15 @@
     } catch (_) { /* без звука */ }
   }
 
-  function choose(side, panel) {
+  function choose(side) {
     if (chosen) return;
     chosen = true;
     clearTimeout(timer);
     root.classList.add('is-chosen');
     try { localStorage.setItem('vehicle', side); } catch (_) { /* приватный режим — не страшно */ }
 
-    if (panel) {
-      document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('is-hidden', p !== panel));
-      panel.querySelector(`.layer[data-layer="${side}-lit"]`).classList.add('is-on'); // поверх кадра без фар
-    } else {
-      shown = side;
-      showScene(`${side}-lit`);
-    }
+    shown = side;
+    showScene(`${side}-lit`); // вторая машина исчезает, у выбранной загораются фары
     playSound(side);
 
     const url = `${root.dataset.next}?vehicle=${side}#ride`;
@@ -203,9 +184,5 @@
     root.classList.remove('is-chosen', 'is-leaving');
     for (const [k, img] of Object.entries(sceneLayers)) if (k !== 'both') hideInstantly(img);
     root.dataset.shown = 'both';
-    document.querySelectorAll('.panel').forEach((p) => {
-      p.classList.remove('is-hidden');
-      p.querySelectorAll('.layer[data-layer$="-lit"]').forEach(hideInstantly);
-    });
   });
 })();

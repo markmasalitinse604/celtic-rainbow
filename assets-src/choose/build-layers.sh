@@ -72,4 +72,37 @@ for pair in both:${BOTH:-intro-photo} truck:intro-only-truck-updated bus:intro-o
     convert $f.png -resize ${w}x -quality 78 -define webp:method=6 $OUT/choose-$n-$w.webp
   done
 done
+
+# --- 4. Вертикальная сцена для телефонов (1536x2720) ---
+# Источники: intro-mobile-only-truck.png и intro-mobile-only-bus.png (совпадают между собой; intro-mobile-photo.png
+# меньше и чуть смещён — только как образец). Общий кадр = «только фура» + область автобуса (с его тенью,
+# которая падает влево, под перед фуры) из «только автобуса». «Только автобус» = общий кадр + область фуры
+# из «только автобуса». Фар в вертикальных кадрах нет: свет переносится из горизонтальных слоёв
+# (разница «с фарами − без», масштаб и сдвиг подобраны по машине: v = s*h + d).
+VW=1536; VH=2720
+convert -size ${VW}x$VH xc:black -fill white \
+  -draw "polygon 848,1320 1536,1320 1536,1990 300,1990 300,1830 812,1830 812,1560 848,1560" -blur 0x7 $T/vm-bus.png
+convert intro-mobile-only-truck.png intro-mobile-only-bus.png $T/vm-bus.png -composite intro-mobile-photo-updated.png
+convert -size ${VW}x$VH xc:black -fill white -draw "rectangle 0,1230 836,1910" -blur 0x8 $T/vm-truck.png
+convert intro-mobile-photo-updated.png intro-mobile-only-bus.png $T/vm-truck.png -composite intro-mobile-only-bus-updated.png
+vlight() { # тип s dx dy зона-mvg(или пусто) out
+  convert intro-$1-only-light-updated.png intro-only-$1-updated.png -compose difference -composite \
+    -virtual-pixel black -define distort:viewport=${VW}x$VH+0+0 -distort AffineProjection "$2,0,0,$2,$3,$4" +repage $T/vl.png
+  if [ -n "$5" ]; then
+    convert -size ${VW}x$VH xc:black -fill white -draw "$5" -blur 0x22 $T/vz.png
+    convert $T/vl.png $T/vz.png -compose multiply -composite $T/vl.png
+  fi
+  convert "$6" $T/vl.png -compose plus -composite "$7"
+}
+vlight truck 0.6718 -140.2 986.6 "" intro-mobile-only-truck.png intro-mobile-truck-light-updated.png
+vlight bus 0.7001 -251.4 947.2 \
+  "ellipse 1083,1723 75,48 0,360 ellipse 1328,1718 62,45 0,360 ellipse 1200,1865 310,90 0,360" \
+  intro-mobile-only-bus-updated.png intro-mobile-bus-light-updated.png
+for pair in both:intro-mobile-photo-updated truck:intro-mobile-only-truck bus:intro-mobile-only-bus-updated \
+            truck-lit:intro-mobile-truck-light-updated bus-lit:intro-mobile-bus-light-updated; do
+  n=${pair%%:*}; f=${pair#*:}
+  for w in 1080 1536; do
+    convert $f.png -resize ${w}x -quality 78 -define webp:method=6 $OUT/choose-v-$n-$w.webp
+  done
+done
 echo "Готово: assets-src/choose/*-updated.png и src/choose/img/*.webp"
