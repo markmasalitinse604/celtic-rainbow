@@ -15,10 +15,11 @@
   };
   const FADE = 0.06; // доля прокрутки, за которую уходит заголовок
 
+  // Ролик идёт только за прокруткой (сам не проигрывается), поэтому показываем его всем, в том числе
+  // при «уменьшить движение» — тогда без инерции, кадр строго по прокрутке. Выключаем только при экономии трафика.
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const saveData = navigator.connection && navigator.connection.saveData;
-  // Без анимации секция остаётся одним экраном с картинкой (стили по умолчанию)
-  if (reduceMotion || saveData) return;
+  if (saveData) return;
   ride.classList.add('ride--live');
 
   function getProgress() {
@@ -108,7 +109,7 @@
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60;
     last = now;
     const target = getProgress();
-    cur += (target - cur) * (1 - Math.pow(0.65, dt * 60));
+    cur = reduceMotion ? target : cur + (target - cur) * (1 - Math.pow(0.65, dt * 60));
     if (Math.abs(target - cur) < 0.0002) cur = target;
     draw(cur);
     bar.style.width = `${(cur * 100).toFixed(1)}%`;
