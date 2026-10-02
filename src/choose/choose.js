@@ -7,6 +7,7 @@
   const SWITCH_DELAY = 150;   // мс: задержка перед сменой стороны
   const LIT_HOLD = 1600;      // мс: сколько горят фары до затемнения
   const FADE_OUT = 500;       // мс: затемнение перед переходом (как .blackout в choose.css)
+  const FADE_IN = 400;        // мс: проявление слоя (как transition у .layer в choose.css)
   const IMG_W = 2720, IMG_H = 1536; // размер исходных фото
 
   const root = document.getElementById('choose');
@@ -21,9 +22,29 @@
   const sceneLayers = {};
   scene.querySelectorAll('.layer').forEach((img) => { sceneLayers[img.dataset.layer] = img; });
 
+  // Без мерцания: нижний слой (обе машины) всегда непрозрачный, новый слой проявляется ПОВЕРХ текущего,
+  // и только после этого слои под ним мгновенно прячутся. Двух полупрозрачных слоёв над тёмным фоном не бывает.
+  let zTop = 1, hideTimer = 0;
+  function hideInstantly(img) {
+    img.classList.add('is-instant');
+    img.classList.remove('is-on');
+    void img.offsetWidth; // применить без анимации
+    img.classList.remove('is-instant');
+  }
   function showScene(name) {
-    for (const [k, img] of Object.entries(sceneLayers)) img.classList.toggle('is-on', k === name);
     root.dataset.shown = name;
+    clearTimeout(hideTimer);
+    const top = sceneLayers[name];
+    if (name === 'both') { // верхние слои плавно гаснут, под ними уже готовый кадр
+      for (const [k, img] of Object.entries(sceneLayers)) if (k !== 'both') img.classList.remove('is-on');
+      return;
+    }
+    top.style.zIndex = ++zTop;
+    top.classList.add('is-on');
+    hideTimer = setTimeout(() => {
+      for (const [k, img] of Object.entries(sceneLayers)) if (k !== 'both' && img !== top) hideInstantly(img);
+      top.style.zIndex = zTop = 2; // под ним никого не осталось — сбрасываем счётчик
+    }, reduceMotion ? 0 : FADE_IN);
   }
 
   // Подгрузка остальных кадров сразу после загрузки страницы: при наведении не будет пустого кадра
@@ -33,6 +54,7 @@
       img.srcset = img.dataset.srcset;
       img.removeAttribute('data-srcset');
       img.loading = 'eager';
+      img.decode().catch(() => {}); // декодируем заранее, чтобы первый показ не дал пустой кадр
     });
   }
   if (document.readyState === 'complete') preload(); else addEventListener('load', preload);
@@ -125,7 +147,7 @@
 
     if (panel) {
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('is-hidden', p !== panel));
-      panel.querySelectorAll('.layer').forEach((img) => img.classList.toggle('is-on', img.dataset.layer === `${side}-lit`));
+      panel.querySelector(`.layer[data-layer="${side}-lit"]`).classList.add('is-on'); // поверх кадра без фар
     } else {
       shown = side;
       showScene(`${side}-lit`);
@@ -145,10 +167,11 @@
     if (!e.persisted) return;
     chosen = false; shown = 'both'; pending = null;
     root.classList.remove('is-chosen', 'is-leaving');
-    showScene('both');
+    for (const [k, img] of Object.entries(sceneLayers)) if (k !== 'both') hideInstantly(img);
+    root.dataset.shown = 'both';
     document.querySelectorAll('.panel').forEach((p) => {
       p.classList.remove('is-hidden');
-      p.querySelectorAll('.layer').forEach((img) => img.classList.toggle('is-on', !img.dataset.layer.endsWith('-lit')));
+      p.querySelectorAll('.layer[data-layer$="-lit"]').forEach(hideInstantly);
     });
   });
 })();

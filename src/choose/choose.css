@@ -14,9 +14,11 @@ body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
   pointer-events: none; user-select: none;
 }
 .layer.is-on { opacity: 1; }
+.layer.is-instant { transition: none; }
+.layer[data-layer="both"] { z-index: 0; } /* всегда видна снизу */
 
-.scene { position: absolute; inset: 0; }
-.halves { position: absolute; inset: 0; display: flex; }
+.scene { position: absolute; inset: 0; z-index: 0; } /* свой контекст наложения для слоёв */
+.halves { position: absolute; inset: 0; z-index: 100; display: flex; }
 .half {
   position: relative; height: 100%; margin: 0; padding: 0; border: 0;
   background: none; color: inherit; font: inherit; cursor: pointer;
