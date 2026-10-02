@@ -4,8 +4,7 @@
 #
 # 1. Все слои строятся из ОДНОГО кадра intro-photo.png: в слоях «только фура/автобус» заменена лишь область
 #    убранной машины, в слоях с фарами добавлены только фары и свет на дороге. Иначе ИИ-текстура «кипит» при смене.
-# 2. Дорога на всех слоях обрабатывается одинаково: медианный фильтр убирает «мазки» ИИ-увеличения,
-#    сверху — мелкое зерно (одно и то же для всех слоёв, -seed), машины не трогаем.
+# 2. (выключено) Обработка дороги против «мазков» ИИ — см. ROAD_FIX ниже.
 set -euo pipefail
 cd "$(dirname "$0")"
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
@@ -28,7 +27,10 @@ lit $T/truck.png intro-truck-only-light.png $T/truck-lit.png "rectangle 861,952 
 lit $T/bus.png intro-bus-only-light.png $T/bus-lit.png "rectangle 1791,952 2403,1269 rectangle 1587,1179 2720,1536"
 cp intro-photo.png $T/both.png
 
-# --- 2. Дорога ---
+# --- 2. Дорога (ВЫКЛЮЧЕНО по умолчанию) ---
+# Пробовали убрать «мазки» ИИ медианным фильтром с зерном — на экране выглядит замыленно и дёшево.
+# Оставлено для экспериментов: ROAD_FIX=1 bash assets-src/choose/build-layers.sh
+if [ "${ROAD_FIX:-0}" = 1 ]; then
 # Область дороги (контур снят по кадру; озеро, скалы и горы вне неё)
 convert -size ${W}x$H xc:black -fill white \
   -draw "polygon 0,759 340,759 340,952 907,952 1451,1009 2267,1111 2720,1167 2720,1536 0,1536" $T/roi.png
@@ -50,13 +52,20 @@ road() { # layer exclude-mvg out
   convert $L $T/fix.png $T/mroad.png -composite "$3"
 }
 road both      "$TRUCK $BUS" intro-photo-updated.png
+  BOTH=intro-photo-updated
 road truck     "$TRUCK"      intro-only-truck-updated.png
 road bus       "$BUS"        intro-only-bus-updated.png
 road truck-lit "$TRUCK"      intro-truck-only-light-updated.png
 road bus-lit   "$BUS"        intro-bus-only-light-updated.png
+else
+  cp $T/truck.png intro-only-truck-updated.png
+  cp $T/bus.png intro-only-bus-updated.png
+  cp $T/truck-lit.png intro-truck-only-light-updated.png
+  cp $T/bus-lit.png intro-bus-only-light-updated.png
+fi
 
 # --- 3. WebP для сайта ---
-for pair in both:intro-photo-updated truck:intro-only-truck-updated bus:intro-only-bus-updated \
+for pair in both:${BOTH:-intro-photo} truck:intro-only-truck-updated bus:intro-only-bus-updated \
             truck-lit:intro-truck-only-light-updated bus-lit:intro-bus-only-light-updated; do
   n=${pair%%:*}; f=${pair#*:}
   for w in 1600 2720; do
