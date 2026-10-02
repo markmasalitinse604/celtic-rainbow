@@ -1,10 +1,16 @@
 // Выбор транспорта: наведение показывает одну машину, клик — фары, звук мотора и переход к ролику
 (() => {
-  // Граница между машинами на исходных фото (доля ширины). Пустой промежуток между фурой и автобусом —
-  // примерно от 0.52 (правое зеркало фуры) до 0.54 (задний угол автобуса), граница — посередине.
-  const SPLIT = 0.53;
-  const HYST = 0.01;          // «мёртвая зона» вокруг границы (доля ширины фото), чтобы не мигало
-  const SWITCH_DELAY = 150;   // мс: задержка перед сменой стороны
+  // Рамки машин на исходных фото: [лево, верх, право, низ] в долях ширины/высоты фото (с зеркалами и колёсами).
+  // Наведение и клик работают только внутри рамок. Поменяли фото — перемерьте.
+  const BOXES = {
+    truck: [0.112, 0.302, 0.525, 0.826],
+    bus: [0.540, 0.408, 0.876, 0.798],
+  };
+  // Кадрирование слоёв (как object-position в choose.css): по X — середина промежутка между машинами,
+  // поэтому на любом экране он остаётся на той же доле ширины.
+  const SPLIT = 0.53, POS_Y = 0.6;
+  const HYST = 0.012;         // рамку показанной машины расширяем на столько (доля фото), чтобы у края не мигало
+  const SWITCH_DELAY = 150;   // мс: задержка перед уходом из рамки / сменой машины
   const LIT_HOLD = 1600;      // мс: сколько горят фары до затемнения
   const FADE_OUT = 500;       // мс: затемнение перед переходом (как .blackout в choose.css)
   const FADE_IN = 400;        // мс: проявление слоя (как transition у .layer в choose.css)
@@ -16,7 +22,7 @@
   const phone = matchMedia('(max-aspect-ratio: 4/5)');
   const SOUNDS = JSON.parse(root.dataset.sounds || '{}'); // { truck: 'media/…mp3', bus: … } — только существующие
 
-  root.style.setProperty('--split', `${SPLIT * 100}%`);
+  root.style.setProperty('--pos', `${SPLIT * 100}% ${POS_Y * 100}%`);
 
   // ---------- Слои ----------
   const sceneLayers = {};
@@ -60,15 +66,30 @@
   if (document.readyState === 'complete') preload(); else addEventListener('load', preload);
   phone.addEventListener('change', preload); // повернули телефон — догружаем другой набор
 
+  // ---------- Рамки: кнопки ровно над машинами ----------
+  const zones = [...scene.querySelectorAll('.zone')];
+
+  // Как фото лежит на экране при object-fit: cover и object-position SPLIT / POS_Y
+  function frame() {
+    const r = scene.getBoundingClientRect();
+    const k = Math.max(r.width / IMG_W, r.height / IMG_H), dw = IMG_W * k, dh = IMG_H * k;
+    return { r, dw, dh, x: (r.width - dw) * SPLIT, y: (r.height - dh) * POS_Y };
+  }
+  function placeZones() {
+    const f = frame();
+    zones.forEach((z) => {
+      const [x0, y0, x1, y1] = BOXES[z.dataset.side];
+      z.style.left = `${f.x + x0 * f.dw}px`;
+      z.style.top = `${f.y + y0 * f.dh}px`;
+      z.style.width = `${(x1 - x0) * f.dw}px`;
+      z.style.height = `${(y1 - y0) * f.dh}px`;
+    });
+  }
+  placeZones();
+  addEventListener('resize', placeZones);
+
   // ---------- Наведение мышью (с задержкой и гистерезисом) ----------
   let shown = 'both', pending = null, timer = 0, chosen = false;
-
-  // Доля ширины ФОТО под курсором. object-position по X = SPLIT, поэтому граница на экране всегда на SPLIT ширины.
-  function imageX(clientX) {
-    const r = scene.getBoundingClientRect();
-    const dw = Math.max(r.width, r.height * IMG_W / IMG_H); // ширина фото при object-fit: cover
-    return SPLIT + (clientX - r.left - SPLIT * r.width) / dw;
-  }
 
   function want(side, delay) {
     if (chosen) return;
@@ -80,33 +101,35 @@
     if (delay) timer = setTimeout(go, delay); else go();
   }
 
+  // Курсор внутри (расширенной) рамки показанной машины?
+  function insideShown(e) {
+    if (shown !== 'truck' && shown !== 'bus') return false;
+    const f = frame();
+    const fx = (e.clientX - f.r.left - f.x) / f.dw, fy = (e.clientY - f.r.top - f.y) / f.dh;
+    const [x0, y0, x1, y1] = BOXES[shown];
+    return fx > x0 - HYST && fx < x1 + HYST && fy > y0 - HYST && fy < y1 + HYST;
+  }
+
   scene.addEventListener('pointermove', (e) => {
     if (e.pointerType === 'touch') return; // на тач-экранах наведения нет — только нажатие
-    const x = imageX(e.clientX);
-    let side;
-    if (shown === 'truck') side = x < SPLIT + HYST ? 'truck' : 'bus';
-    else if (shown === 'bus') side = x > SPLIT - HYST ? 'bus' : 'truck';
-    else side = x < SPLIT ? 'truck' : 'bus';
-    // первый вход в сцену — сразу, смена стороны — с задержкой
+    const zone = e.target.closest('.zone'); // рамка машины или её подпись
+    const side = insideShown(e) ? shown : zone ? zone.dataset.side : 'both';
+    // из общего кадра на машину — сразу; уход из рамки и смена машины — с задержкой
     want(side, shown === 'both' ? 0 : SWITCH_DELAY);
   });
   scene.addEventListener('pointerleave', (e) => {
     if (e.pointerType === 'touch') return;
-    const focused = scene.querySelector('.half:focus-visible'); // фокус с клавиатуры держит свою сторону
+    const focused = scene.querySelector('.zone:focus-visible'); // фокус с клавиатуры держит свою машину
     want(focused ? focused.dataset.side : 'both', 0);
   });
 
   // ---------- Клавиатура: фокус работает как наведение ----------
-  scene.querySelectorAll('.half').forEach((btn) => {
+  zones.forEach((btn) => {
     btn.addEventListener('focus', () => { if (btn.matches(':focus-visible')) want(btn.dataset.side, 0); });
     btn.addEventListener('blur', () => {
       setTimeout(() => { if (!scene.contains(document.activeElement)) want('both', 0); });
     });
-    btn.addEventListener('click', (e) => {
-      // Мышью у самой границы показанная сторона (с гистерезисом) важнее, чем кнопка под курсором
-      const side = e.detail > 0 && shown !== 'both' ? shown : btn.dataset.side;
-      choose(side);
-    });
+    btn.addEventListener('click', () => choose(btn.dataset.side));
   });
 
   // ---------- Телефон: одно нажатие — весь сценарий ----------
