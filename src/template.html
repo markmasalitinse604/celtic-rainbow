@@ -216,6 +216,10 @@
   <form method="dialog"><button class="lightbox__close" aria-label="{{galleryClose}}"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></form>
 </dialog>
 
+<!-- TEST: временная кнопка на экран выбора транспорта. Удалить вместе с этим блоком -->
+<a href="choose/" style="position:fixed;left:16px;bottom:16px;z-index:9999;padding:12px 18px;border-radius:999px;background:#D0161F;color:#fff;font:800 15px/1 Overpass,system-ui,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.35)">TEST → Choose vehicle</a>
+<!-- /TEST -->
+
 <script id="route-data" type="application/json">{{routeJson}}</script>
 <script src="../ride.js" defer></script>
 <script src="../route.js" defer></script>
