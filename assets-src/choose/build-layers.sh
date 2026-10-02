@@ -74,22 +74,36 @@ for pair in both:${BOTH:-intro-photo} truck:intro-only-truck-updated bus:intro-o
 done
 
 # --- 4. Вертикальная сцена для телефонов (1536x2720) ---
-# Источники: intro-mobile-only-truck.png и intro-mobile-only-bus.png (совпадают между собой; intro-mobile-photo.png
-# меньше и чуть смещён — только как образец). Общий кадр = «только фура» + область автобуса (с его тенью,
-# которая падает влево, под перед фуры) из «только автобуса». «Только автобус» = общий кадр + область фуры
-# из «только автобуса». Фар в вертикальных кадрах нет: свет переносится из горизонтальных слоёв
-# (разница «с фарами − без», масштаб и сдвиг подобраны по машине: v = s*h + d).
-VW=1536; VH=2720
+# Источники: intro-mobile-only-truck.png и intro-mobile-only-bus.png (совпадают между собой) и intro-mobile-photo.png
+# (общий кадр, меньше и чуть смещён: подогнан как v = (1.8631, 1.8705)*p + (-6, -16.5)).
+# Общий кадр = «только фура» + кузов автобуса (по контуру) и всё справа от него из «только автобуса»;
+# тень автобуса (диагональная полоса под передом фуры) переносится с исходного общего кадра как затемнение:
+# отношение размытых яркостей «исходный кадр / только фура», только на дороге.
+# «Только автобус» = общий кадр + фура и вся дорога слева от автобуса (с его тенью) из «только автобуса».
+# Фар в вертикальных кадрах нет: свет переносится из горизонтальных слоёв (подгонка по машине: v = s*h + d).
+VW=1536; VH=2720; C="1536x900+0+1200"   # вырезка, где стоят машины (координаты масок ниже — внутри неё, y-1200)
+BUSPOLY="852,200 1050,178 1320,205 1360,270 1392,310 1392,368 1352,372 1352,572 1255,594 1060,588 1000,562 910,518 858,488"
+convert intro-mobile-photo.png -define distort:viewport=${VW}x$VH+0+0 \
+  -distort AffineProjection "1.8631,0,0,1.8705,-6,-16.5" +repage -crop $C +repage -colorspace gray -blur 0x8 $T/A.png
+convert intro-mobile-only-truck.png -crop $C +repage -colorspace gray -blur 0x8 $T/B.png
+convert $T/A.png $T/B.png -fx "min(1,max(0.35,u/(v+0.004)))" $T/F.png
+convert -size 1536x900 xc:black -fill white -draw "rectangle 0,400 1536,900" \
+  -fill black -draw "rectangle 98,67 814,645" -draw "rectangle 814,0 1536,590" -blur 0x12 $T/Rv.png   # дорога без машин
+convert $T/F.png $T/Rv.png -fx "1-(1-u)*v" $T/Fm.png
+convert -size 1536x900 xc:black -fill white -draw "polygon $BUSPOLY" -draw "rectangle 1340,90 1536,598" -blur 0x4 $T/mbus.png
+convert intro-mobile-only-truck.png -crop $C +repage $T/Fm.png -compose multiply -composite \
+  -compose over \( intro-mobile-only-bus.png -crop $C +repage \) $T/mbus.png -composite $T/bothC.png
+convert intro-mobile-only-truck.png $T/bothC.png -geometry +0+1200 -composite intro-mobile-photo-updated.png
 convert -size ${VW}x$VH xc:black -fill white \
-  -draw "polygon 848,1320 1536,1320 1536,1990 300,1990 300,1830 812,1830 812,1560 848,1560" -blur 0x7 $T/vm-bus.png
-convert intro-mobile-only-truck.png intro-mobile-only-bus.png $T/vm-bus.png -composite intro-mobile-photo-updated.png
-convert -size ${VW}x$VH xc:black -fill white -draw "rectangle 0,1230 836,1910" -blur 0x8 $T/vm-truck.png
+  -draw "polygon 0,1230 836,1230 836,1560 852,1560 852,2000 0,2000" -blur 0x10 $T/vm-truck.png
 convert intro-mobile-photo-updated.png intro-mobile-only-bus.png $T/vm-truck.png -composite intro-mobile-only-bus-updated.png
 vlight() { # тип s dx dy зона-mvg(или пусто) out
   convert intro-$1-only-light-updated.png intro-only-$1-updated.png -compose difference -composite \
     -virtual-pixel black -define distort:viewport=${VW}x$VH+0+0 -distort AffineProjection "$2,0,0,$2,$3,$4" +repage $T/vl.png
-  if [ -n "$5" ]; then
-    convert -size ${VW}x$VH xc:black -fill white -draw "$5" -blur 0x22 $T/vz.png
+  if [ -n "$5" ]; then   # только фары и пятно на дороге; справа от передней части автобуса — ничего
+    convert -size ${VW}x$VH xc:black -fill white -draw "$5" -blur 0x22 \
+      \( -size ${VW}x$VH xc:white -fill black -draw "rectangle 1388,1450 1536,1800" -blur 0x4 \) \
+      -compose multiply -composite $T/vz.png
     convert $T/vl.png $T/vz.png -compose multiply -composite $T/vl.png
   fi
   convert "$6" $T/vl.png -compose plus -composite "$7"
