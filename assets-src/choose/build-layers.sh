@@ -77,8 +77,7 @@ done
 # Как на ПК: ВСЕ слои строятся от одного цельного кадра intro-mobile-photo.png (обе машины, правильная тень
 # автобуса). Он 832x1472 и чуть смещён относительно остальных — увеличен и подогнан: v = (1.8631, 1.8705)*p + (-6, -16.5).
 # В слое «только фура» заменена лишь область автобуса и его тени (из intro-mobile-only-truck.png),
-# в слое «только автобус» — лишь область фуры (из intro-mobile-only-bus.png; нарисованную там нейросетью
-# прямоугольную тень заменяет пустая дорога из «только фуры» и мягкая тень автобуса той же формы, что на общем кадре).
+# в слое «только автобус» — лишь область фуры (из intro-mobile-only-bus.png как есть, как на ПК).
 # Фары — из кадров генератора с горящими фарами (addlight ниже).
 VW=1536; VH=2720
 SHADOW="879,1615 1033,1777 1195,1789 1277,1825 1254,1862 956,1876 606,1886 486,1862 447,1763 452,1717 649,1647"
@@ -89,19 +88,9 @@ convert intro-mobile-photo.png -filter Lanczos -virtual-pixel edge -define disto
 convert -size ${VW}x$VH xc:black -fill white -draw "rectangle 830,1300 1536,1990" -draw "polygon $SHADOW" \
   -fill black -draw "polygon $TRUCKPOLY" -blur 0x14 $T/m-t.png
 convert intro-mobile-photo-updated.png intro-mobile-only-truck.png $T/m-t.png -composite intro-mobile-only-truck-updated.png
-# «только автобус»: фура и дорога слева от автобуса — из «только автобуса», где тень-прямоугольник заменена дорогой
-convert intro-mobile-only-truck.png -crop 731x320+805+1850 +repage $T/roadsrc.png
-convert intro-mobile-only-bus.png $T/roadsrc.png -geometry +205+1650 -composite $T/bus-road.png
-convert -size ${VW}x$VH xc:black -fill white -draw "rectangle 225,1662 920,1965" -blur 0x10 $T/mroad.png
-convert intro-mobile-only-bus.png $T/bus-road.png $T/mroad.png -composite $T/bus-noshadow.png
-# тень автобуса на открытой дороге: полная у автобуса, к дальнему концу мягче и прозрачнее (полутень)
-convert -size ${VW}x$VH xc:black -fill white -draw "polygon $SHADOW" -blur 0x18 \
-  \( -size ${VW}x$VH xc:black -fx "clamp(0.35+0.65*(i-420)/480)" \) -compose multiply -composite $T/shk.png
-convert $T/shk.png -colorspace gray \( -clone 0 -fx "1-u*0.40" \) \( -clone 0 -fx "1-u*0.31" \) \( -clone 0 -fx "1-u*0.19" \) \
-  -delete 0 -set colorspace sRGB -combine $T/shadow.png   # цвет тени снят с общего кадра: 0.60 / 0.69 / 0.81
-convert $T/bus-noshadow.png $T/shadow.png -compose multiply -composite $T/bus-left.png
+# «только автобус»: фура и дорога на её месте — из «только автобуса» как есть (так же, как на ПК), без заплаток
 convert -size ${VW}x$VH xc:black -fill white -draw "polygon 0,1230 845,1230 845,1990 0,1990" -blur 0x14 $T/m-b.png
-convert intro-mobile-photo-updated.png $T/bus-left.png $T/m-b.png -composite intro-mobile-only-bus-updated.png
+convert intro-mobile-photo-updated.png intro-mobile-only-bus.png $T/m-b.png -composite intro-mobile-only-bus-updated.png
 # Фары: настоящие кадры из генератора — intro-mobile-truck-light.png / intro-mobile-bus-light.png (редактирование
 # «только фуры» / «только автобуса», чуть сдвинуты и масштабированы — подогнаны по машине и фону). Берётся только
 # прибавка света «с фарами − без фар»: у самих фар резко, на дороге мягко, и только в зоне фар и света перед машиной.
