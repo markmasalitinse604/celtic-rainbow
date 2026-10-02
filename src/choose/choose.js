@@ -37,6 +37,12 @@
     void img.offsetWidth; // применить без анимации
     img.classList.remove('is-instant');
   }
+  const order = Object.values(sceneLayers);
+  // Лежит ли слой a выше слоя b (z-index, при равенстве — порядок в разметке)
+  const above = (a, b) => {
+    const za = +a.style.zIndex || 0, zb = +b.style.zIndex || 0;
+    return za > zb || (za === zb && order.indexOf(a) > order.indexOf(b));
+  };
   function showScene(name) {
     root.dataset.shown = name;
     clearTimeout(hideTimer);
@@ -45,7 +51,12 @@
       for (const [k, img] of Object.entries(sceneLayers)) if (k !== 'both') img.classList.remove('is-on');
       return;
     }
-    top.style.zIndex = ++zTop;
+    // Полностью скрытый слой можно поднять наверх — это незаметно. Слой, который ещё виден (быстро вернулись
+    // «туда-обратно»), поднимать нельзя: он резко выскочит поверх. Вместо этого плавно гасим всё, что над ним.
+    if (+getComputedStyle(top).opacity < 0.01) top.style.zIndex = ++zTop;
+    for (const [k, img] of Object.entries(sceneLayers)) {
+      if (k !== 'both' && img !== top && above(img, top)) img.classList.remove('is-on');
+    }
     top.classList.add('is-on');
     hideTimer = setTimeout(() => {
       for (const [k, img] of Object.entries(sceneLayers)) if (k !== 'both' && img !== top) hideInstantly(img);
