@@ -115,6 +115,8 @@ h3 { font-size: 26px; line-height: 1.2; font-weight: 800; }
 .ride__progress { display: none; }
 .ride--live .ride__progress { display: block; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(255, 255, 255, 0.3); }
 .ride__progress span { display: block; width: 0; height: 100%; background: var(--yellow); }
+.ride__note { position: absolute; left: 16px; bottom: 21px; z-index: 2; max-width: calc(100% - 32px); margin: 0; padding: 6px 12px; border-radius: 6px; background: var(--yellow); color: #1D2226; font-size: 14px; font-weight: 700; }
+.ride__note[hidden] { display: none; }
 
 /* Факты экзамена: указатель и ромб сразу после ролика */
 .hero { padding-top: 80px; background: var(--asphalt); color: var(--white); }

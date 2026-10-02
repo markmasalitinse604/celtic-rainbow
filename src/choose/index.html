@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Что хочешь водить? | Celtic Rainbow Truck &amp; Bus School</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="../assets/favicon.png">
+  <link rel="stylesheet" href="choose.css">
+</head>
+<body>
+
+<!-- data-sounds подставляет build.js: только те mp3, что реально лежат в src/choose/media/ -->
+<main class="choose" id="choose" data-next="../ru/" data-sounds="{}">
+
+  <!-- Десктоп и альбомная ориентация: одна сцена, 5 слоёв друг над другом -->
+  <div class="scene" id="scene">
+    <img class="layer is-on" data-layer="both" alt="Фура и автобус стоят рядом на горной дороге"
+      srcset="img/choose-both-1600.webp 1600w, img/choose-both-2720.webp 2720w"
+      sizes="max(100vw, 177vh)" src="img/choose-both-1600.webp" loading="lazy" fetchpriority="high" decoding="async">
+    <img class="layer" data-layer="truck" alt="" aria-hidden="true"
+      data-srcset="img/choose-truck-1600.webp 1600w, img/choose-truck-2720.webp 2720w" sizes="max(100vw, 177vh)">
+    <img class="layer" data-layer="bus" alt="" aria-hidden="true"
+      data-srcset="img/choose-bus-1600.webp 1600w, img/choose-bus-2720.webp 2720w" sizes="max(100vw, 177vh)">
+    <img class="layer" data-layer="truck-lit" alt="" aria-hidden="true"
+      data-srcset="img/choose-truck-lit-1600.webp 1600w, img/choose-truck-lit-2720.webp 2720w" sizes="max(100vw, 177vh)">
+    <img class="layer" data-layer="bus-lit" alt="" aria-hidden="true"
+      data-srcset="img/choose-bus-lit-1600.webp 1600w, img/choose-bus-lit-2720.webp 2720w" sizes="max(100vw, 177vh)">
+
+    <div class="halves">
+      <button type="button" class="half half--truck" data-side="truck">
+        <span class="label">Грузовик · категория C</span>
+      </button>
+      <button type="button" class="half half--bus" data-side="bus">
+        <span class="label">Автобус · категория D</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Телефон (портрет): две панели друг под другом, в каждой своя машина -->
+  <div class="panels" id="panels">
+    <button type="button" class="panel" data-side="truck">
+      <img class="layer is-on" data-layer="truck" data-focus="0.32 0.57" alt=""
+        srcset="img/choose-truck-1600.webp 1600w, img/choose-truck-2720.webp 2720w"
+        sizes="90vh" src="img/choose-truck-1600.webp" loading="lazy" decoding="async">
+      <img class="layer" data-layer="truck-lit" data-focus="0.32 0.57" alt="" aria-hidden="true"
+        data-srcset="img/choose-truck-lit-1600.webp 1600w, img/choose-truck-lit-2720.webp 2720w" sizes="90vh">
+      <span class="label">Грузовик · категория C</span>
+    </button>
+    <button type="button" class="panel" data-side="bus">
+      <img class="layer is-on" data-layer="bus" data-focus="0.71 0.6" alt=""
+        srcset="img/choose-bus-1600.webp 1600w, img/choose-bus-2720.webp 2720w"
+        sizes="90vh" src="img/choose-bus-1600.webp" loading="lazy" decoding="async">
+      <img class="layer" data-layer="bus-lit" data-focus="0.71 0.6" alt="" aria-hidden="true"
+        data-srcset="img/choose-bus-lit-1600.webp 1600w, img/choose-bus-lit-2720.webp 2720w" sizes="90vh">
+      <span class="label">Автобус · категория D</span>
+    </button>
+  </div>
+
+  <h1 class="title">Что хочешь водить?</h1>
+  <div class="blackout" aria-hidden="true"></div>
+</main>
+
+<script src="choose.js" defer></script>
+</body>
+</html>

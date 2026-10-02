@@ -1,0 +1,75 @@
+/* Страница выбора транспорта (/choose/). Стиль временный, нейтральный — только для теста механики. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #111; color: #fff; }
+body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+
+.choose { position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
+
+/* Слои: все одинакового размера и кадрирования, переключение — плавная смена прозрачности.
+   object-position по X = SPLIT (задаётся из choose.js): так граница машин на экране всегда на SPLIT ширины. */
+.layer {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: var(--split, 53%) 60%;
+  opacity: 0; transition: opacity 400ms ease;
+  pointer-events: none; user-select: none;
+}
+.layer.is-on { opacity: 1; }
+
+.scene { position: absolute; inset: 0; }
+.halves { position: absolute; inset: 0; display: flex; }
+.half {
+  position: relative; height: 100%; margin: 0; padding: 0; border: 0;
+  background: none; color: inherit; font: inherit; cursor: pointer;
+}
+.half--truck { width: var(--split, 53%); }
+.half--bus { flex: 1; }
+
+.label {
+  position: absolute; bottom: 8%; padding: .5em 1em; border-radius: 999px;
+  background: rgb(0 0 0 / .55); font-weight: 700; font-size: clamp(14px, 1.6vw, 22px);
+  white-space: nowrap; transition: background .2s, color .2s;
+}
+.half--truck .label { left: 6%; }
+.half--bus .label { right: 6%; }
+.half:focus-visible .label, .panel:focus-visible .label,
+.choose[data-shown="truck"] .half--truck .label, .choose[data-shown="bus"] .half--bus .label {
+  background: #FFCE1F; color: #1D2226;
+}
+
+/* Видимый фокус (жёлтое кольцо, как на основном сайте) */
+.half:focus-visible, .panel:focus-visible { outline: 4px solid #FFCE1F; outline-offset: -8px; }
+.half:focus:not(:focus-visible), .panel:focus:not(:focus-visible) { outline: none; }
+
+.title {
+  position: absolute; top: 0; left: 0; right: 0; margin: 0; padding: 4vh 16px 8vh;
+  text-align: center; font-size: clamp(26px, 4.4vw, 60px); line-height: 1.1;
+  background: linear-gradient(rgb(0 0 0 / .55), transparent);
+  pointer-events: none; transition: opacity 400ms;
+}
+.choose.is-chosen .title, .choose.is-chosen .label { opacity: 0; transition: opacity 400ms; }
+
+.blackout {
+  position: absolute; inset: 0; background: #000; opacity: 0;
+  transition: opacity 500ms ease; pointer-events: none; z-index: 5;
+}
+.choose.is-leaving .blackout { opacity: 1; }
+
+/* Телефон в портрете: две панели друг под другом, сцена скрыта */
+.panels { display: none; }
+@media (max-aspect-ratio: 4/5) {
+  .scene { display: none; }
+  .panels { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .panel {
+    position: relative; flex: 1; margin: 0; padding: 0; border: 0; overflow: hidden;
+    background: #111; color: inherit; font: inherit; cursor: pointer;
+    transition: opacity 400ms ease;
+  }
+  .panel + .panel { border-top: 2px solid #111; }
+  .panel .label { left: 50%; transform: translateX(-50%); bottom: 10%; font-size: 16px; }
+  .panel.is-hidden { opacity: 0; }
+  .title { padding-top: 3vh; font-size: clamp(24px, 7vw, 34px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer, .panel, .title, .label, .blackout { transition: none !important; }
+}

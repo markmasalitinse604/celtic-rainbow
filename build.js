@@ -70,7 +70,7 @@ function blocks(lang, t) {
     waHref: esc(wa(t.waHello)),
     planHref: esc(wa(plan)),
     routeJson: JSON.stringify({
-      phone: PHONE, lic: t.lic, ageC: t.ageC, ageD: t.ageD, waPlan: t.waPlan,
+      phone: PHONE, lic: t.lic, ageC: t.ageC, ageD: t.ageD, waPlan: t.waPlan, waCat: t.waCat,
       steps: { eu: t.stepsEu, nonEu: t.stepsNonEu, none: t.stepsNone },
     }).replace(/</g, '\\u003c'),
   };
@@ -92,8 +92,20 @@ for (const lang of Object.keys(LANGS)) {
   fs.writeFileSync(`dist/${lang}/index.html`, html);
 }
 
-for (const f of ['styles.css', 'ride.js', 'route.js', 'gallery.js', 'menu.js']) fs.copyFileSync(`src/${f}`, `dist/${f}`);
+for (const f of ['styles.css', 'ride.js', 'route.js', 'vehicle.js', 'gallery.js', 'menu.js']) fs.copyFileSync(`src/${f}`, `dist/${f}`);
 if (fs.existsSync('src/assets')) fs.cpSync('src/assets', 'dist/assets', { recursive: true }); // фото и кадры ролика: ../assets/…
+
+// Демо выбора транспорта: src/choose → dist/choose. Звуки мотора подключаются, только если файлы есть
+const SOUND_FILES = { truck: 'engine-truck.mp3', bus: 'engine-bus.mp3' };
+for (const dir of ['choose']) {
+  fs.cpSync(`src/${dir}`, `dist/${dir}`, { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });
+}
+const sounds = Object.fromEntries(Object.entries(SOUND_FILES)
+  .filter(([, f]) => fs.existsSync(`src/choose/media/${f}`))
+  .map(([k, f]) => [k, `media/${f}`]));
+const chooseHtml = fs.readFileSync('dist/choose/index.html', 'utf8');
+if (!chooseHtml.includes('data-sounds="{}"')) throw new Error('choose/index.html: нет атрибута data-sounds="{}"');
+fs.writeFileSync('dist/choose/index.html', chooseHtml.replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}"`));
 
 // Корень: отправляет на язык браузера, без JS показывает ссылки
 const dirs = Object.keys(LANGS);
