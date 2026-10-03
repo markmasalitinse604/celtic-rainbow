@@ -61,7 +61,6 @@
             <a class="btn btn--gold" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>{{wa}}</span></a>
             <a class="btn btn--ghost" href="#plan">{{jCtaPlan}}</a>
           </div>
-          <p class="scroll-hint" aria-hidden="true"><span>{{jScrollHint}}</span>{{iconDown}}</p>
         </li>
         {{rideSteps}}
         <li class="rcard" data-i="6">
@@ -89,6 +88,15 @@
           </div>
         </li>
       </ol>
+
+      <!-- Шкала из 10 точек: где посетитель и сколько впереди (для мыши; с клавиатуры — «Далее») -->
+      <div class="dots" aria-hidden="true">{{rideDots}}</div>
+
+      <!-- «Далее»: плавно докручивает до следующей карточки, с последней — к плану (ride.js).
+           Доступное имя называет, куда ведёт; ride.js обновляет его при смене карточки -->
+      <button type="button" class="ride__next" id="ride-next" data-label="{{jNext}}" aria-label="{{jNext}}">
+        <span>{{jNext}}</span>{{iconDown}}
+      </button>
 
       <!-- Счётчик шагов «N из 5»: виден только на пяти шагах -->
       <div class="ring" aria-hidden="true">

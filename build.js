@@ -140,6 +140,7 @@ function blocks(lang, t) {
     iconInfo: icon('i-info'),
     framesBus: hasBusFrames ? ' data-frames-bus="../assets/ride-bus"' : '',
     rideSteps: steps,
+    rideDots: Array.from({ length: 10 }, (_, i) => `<button type="button" class="dots__dot" data-go="${i}" tabindex="-1"></button>`).join(''),
     telHref: `tel:+${PHONE}`,
     phoneDisplay: esc(PHONE_DISPLAY),
     waHref: esc(wa(t.waHello)),
