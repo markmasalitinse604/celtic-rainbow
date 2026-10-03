@@ -1,4 +1,4 @@
-// «Соберите свой план»: права (ЕС / не ЕС / нет) → шаги к категории и ссылка WhatsApp с готовым текстом.
+// «Соберите свой план»: права (ЕС / нет) → шаги к категории и ссылка WhatsApp с готовым текстом.
 // Категория — из выбора транспорта (window.SiteVehicle, vehicle.js): C, D или «C / D»
 (() => {
   const data = JSON.parse(document.getElementById('site-data').textContent);
@@ -9,7 +9,7 @@
   const sub = (s) => s.split('{V}').join(V);
 
   function render() {
-    const lic = form.elements.lic.value; // eu | nonEu | none
+    const lic = form.elements.lic.value; // eu | none
     list.replaceChildren(...data.steps[lic].map(([title, text]) => {
       const li = document.createElement('li');
       const strong = document.createElement('strong');

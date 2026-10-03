@@ -50,15 +50,14 @@ const iconSprite = `<svg width="0" height="0" style="position:absolute" aria-hid
 const hudIcon = (id) => icon(`i-${id}`, 'hud__icon');
 
 // Общая шапка (HUD) экрана выбора и главной: {{header}}.
-// root — путь до корня сайта; langHref(dir) — куда ведёт пункт языка; landing — кнопка категории и «Контакты»
+// root — путь до корня сайта; langHref(dir) — куда ведёт пункт языка; landing — кнопка категории
 function renderHeader(lang, t, { root, home, langHref, landing }) {
   const langs = Object.keys(LANGS).map((dir) =>
     `<li><a href="${langHref(dir)}" lang="${LANGS[dir]}" hreflang="${LANGS[dir]}" data-lang="${dir}"${dir === lang ? ' aria-current="page"' : ''}><span>${esc(locales[dir].langName)}</span>${dir === lang ? icon('i-check', 'icon icon--sm') : ''}</a></li>`).join('');
   const chip = landing
     ? `<a class="hud__pill hud__chip" id="vehicle-chip" href="choose/" aria-label="${esc(t.changeVehicle)}: C / D"
       data-label="${esc(t.changeVehicle)}" data-truck="${esc(t.chooseTruck)}" data-bus="${esc(t.chooseBus)}">
-      ${hudIcon('swap')}<span class="hud__chip-long">C / D</span><span class="hud__chip-short" aria-hidden="true">C·D</span></a>
-    <a class="hud__link" href="#final">${esc(t.toContacts)}</a>`
+      ${hudIcon('swap')}<span class="hud__chip-long">C / D</span><span class="hud__chip-short" aria-hidden="true">C·D</span></a>`
     : '';
   return `<header class="hud${landing ? ' hud--landing' : ''}" id="hud">
   <a class="hud__brand" href="${home}">
@@ -152,7 +151,7 @@ function blocks(lang, t) {
       ? `<img src="../assets/${encodeURI(teacherFile)}" alt="${esc(t.name)}" loading="lazy">`
       : `<span class="teacher__ph">${icon('i-person')}<span>${esc(t.photo)}</span></span>`,
     langChips: Object.keys(LANGS).map((dir) => `<li lang="${LANGS[dir]}">${esc(locales[dir].langName)}</li>`).join(''),
-    licOptions: ['eu', 'nonEu', 'none'].map((k, i) =>
+    licOptions: ['eu', 'none'].map((k, i) =>
       `<label class="opt"><input type="radio" name="lic" value="${k}"${i === 0 ? ' checked' : ''}><span class="opt__box"><span class="opt__dot" aria-hidden="true"></span>${esc(t.lic[k])}</span></label>`).join('\n            '),
     planSteps: t.stepsEu.map(([title, text]) =>
       `<li><strong>${esc(withV(title, CAT_BOTH))}</strong><p>${esc(withV(text, CAT_BOTH))}</p></li>`).join(''),
@@ -176,7 +175,7 @@ function blocks(lang, t) {
       .join('\n  '),
     siteJson: JSON.stringify({
       phone: PHONE, lic: t.lic, waPlan: t.waPlan, waCat: t.waCat,
-      steps: { eu: t.stepsEu, nonEu: t.stepsNonEu, none: t.stepsNone },
+      steps: { eu: t.stepsEu, none: t.stepsNone },
       ambient: hasAmbient ? `../${AMBIENT}` : null,
     }).replace(/</g, '\\u003c'),
   };

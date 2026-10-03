@@ -217,7 +217,11 @@
   // ---------- Цикл ----------
   // Сцена идёт строго за прокруткой, с очень короткой инерцией (~0,1 с), чтобы сгладить рывки колеса мыши.
   // Ограничителя скорости по времени нет (пробовали — рассинхрон): скорость задаёт высота секции (--ride-vh).
+  // Доводка: прокрутка остановилась между кадрами — сцена доезжает до СЛЕДУЮЩЕГО целого кадра по ходу движения
+  // (вперёд — вверх по номеру, назад — вниз), а не до ближайшего: так фура никогда не откатывается назад.
+  // Пока посетитель продолжает листать в ту же сторону, сцена держит доведённый кадр (hold) и не отступает от него.
   let cur = -1, raf = 0, last = 0, snap = false, snapTimer = 0;
+  let dir = 1, lastY = scrollY, hold = null;
   function tick(now) {
     raf = 0;
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60;
@@ -228,8 +232,17 @@
     }
     const p = getProgress();
     setCard(p);
-    let target = auto + p * (1 - A);
-    if (snap && set) target = Math.round(target * (set.count - 1)) / (set.count - 1);
+    const raw = auto + p * (1 - A);
+    let target = raw;
+    if (set) {
+      const n = set.count - 1;
+      if (snap) {
+        target = (dir > 0 ? Math.ceil(raw * n - 1e-6) : Math.floor(raw * n + 1e-6)) / n;
+        hold = target;
+      } else if (hold !== null) {
+        if (dir > 0 ? raw >= hold : raw <= hold) hold = null; else target = hold;
+      }
+    }
     if (cur < 0 || reduceMotion) cur = target;
     else cur += (target - cur) * (1 - Math.pow(0.65, dt * 60));
     if (Math.abs(target - cur) < 0.0002) cur = target;
@@ -239,6 +252,13 @@
   function request() { if (!raf) raf = requestAnimationFrame(tick); }
 
   addEventListener('scroll', () => {
+    const d = scrollY - lastY;
+    lastY = scrollY;
+    if (d) {
+      const nd = d > 0 ? 1 : -1;
+      if (nd !== dir) hold = null; // повернули назад — сцена сразу идёт за прокруткой
+      dir = nd;
+    }
     snap = false;
     clearTimeout(snapTimer);
     snapTimer = setTimeout(() => { snap = true; request(); }, SNAP_DELAY);

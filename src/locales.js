@@ -91,14 +91,12 @@ module.exports = {
     jMetaTitle: "Twoja droga do zawodu kierowcy w Irlandii | Celtic Rainbow Truck & Bus School",
     jMetaDesc: "Teoria na prawo jazdy na ciężarówkę (C) i autobus (D) w Irlandii po polsku, portugalsku, rosyjsku lub angielsku: od egzaminu teoretycznego do karty CPC. Napisz do nauczyciela na WhatsApp.",
     jStillAlt: "Biały pojazd na górskiej drodze w Irlandii o zachodzie słońca",
-    toContacts: "Kontakt",
     changeVehicle: "Zmień pojazd",
     photo: "[Zdjęcie]",
     name: "[Imię i nazwisko]",
     qLic: "Moje prawo jazdy",
     lic: {
       eu: "Z UE (kat. B)",
-      nonEu: "Spoza UE",
       none: "Nie mam prawa jazdy"
     },
     ageC: "Kategoria C: od 18 lat z CPC, bez CPC od 21.",
@@ -125,28 +123,6 @@ module.exports = {
       [
         "Prawo jazdy i karta CPC",
         "Z kartą CPC możesz pracować jako kierowca."
-      ]
-    ],
-    stepsNonEu: [
-      [
-        "Najpierw irlandzkie prawo jazdy B",
-        "Prawa jazdy z Brazylii nie da się wymienić w Irlandii. Dla innych krajów sprawdzę, czy wymiana jest możliwa."
-      ],
-      [
-        "Teoria kat. B",
-        "Na teście B jest lektor po polsku, portugalsku i rosyjsku."
-      ],
-      [
-        "Learner permit B i skrócone EDT",
-        "Z zagranicznym prawem jazdy możesz ubiegać się o 6 lekcji EDT zamiast 12."
-      ],
-      [
-        "Egzamin praktyczny B",
-        "Po zdaniu dostajesz pełne irlandzkie prawo jazdy B."
-      ],
-      [
-        "Teraz droga na kat. {V}",
-        "Teoria {V}, learner permit, CPC i egzaminy praktyczne. Tu prowadzę Cię dalej."
       ]
     ],
     stepsNone: [
@@ -254,14 +230,12 @@ module.exports = {
     jMetaTitle: "Seu caminho para a profissão de motorista na Irlanda | Celtic Rainbow Truck & Bus School",
     jMetaDesc: "Teoria para as categorias de caminhão (C) e ônibus (D) na Irlanda, em polonês, português, russo ou inglês: da prova teórica ao cartão CPC. Fale com o professor no WhatsApp.",
     jStillAlt: "Um veículo branco em uma estrada de montanha na Irlanda ao pôr do sol",
-    toContacts: "Contato",
     changeVehicle: "Trocar veículo",
     photo: "[Foto]",
     name: "[Nome e sobrenome]",
     qLic: "Minha carteira",
     lic: {
       eu: "Europeia (cat. B)",
-      nonEu: "De fora da UE",
       none: "Ainda não tenho carteira"
     },
     ageC: "Categoria C: a partir de 18 anos com CPC; sem CPC, a partir de 21.",
@@ -288,28 +262,6 @@ module.exports = {
       [
         "Carteira e cartão CPC",
         "Com o cartão CPC você pode trabalhar como motorista."
-      ]
-    ],
-    stepsNonEu: [
-      [
-        "Primeiro, a carteira irlandesa B",
-        "A CNH brasileira não pode ser trocada na Irlanda, então começamos pela categoria B."
-      ],
-      [
-        "Prova teórica B",
-        "A prova B tem áudio em português do Brasil."
-      ],
-      [
-        "Learner permit B e EDT reduzido",
-        "Com carteira estrangeira, você pode pedir 6 aulas de EDT em vez de 12."
-      ],
-      [
-        "Prova prática B",
-        "Aprovado, você recebe a carteira irlandesa B definitiva."
-      ],
-      [
-        "Agora, o caminho para {V}",
-        "Teoria {V}, learner permit, CPC e provas práticas. Daqui em diante, eu te acompanho."
       ]
     ],
     stepsNone: [
@@ -417,14 +369,12 @@ module.exports = {
     jMetaTitle: "Ваша дорога в профессию водителя в Ирландии | Celtic Rainbow Truck & Bus School",
     jMetaDesc: "Теория на права на грузовик (C) и автобус (D) в Ирландии на польском, португальском, русском или английском: от теоретического экзамена до карты CPC. Напишите преподавателю в WhatsApp.",
     jStillAlt: "Белая машина на горной дороге в Ирландии на закате",
-    toContacts: "К контактам",
     changeVehicle: "Сменить транспорт",
     photo: "[Фото]",
     name: "[Имя и фамилия]",
     qLic: "Мои права",
     lic: {
       eu: "Из ЕС (кат. B)",
-      nonEu: "Не из ЕС",
       none: "Прав пока нет"
     },
     ageC: "Категория C: с 18 лет с CPC, без CPC — с 21.",
@@ -451,28 +401,6 @@ module.exports = {
       [
         "Права и карта CPC",
         "С картой CPC можно работать водителем."
-      ]
-    ],
-    stepsNonEu: [
-      [
-        "Сначала ирландские права B",
-        "Бразильские права в Ирландии не обменять. Для других стран проверю, возможен ли обмен."
-      ],
-      [
-        "Теория B",
-        "На экзамене B есть озвучка на русском."
-      ],
-      [
-        "Learner permit B и сокращённый EDT",
-        "С иностранными правами можно запросить 6 уроков EDT вместо 12."
-      ],
-      [
-        "Практический экзамен B",
-        "После сдачи получаете полные ирландские права B."
-      ],
-      [
-        "Теперь путь к категории {V}",
-        "Теория {V}, learner permit, CPC и практические экзамены. Дальше веду вас я."
       ]
     ],
     stepsNone: [
@@ -580,14 +508,12 @@ module.exports = {
     jMetaTitle: "Your road to a driver's career in Ireland | Celtic Rainbow Truck & Bus School",
     jMetaDesc: "Theory for truck (C) and bus (D) licences in Ireland, in Polish, Portuguese, Russian or English: from the theory test to the CPC card. Message the teacher on WhatsApp.",
     jStillAlt: "A white vehicle on a mountain road in Ireland at sunset",
-    toContacts: "Contacts",
     changeVehicle: "Change vehicle",
     photo: "[Photo]",
     name: "[Full name]",
     qLic: "My licence",
     lic: {
       eu: "EU (category B)",
-      nonEu: "Non-EU",
       none: "No licence yet"
     },
     ageC: "Category C: from 18 with CPC, or 21 without.",
@@ -614,28 +540,6 @@ module.exports = {
       [
         "Licence and CPC card",
         "With the CPC card, you can work as a professional driver."
-      ]
-    ],
-    stepsNonEu: [
-      [
-        "First, an Irish B licence",
-        "Brazilian licences can't be exchanged in Ireland. From somewhere else? I'll check whether yours can be."
-      ],
-      [
-        "Car theory test (B)",
-        "Voiceover is available in 21 languages."
-      ],
-      [
-        "Learner permit and reduced EDT",
-        "With a foreign licence you can apply for 6 EDT lessons instead of 12."
-      ],
-      [
-        "Car driving test",
-        "Pass it and you get a full Irish B licence."
-      ],
-      [
-        "Now the road to category {V}",
-        "Category {V} theory, learner permit, CPC and practical tests. I'll guide you from here."
       ]
     ],
     stepsNone: [

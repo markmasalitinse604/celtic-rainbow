@@ -131,28 +131,22 @@
 .hud__chip { color: var(--gold); border-color: rgba(242, 184, 75, .55); }
 .hud__chip .hud__icon { width: 16px; height: 16px; }
 .hud__chip-short { display: none; font-weight: 800; }
-.hud__link {
-  color: #fff; font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; padding: 8px 4px;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, .5);
-}
-.hud__link:hover { text-decoration: underline; }
-.hud__link:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 6px; }
 
-/* Узкий ПК / планшет: сначала прячем подпись бренда и слово «Звук», потом «Контакты» */
+/* Узкий ПК / планшет: сначала прячем слово «Звук», потом подпись бренда */
 @media (max-width: 1180px) {
   .hud--landing { padding: 0 24px; }
   .hud--landing .hud__sound { width: 42px; padding: 0; }
   .hud--landing .hud__sound-label { display: none; }
 }
 @media (max-width: 1020px) {
-  .hud--landing .hud__brand-text, .hud--landing .hud__link { display: none; }
+  .hud--landing .hud__brand-text { display: none; }
 }
 
 /* Телефон (главная): портрет до 9/10 или узкий экран — компактная шапка и нижняя панель, как на экране выбора */
 @media (max-aspect-ratio: 9/10), (max-width: 760px) {
   .hud--landing { height: 56px; padding: 0 16px; padding-top: env(safe-area-inset-top); }
   .hud--landing .hud__logo { width: 40px; height: 40px; }
-  .hud--landing .hud__brand-text, .hud--landing .hud__link, .hud--landing .hud__wa,
+  .hud--landing .hud__brand-text, .hud--landing .hud__wa,
   .hud--landing .hud__sound-label, .hud--landing .hud__lang-name, .hud--landing .hud__chip-long,
   .hud--landing .hud__chip .hud__icon { display: none; }
   .hud--landing .hud__actions { gap: 10px; }
