@@ -29,6 +29,76 @@ const wa = (msg) => `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
 const withV = (s, V) => s.split('{V}').join(V);
 const icon = (id, cls = 'icon') => `<svg class="${cls}" aria-hidden="true"><use href="#${id}"></use></svg>`;
 
+// Тонкие линейные значки, общие для экрана выбора и главной: {{icons}} в начале <body>
+const ICONS = {
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  chevron: '<path d="M6 9l6 6 6-6"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+  chat: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+  phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  sound: '<path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
+  mute: '<path d="M11 5L6 9H3v6h3l5 4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>',
+  down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+  swap: '<path d="M7 7h12l-3-3M17 17H5l3 3"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  facebook: '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
+  person: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+};
+const iconSprite = `<svg width="0" height="0" style="position:absolute" aria-hidden="true">${
+  Object.entries(ICONS).map(([id, d]) => `<symbol id="i-${id}" viewBox="0 0 24 24">${d}</symbol>`).join('')}</svg>`;
+const hudIcon = (id) => icon(`i-${id}`, 'hud__icon');
+
+// Общая шапка (HUD) экрана выбора и главной: {{header}}.
+// root — путь до корня сайта; langHref(dir) — куда ведёт пункт языка; landing — кнопка категории и «Контакты»
+function renderHeader(lang, t, { root, home, langHref, landing }) {
+  const langs = Object.keys(LANGS).map((dir) =>
+    `<li><a href="${langHref(dir)}" lang="${LANGS[dir]}" hreflang="${LANGS[dir]}" data-lang="${dir}"${dir === lang ? ' aria-current="page"' : ''}><span>${esc(locales[dir].langName)}</span>${dir === lang ? icon('i-check', 'icon icon--sm') : ''}</a></li>`).join('');
+  const chip = landing
+    ? `<a class="hud__pill hud__chip" id="vehicle-chip" href="choose/" aria-label="${esc(t.changeVehicle)}: C / D"
+      data-label="${esc(t.changeVehicle)}" data-truck="${esc(t.chooseTruck)}" data-bus="${esc(t.chooseBus)}">
+      ${hudIcon('swap')}<span class="hud__chip-long">C / D</span><span class="hud__chip-short" aria-hidden="true">C·D</span></a>
+    <a class="hud__link" href="#final">${esc(t.toContacts)}</a>`
+    : '';
+  return `<header class="hud${landing ? ' hud--landing' : ''}" id="hud">
+  <a class="hud__brand" href="${home}">
+    <img class="hud__logo" src="${root}assets/logo.png" alt="${esc(BRAND_FULL)}" width="44" height="44">
+    <span class="hud__brand-text" aria-hidden="true"><span class="hud__name">${esc(BRAND.name)}</span><span class="hud__sub">${esc(BRAND.sub)}</span></span>
+  </a>
+  <div class="hud__actions">
+    ${chip}
+    <details class="lang-menu hud__lang">
+      <summary class="hud__pill" aria-label="${esc(t.langLabel)}: ${esc(t.langName)}">
+        ${hudIcon('globe')}
+        <span class="hud__lang-name">${esc(t.langName)}</span><span class="hud__lang-code" aria-hidden="true">${lang.toUpperCase()}</span>
+        ${icon('i-chevron', 'hud__icon hud__chev')}
+      </summary>
+      <ul class="lang-menu__list">${langs}</ul>
+    </details>
+    <button type="button" class="hud__pill hud__sound" id="sound-btn" aria-pressed="false"
+      aria-label="${esc(t.soundOnAria)}" data-on-aria="${esc(t.soundOnAria)}" data-off-aria="${esc(t.soundOffAria)}">
+      ${hudIcon('mute')}
+      <span class="hud__sound-label">${esc(t.soundLabel)}</span>
+    </button>
+    <a class="hud__pill hud__wa" href="${esc(wa(t.waHello))}" target="_blank" rel="noopener" data-track="whatsapp">
+      ${hudIcon('chat')}<span>WhatsApp</span>
+    </a>
+  </div>
+</header>`;
+}
+
+// Нижняя панель на телефоне (WhatsApp + звонок): {{dock}}
+const renderDock = (t) => `<nav class="dock" aria-label="${esc(BRAND_FULL)}">
+  <a class="dock__wa" href="${esc(wa(t.waHello))}" target="_blank" rel="noopener" data-track="whatsapp">
+    ${hudIcon('chat')}<span>WhatsApp</span>
+  </a>
+  <a class="dock__call" href="tel:+${PHONE}" aria-label="${esc(t.call)}">${hudIcon('phone')}</a>
+</nav>`;
+
+// ?v=<хэш содержимого> у общих файлов: поменяли файл — меняется ссылка, браузер не возьмёт старый из кэша
+const stamp = (file) => crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex').slice(0, 8);
+const stampRefs = (html) => html.replace(/(?:choose-assets|shared)\/[\w/-]+\.(?:css|js|webp)/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`);
+
 // Блоки, которые собираются из массивов словаря
 function blocks(lang, t) {
   const whyIcons = ['i-d-speech', 'i-d-route', 'i-d-person'];
@@ -80,6 +150,7 @@ function blocks(lang, t) {
 }
 
 fs.rmSync('dist', { recursive: true, force: true });
+fs.cpSync('src/shared', 'dist/shared', { recursive: true }); // общие файлы шапки и звука
 
 for (const lang of Object.keys(LANGS)) {
   const t = locales[lang];
@@ -103,7 +174,7 @@ if (fs.existsSync('src/assets')) fs.cpSync('src/assets', 'dist/assets', { recurs
 // Звуки мотора подключаются, только если файлы есть
 const SOUND_FILES = { truck: 'engine-truck.mp3', bus: 'engine-bus.mp3' };
 fs.mkdirSync('dist/choose-assets', { recursive: true });
-for (const f of ['choose.css', 'hud.css', 'choose.js', 'sound.js']) fs.copyFileSync(`src/choose/${f}`, `dist/choose-assets/${f}`);
+for (const f of ['choose.css', 'choose.js']) fs.copyFileSync(`src/choose/${f}`, `dist/choose-assets/${f}`);
 for (const d of ['img', 'media']) {
   fs.cpSync(`src/choose/${d}`, `dist/choose-assets/${d}`, { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });
 }
@@ -112,29 +183,22 @@ const sounds = Object.fromEntries(Object.entries(SOUND_FILES)
   .map(([k, f]) => [k, `../../choose-assets/media/${f}`]));
 const chooseTpl = fs.readFileSync('src/choose/index.html', 'utf8');
 if (!chooseTpl.includes('data-sounds="{}"')) throw new Error('choose/index.html: нет атрибута data-sounds="{}"');
-// ?v=<хэш содержимого> у картинок: поменяли кадр — меняется ссылка, браузер не покажет старый из кэша
-const stamp = (file) => crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex').slice(0, 8);
 for (const lang of Object.keys(LANGS)) {
   const t = locales[lang];
   const b = {
     htmlLang: LANGS[lang],
-    langCode: lang.toUpperCase(),
-    brandName: esc(BRAND.name),
-    brandSub: esc(BRAND.sub),
     brandFull: esc(BRAND_FULL),
-    waHref: esc(wa(t.waHello)),
-    telHref: `tel:+${PHONE}`,
-    langItems: Object.keys(LANGS).map((dir) =>
-      `<li><a href="../../${dir}/choose/" lang="${LANGS[dir]}" hreflang="${LANGS[dir]}" data-lang="${dir}"${dir === lang ? ' aria-current="page"' : ''}><span>${esc(locales[dir].langName)}</span>${dir === lang ? icon('i-check', 'icon icon--sm') : ''}</a></li>`).join(''),
+    icons: iconSprite,
+    header: renderHeader(lang, t, { root: '../../', home: '../', langHref: (dir) => `../../${dir}/choose/`, landing: false }),
+    dock: renderDock(t),
   };
-  const html = chooseTpl.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+  let html = chooseTpl.replace(/\{\{(\w+)\}\}/g, (_, key) => {
     if (key in b) return b[key];
     if (!(key in t)) throw new Error(`choose, ${lang}: в словаре нет ключа "${key}"`);
     return esc(t[key]);
   })
-    .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}"`)
-    .replace(/choose-assets\/img\/[\w-]+\.webp/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`)
-    .replace(/choose-assets\/[\w-]+\.(css|js)/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`);
+    .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}"`);
+  html = stampRefs(html);
   fs.mkdirSync(`dist/${lang}/choose`, { recursive: true });
   fs.writeFileSync(`dist/${lang}/choose/index.html`, html);
 }
