@@ -310,6 +310,7 @@ img { display: block; max-width: 100%; }
 
   .rcard--intro .eyebrow, .rcard--intro .btn--gold { display: none; }
   .ride__next { top: 52%; bottom: auto; transform: translate(-50%, -50%); min-width: 180px; height: 58px; font-size: 18px; }
+  @media (min-width: 600px) { .ride__next { top: 42%; } } /* планшет в портрете: кадр обрезан сверху и снизу, машина выше */
   .dots { right: 2px; gap: 0; }
   .dots__dot { width: 14px; height: 18px; }
   .dots__dot::before { width: 5px; height: 5px; }
