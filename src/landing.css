@@ -2,7 +2,7 @@
    Токены — shared/tokens.css, шапка и нижняя панель — shared/hud.css.
    Телефон = (max-aspect-ratio: 9/10): вертикальные кадры (port), карточки сверху над небом.
    Узкий экран боком (max-width: 760px) — компактная шапка и нижняя панель, как на телефоне. */
-:root { --hud-h: 72px; --side: 48px; }
+:root { --hud-h: 72px; --side: 48px; --ride-vh: 900vh; } /* --ride-vh: высота «дороги», ~90vh на карточку */
 html { background: var(--ink); scroll-padding-top: var(--hud-h); }
 body {
   margin: 0; background: var(--ink); color: var(--text); overflow-x: clip;
@@ -50,7 +50,7 @@ img { display: block; max-width: 100%; }
 
 /* ================= ДОРОГА: ролик + карточки ================= */
 .ride { position: relative; background: var(--ink); }
-.ride--live { height: var(--ride-vh, 900vh); } /* скорость ролика задаёт высота: ~90vh на карточку */
+.ride--live { height: var(--ride-vh); } /* скорость ролика задаёт высота секции */
 .ride__sticky { position: relative; height: 100vh; height: 100svh; overflow: hidden; }
 .ride--live .ride__sticky { position: sticky; top: 0; }
 
@@ -279,13 +279,14 @@ img { display: block; max-width: 100%; }
     top: calc(var(--hud-h) + env(safe-area-inset-top) + 12px);
   }
   .rcard { align-self: start; max-width: none; }
-  .rcard:not(.rcard--intro) { padding: 16px 18px; border-radius: 16px; }
-  .rcard--step { padding-right: 68px !important; } /* место под значок счётчика */
+  .rcard:not(.rcard--intro) { padding: 14px 16px; border-radius: 16px; }
+  .ride__still img { object-position: 50% 70%; } /* как ay набора port в ride.js */
+  .rcard--step { padding-right: 60px !important; } /* место под значок счётчика */
   .rcard .eyebrow { margin-bottom: 6px; font-size: 11.5px; }
   .rcard__title { margin-bottom: 6px; font-size: clamp(21px, 6vw, 26px); }
-  .rcard p:not(.eyebrow) { font-size: 14.5px; line-height: 1.5; }
-  .rcard .actions { margin-top: 12px; }
-  .rcard .btn { min-height: 46px; padding: 0 18px; font-size: 15px; }
+  .rcard p:not(.eyebrow) { font-size: 14px; line-height: 1.45; }
+  .rcard .actions { margin-top: 12px; gap: 8px; }
+  .rcard .btn { min-height: 44px; padding: 0 16px; font-size: 15px; }
 
   .rcard--intro .eyebrow, .scroll-hint, .rcard--intro .btn--gold { display: none; }
   .rcard__title--xl { margin-bottom: 10px; font-size: clamp(30px, 8.4vw, 40px); line-height: 1.04; }
@@ -294,7 +295,7 @@ img { display: block; max-width: 100%; }
   /* счётчик — маленький значок в правом верхнем углу карточки */
   .ring {
     right: calc(var(--side) + 12px); bottom: auto; top: calc(var(--hud-h) + env(safe-area-inset-top) + 24px);
-    width: 44px; height: 44px; background: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+    width: 44px; height: 44px; background: none; top: calc(var(--hud-h) + env(safe-area-inset-top) + 22px); right: calc(var(--side) + 10px); -webkit-backdrop-filter: none; backdrop-filter: none;
   }
   .ring circle { stroke-width: 7; }
   .ring__n { font-size: 18px; }
@@ -302,6 +303,7 @@ img { display: block; max-width: 100%; }
 
   .ride:not(.ride--live) .rcard--intro { justify-content: flex-start; padding: calc(var(--hud-h) + 24px) 0 0; }
   .ride:not(.ride--live) .ride__shade { background: linear-gradient(180deg, rgba(14, 17, 19, .82) 0%, rgba(14, 17, 19, .5) 40%, rgba(14, 17, 19, 0) 60%), linear-gradient(0deg, var(--ink) 0%, rgba(14, 17, 19, 0) 25%); }
+  .final__bg img { object-position: 50% 70%; }
   .final::before { background: linear-gradient(180deg, rgba(14, 17, 19, .85) 0%, rgba(14, 17, 19, .55) 55%, rgba(14, 17, 19, .85) 100%); }
 }
 
