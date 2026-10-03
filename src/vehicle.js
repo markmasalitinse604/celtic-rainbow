@@ -1,24 +1,43 @@
-// Пришли со страницы выбора (/choose/ → ?vehicle=truck|bus): категория в плане и в сообщениях WhatsApp,
-// для автобуса — пометка, что ролик пока с грузовиком
+// Транспорт главной: ?vehicle=truck|bus (с экрана выбора) → localStorage 'vehicle' → 'both' («пока не знаю»).
+// Статичный HTML собран в варианте «оба» (C / D); здесь подставляем C или D: тексты с {cat} (<span data-cat>),
+// строка возраста, кнопка категории в шапке, сообщения WhatsApp (waCat), пометка «ролик автобуса скоро».
+// Результат — window.SiteVehicle = { kind, V }: его читают plan.js и ride.js.
 (() => {
-  const vehicle = new URLSearchParams(location.search).get('vehicle');
-  if (vehicle !== 'truck' && vehicle !== 'bus') return;
-  const V = vehicle === 'bus' ? 'D' : 'C';
-  const data = JSON.parse(document.getElementById('route-data').textContent);
-
-  // «Ваш путь»: выбираем транспорт — route.js сам перестроит шаги и ссылку плана
-  const form = document.getElementById('route-form');
-  if (form) {
-    form.elements.veh.value = V;
-    form.dispatchEvent(new Event('change'));
+  const CAT = { truck: 'C', bus: 'D', both: 'C / D' };
+  const fromUrl = new URLSearchParams(location.search).get('vehicle');
+  let kind = fromUrl;
+  if (!CAT[kind] || kind === 'both') {
+    try { kind = localStorage.getItem('vehicle'); } catch (_) { kind = null; }
+  } else {
+    try { localStorage.setItem('vehicle', kind); } catch (_) { /* приватный режим */ }
   }
+  if (kind !== 'truck' && kind !== 'bus') kind = 'both';
+  const V = CAT[kind];
+  window.SiteVehicle = { kind, V };
+  document.documentElement.dataset.vehicle = kind;
 
-  // Остальные кнопки WhatsApp: дописываем категорию в текст
+  // Кнопка категории в шапке: ПК — «Грузовик · C», телефон — «C»; в варианте «оба» — «C / D» и «C·D»
+  const chip = document.getElementById('vehicle-chip');
+  if (chip && kind !== 'both') {
+    const name = chip.dataset[kind];
+    chip.querySelector('.hud__chip-long').textContent = `${name} · ${V}`;
+    chip.querySelector('.hud__chip-short').textContent = V;
+    chip.setAttribute('aria-label', `${chip.dataset.label}: ${name} · ${V}`);
+  }
+  if (kind === 'both') return;
+
+  document.querySelectorAll('[data-cat]').forEach((el) => { el.textContent = V; });
+  document.querySelectorAll('[data-age]').forEach((el) => { el.hidden = el.dataset.age !== V; });
+
+  // Сообщения WhatsApp: дописываем категорию (ссылку плана собирает plan.js)
+  const data = JSON.parse(document.getElementById('site-data').textContent);
   const cat = data.waCat.split('{V}').join(V);
-  document.querySelectorAll('a[href^="https://wa.me/"]:not(#plan-link)').forEach((a) => {
+  document.querySelectorAll('a[data-track="whatsapp"]:not(#plan-link)').forEach((a) => {
     const text = new URL(a.href).searchParams.get('text') || '';
     a.href = `https://wa.me/${data.phone}?text=${encodeURIComponent(`${text} ${cat}`.trim())}`;
   });
 
-  if (vehicle === 'bus') document.getElementById('ride-note')?.removeAttribute('hidden');
+  // Автобус, а кадров автобуса ещё нет — показываем фуру и пометку
+  const ride = document.getElementById('ride');
+  if (kind === 'bus' && ride && !ride.dataset.framesBus) document.getElementById('ride-note')?.removeAttribute('hidden');
 })();
