@@ -76,7 +76,7 @@ function renderHeader(lang, t, { root, home, langHref, landing }) {
       <ul class="lang-menu__list">${langs}</ul>
     </details>
     <button type="button" class="hud__pill hud__sound" id="sound-btn" aria-pressed="false"
-      aria-label="${esc(t.soundOnAria)}" data-on-aria="${esc(t.soundOnAria)}" data-off-aria="${esc(t.soundOffAria)}">
+      aria-label="${esc(t.soundOnAria)}" data-on-aria="${esc(t.soundOnAria)}" data-off-aria="${esc(t.soundOffAria)}"${landing ? ' data-sound-auto' : ''}>
       ${hudIcon('mute')}
       <span class="hud__sound-label">${esc(t.soundLabel)}</span>
     </button>

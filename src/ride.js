@@ -207,6 +207,11 @@
     overScene();
     request();
   });
+  // Фоновый звук (если файл есть и звук включён): громкость и скорость следуют за прокруткой — см. shared/sound.js.
+  // При «уменьшить движение» звука нет
+  const ambient = JSON.parse(document.getElementById('site-data').textContent).ambient;
+  if (ambient && !reduceMotion && window.SiteSound) window.SiteSound.setAmbient(ambient);
+
   load(pickSet()); // сцена — первый экран, кадры грузим сразу
   overScene();
   request();
