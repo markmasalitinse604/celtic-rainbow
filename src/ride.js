@@ -36,7 +36,7 @@
   const SETS = {
     hd: { dir: 'hd', count: 120 },     // 1920×1086
     land: { dir: 'land', count: 120 }, // 1280×724
-    port: { dir: 'port', count: 120, ay: 0.7 }, // 720×1274; машина в нижней трети — обрезаем больше неба, чем дороги
+    port: { dir: 'port', count: 120, ay: 0.8 }, // 720×1274; машина в нижней трети — обрезаем больше неба, чем дороги
   };
   // Кадры автобуса (src/assets/ride-bus) — только если они есть (data-frames-bus ставит build.js)
   const isBus = window.SiteVehicle && window.SiteVehicle.kind === 'bus';
