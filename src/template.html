@@ -57,38 +57,48 @@
           <p class="eyebrow">{{brandFull}}</p>
           <h1 class="rcard__title rcard__title--xl">{{jTitle}}</h1>
           <p class="rcard__lead">{{jLead}}</p>
-          <div class="actions">
-            <a class="btn btn--gold" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>{{wa}}</span></a>
-            <a class="btn btn--ghost" href="#plan">{{jCtaPlan}}</a>
+          <div class="actions actions--next">
+            <a class="btn btn--gold btn--lg" href="#plan">{{jCtaPlan}}</a>
+            <a class="btn btn--ghost btn--lg rcard__wa" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>{{wa}}</span></a>
+            {{next0}}
           </div>
-          <p class="scroll-hint" aria-hidden="true"><span>{{jScrollHint}}</span>{{iconDown}}</p>
         </li>
         {{rideSteps}}
         <li class="rcard" data-i="6">
           <p class="eyebrow">{{jWhyLabel}}</p>
           <h2 class="rcard__title">{{jW1Title}}</h2>
           <p>{{jW1Text}}</p>
+          {{next6}}
         </li>
         <li class="rcard" data-i="7">
           <p class="eyebrow">{{jWhyLabel}}</p>
           <h2 class="rcard__title">{{jW2Title}}</h2>
           <p>{{jW2Text}}</p>
+          {{next7}}
         </li>
         <li class="rcard" data-i="8">
           <p class="eyebrow">{{jWhyLabel}}</p>
           <h2 class="rcard__title">{{jW3Title}}</h2>
           <p>{{jW3Text}}</p>
+          {{next8}}
         </li>
         <li class="rcard" data-i="9">
           <p class="eyebrow">{{jFinalLabel}}</p>
           <h2 class="rcard__title">{{jFinalTitle}}</h2>
           <p>{{jFinalText}}</p>
-          <div class="actions">
+          <div class="actions actions--next">
             <a class="btn btn--gold" href="#plan">{{jCtaPlan}}</a>
-            <a class="btn btn--ghost" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>WhatsApp</span></a>
+            <a class="btn btn--ghost rcard__wa" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>WhatsApp</span></a>
+            {{next9}}
           </div>
         </li>
       </ol>
+
+      <!-- Шкала из 10 точек: где посетитель сейчас и сколько впереди. Для мыши; с клавиатуры — кнопки «Далее» -->
+      <div class="dots" aria-hidden="true">{{rideDots}}</div>
+
+      <!-- ПК: главное действие всегда под рукой, пока идёт ролик (на телефоне — нижняя панель) -->
+      <a class="btn btn--gold ride__cta" href="#plan" tabindex="-1" aria-hidden="true">{{jCtaPlan}}</a>
 
       <!-- Счётчик шагов «N из 5»: виден только на пяти шагах -->
       <div class="ring" aria-hidden="true">

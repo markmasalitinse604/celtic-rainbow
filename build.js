@@ -118,10 +118,16 @@ const hasAmbient = fs.existsSync(`src/${AMBIENT}`);
 // Блоки главной, которые собираются из словаря
 function blocks(lang, t) {
   const plan = withV(t.waPlan.split('{L}').join(t.lic.eu), CAT_BOTH);
+  // Кнопка «Далее» в карточке i: ride.js плавно докручивает до карточки i + 1, с последней — к плану.
+  // Доступное имя называет, куда ведёт («Далее: Learner permit»)
+  const titles = [t.jTitle, t.jS1Title, t.jS2Title, t.jS3Title, t.jS4Title, t.jS5Title,
+    t.jW1Title, t.jW2Title, t.jW3Title, t.jFinalTitle, t.jPlanTitle].map((s) => s.split('{cat}').join(CAT_BOTH));
+  const next = (i) => `<button type="button" class="next" data-next="${i + 1}" aria-label="${esc(`${t.jNext}: ${titles[i + 1]}`)}"><span>${esc(t.jNext)}</span>${icon('i-down')}</button>`;
   const steps = [1, 2, 3, 4, 5].map((n) => `<li class="rcard rcard--step" data-i="${n}" data-step="${n}">
           <p class="eyebrow">${esc(t.jStepLabel.split('{n}').join(n))}</p>
           <h2 class="rcard__title">${txt(t[`jS${n}Title`])}</h2>
           <p>${txt(t[`jS${n}Text`])}</p>
+          ${next(n)}
         </li>`).join('\n        ');
 
   return {
@@ -136,10 +142,11 @@ function blocks(lang, t) {
     dock: renderDock(t),
     iconChat: icon('i-chat'),
     iconPhone: icon('i-phone'),
-    iconDown: icon('i-down'),
     iconInfo: icon('i-info'),
     framesBus: hasBusFrames ? ' data-frames-bus="../assets/ride-bus"' : '',
     rideSteps: steps,
+    ...Object.fromEntries([0, 6, 7, 8, 9].map((i) => [`next${i}`, next(i)])),
+    rideDots: titles.slice(0, 10).map((_, i) => `<button type="button" class="dots__dot" data-next="${i}" tabindex="-1"></button>`).join(''),
     telHref: `tel:+${PHONE}`,
     phoneDisplay: esc(PHONE_DISPLAY),
     waHref: esc(wa(t.waHello)),

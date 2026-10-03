@@ -47,6 +47,7 @@
   const cards = [...ride.querySelectorAll('.rcard')];
   const ring = ride.querySelector('.ring');
   const ringN = ring.querySelector('.ring__n');
+  const dots = [...ride.querySelectorAll('.dots__dot')];
   ride.classList.add('ride--live');
 
   function getProgress() {
@@ -148,6 +149,8 @@
       c.toggleAttribute('inert', !on); // неактивные карточки — вне фокуса и вне дерева доступности
       if (on) c.removeAttribute('aria-hidden'); else c.setAttribute('aria-hidden', 'true');
     });
+    dots.forEach((d, k) => d.classList.toggle('is-on', k === i));
+    ride.dataset.card = i; // .ride[data-card="0"] — вступление: плавающая кнопка и точки прячутся
     const step = Number(cards[i].dataset.step) || 0; // 1–5 только на шагах
     ring.classList.toggle('is-on', step > 0);
     if (step) {
@@ -155,6 +158,47 @@
       ring.style.setProperty('--ring-off', String(100 - step * 20));
     }
   }
+
+  // ---------- «Далее» и точки: плавно докрутить до карточки ----------
+  // Своя анимация прокрутки (а не behavior: 'smooth'): одинаковая скорость во всех браузерах, ролик успевает
+  // проехать свой отрезок. Любое действие посетителя (колесо, касание, клавиша) сразу её останавливает
+  const GO_MS = [900, 1600]; // мин. и макс. длительность, мс — по длине пути
+  let go = 0;
+  const stopGo = () => { cancelAnimationFrame(go); go = 0; };
+  ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, stopGo, { passive: true }));
+  function cardTop(i) { // начало карточки i (чуть дальше порога, чтобы она точно была активной); 10 — план
+    if (i >= AT.length) return document.getElementById('plan').getBoundingClientRect().top + scrollY;
+    const r = ride.getBoundingClientRect();
+    return r.top + scrollY + Math.min(1, AT[i] + 0.012) * (r.height - innerHeight);
+  }
+  function goTo(i, focus) {
+    stopGo();
+    const from = scrollY, to = Math.round(cardTop(i)), dist = to - from;
+    const done = () => {
+      go = 0;
+      if (i < AT.length) setCard(getProgress()); // карточка становится активной (снимается inert) до фокуса
+      if (!focus) return;
+      const el = i < AT.length ? cards[i].querySelector('.next') : document.getElementById('plan-title');
+      if (el && !el.matches('button, a')) el.setAttribute('tabindex', '-1');
+      el?.focus({ preventScroll: true });
+    };
+    if (reduceMotion || !dist) { scrollTo({ top: to, behavior: 'instant' }); done(); return; }
+    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * 700));
+    const t0 = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - t0) / ms);
+      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // ease-in-out
+      scrollTo({ top: from + dist * e, behavior: 'instant' });
+      if (t < 1) go = requestAnimationFrame(step); else done();
+    };
+    // клик тоже вызывает pointerdown → stopGo, поэтому анимацию запускаем кадром позже
+    requestAnimationFrame(() => { go = requestAnimationFrame(step); });
+  }
+  ride.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-next]');
+    if (!b) return;
+    goTo(Number(b.dataset.next), b.classList.contains('next'));
+  });
 
   // ---------- Автостарт ----------
   // Положение ролика v = auto + p · (1 − A): auto плавно растёт от 0 до A = AUTO_TO, поэтому после автостарта

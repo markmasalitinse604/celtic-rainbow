@@ -59,13 +59,15 @@ img { display: block; max-width: 100%; }
 .ride__canvas { opacity: 0; transition: opacity .3s; }
 .ride--ready .ride__canvas { opacity: 1; }
 
-/* Затемнение: слева (под текст) и снизу; сверху — градиент шапки */
+/* Затемнение: слева (под текст) и снизу, сверху — под шапку; плюс лёгкое общее приглушение ролика,
+   чтобы текст не спорил с картинкой */
 .ride__shade {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(14, 17, 19, .72) 0%, rgba(14, 17, 19, .38) 38%, rgba(14, 17, 19, 0) 62%),
-    linear-gradient(0deg, rgba(14, 17, 19, .6) 0%, rgba(14, 17, 19, 0) 40%),
-    linear-gradient(180deg, rgba(14, 17, 19, .45) 0%, rgba(14, 17, 19, 0) 22%);
+    linear-gradient(90deg, rgba(14, 17, 19, .86) 0%, rgba(14, 17, 19, .55) 36%, rgba(14, 17, 19, 0) 66%),
+    linear-gradient(0deg, rgba(14, 17, 19, .72) 0%, rgba(14, 17, 19, 0) 42%),
+    linear-gradient(180deg, rgba(14, 17, 19, .5) 0%, rgba(14, 17, 19, 0) 22%),
+    rgba(14, 17, 19, .14);
 }
 
 /* Пометка «ролик автобуса скоро»: стеклянная плашка вверху */
@@ -89,32 +91,67 @@ img { display: block; max-width: 100%; }
 }
 .rcard.is-on { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
 .rcard:not(.rcard--intro) {
-  padding: 24px 28px; border-radius: 20px; background: var(--glass); border: 1px solid var(--line);
-  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 18px 40px rgba(0, 0, 0, .25);
+  padding: 26px 30px 22px; border-radius: 20px; background: rgba(14, 17, 19, .8); border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  box-shadow: inset 3px 0 0 var(--gold), 0 18px 40px rgba(0, 0, 0, .3); /* золотая полоса слева — акцент */
 }
 .rcard .eyebrow { margin-bottom: 10px; }
 .rcard__title {
-  margin-bottom: 10px; font: 600 clamp(26px, 2.6vw, 36px)/1.08 var(--display); text-transform: uppercase; letter-spacing: .01em;
+  margin-bottom: 12px; font: 600 clamp(30px, 3vw, 42px)/1.06 var(--display); text-transform: uppercase; letter-spacing: .01em;
 }
-.rcard p:not(.eyebrow) { color: #E4E2DC; font-size: 16.5px; }
+.rcard p:not(.eyebrow) { color: #F0EEE8; font-size: 18px; line-height: 1.5; }
 
 /* Вступление — не карточка: заголовок прямо на сцене */
-.rcard--intro { max-width: 760px; text-shadow: 0 2px 16px rgba(0, 0, 0, .45); }
+.rcard--intro { max-width: 760px; text-shadow: 0 2px 18px rgba(0, 0, 0, .6); }
 .rcard__title--xl { margin-bottom: 18px; font-size: clamp(42px, 5.6vw, 84px); line-height: 1.0; }
-.rcard--intro .rcard__lead { max-width: 560px; margin-bottom: 26px; color: #F3F1EC; font-size: 18.5px; }
+.rcard--intro .rcard__lead { max-width: 600px; margin-bottom: 28px; color: #fff; font-size: 21px; line-height: 1.5; }
 .rcard--intro .btn { text-shadow: none; }
-.scroll-hint {
-  display: flex; align-items: center; gap: 8px; margin-top: 28px; color: rgba(255, 255, 255, .8);
-  font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
-}
-.scroll-hint .icon { width: 16px; height: 16px; animation: hint 1.8s ease-in-out infinite; }
-@keyframes hint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 .rcard .actions { margin-top: 18px; }
 .rcard--intro .actions { margin-top: 0; }
 
+/* «Далее»: докручивает до следующей карточки (ride.js) */
+.next {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 16px; padding: 0 18px 0 20px;
+  border: 1px solid rgba(255, 255, 255, .5); border-radius: 999px; background: rgba(255, 255, 255, .06);
+  color: #fff; font: 800 15px/1 var(--ui); letter-spacing: .02em; cursor: pointer; text-shadow: none;
+  transition: background-color .2s, border-color .2s, color .2s;
+}
+.next:hover { background: rgba(242, 184, 75, .16); border-color: var(--gold); color: var(--gold-hi); }
+.next .icon { width: 18px; height: 18px; animation: hint 1.8s ease-in-out infinite; }
+@keyframes hint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+/* Рядом с кнопками действий (вступление, финальная карточка): на ПК — отдельной строкой под ними,
+   на телефоне — в одном ряду с главной кнопкой */
+.actions--next::before { content: ""; order: 2; flex-basis: 100%; height: 0; }
+.actions--next .next { order: 3; margin-top: 4px; }
+/* на вступлении — заметнее: золотая рамка и мягкая пульсация */
+.rcard--intro .next { margin-top: 10px; border-color: rgba(242, 184, 75, .7); animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(242, 184, 75, .35); } 50% { box-shadow: 0 0 0 8px rgba(242, 184, 75, 0); } }
+
+/* Шкала из 10 точек справа: где посетитель и сколько впереди */
+.dots {
+  position: absolute; z-index: 2; right: 18px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 4px; transition: opacity .3s;
+}
+.dots__dot { width: 22px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.dots__dot::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, .45);
+  box-shadow: 0 0 0 1px rgba(14, 17, 19, .35); transition: background-color .3s, transform .3s;
+}
+.dots__dot:hover::before { background: #fff; }
+.dots__dot.is-on::before { background: var(--gold); transform: scale(1.5); }
+
+/* Плавающая главная кнопка (ПК), пока идёт ролик; на вступлении и финальной карточке не нужна */
+.ride__cta {
+  position: absolute; z-index: 2; right: var(--side); bottom: 56px; box-shadow: 0 10px 28px rgba(0, 0, 0, .35);
+  transition: opacity .35s, transform .35s, visibility 0s;
+}
+.ride[data-card="0"] .ride__cta, .ride[data-card="9"] .ride__cta, .ride:not([data-card]) .ride__cta {
+  opacity: 0; visibility: hidden; transform: translateY(10px); transition: opacity .35s, transform .35s, visibility 0s linear .35s;
+}
+
 /* Счётчик «N из 5»: справа внизу, только на шагах */
 .ring {
-  position: absolute; z-index: 2; right: var(--side); bottom: 56px; width: 120px; height: 120px;
+  position: absolute; z-index: 2; right: var(--side); bottom: 128px; width: 120px; height: 120px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   border-radius: 50%; background: rgba(14, 17, 19, .55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   opacity: 0; transform: scale(.92); transition: opacity .4s ease, transform .4s ease; pointer-events: none;
@@ -130,7 +167,8 @@ img { display: block; max-width: 100%; }
 /* Статичная версия (без JS, экономия трафика): один кадр, вступление на нём, остальные карточки списком */
 .ride:not(.ride--live) .ride__sticky { height: auto; overflow: visible; }
 .ride:not(.ride--live) .ride__still { height: 100vh; height: 100svh; }
-.ride:not(.ride--live) .ride__canvas, .ride:not(.ride--live) .ring, .ride:not(.ride--live) .scroll-hint { display: none; }
+.ride:not(.ride--live) .ride__canvas, .ride:not(.ride--live) .ring, .ride:not(.ride--live) .next,
+.ride:not(.ride--live) .dots, .ride:not(.ride--live) .ride__cta { display: none; }
 .ride:not(.ride--live) .ride__shade { height: 100vh; height: 100svh; }
 .ride:not(.ride--live) .ride__cards {
   position: relative; left: auto; right: auto; top: auto; bottom: auto; width: auto; max-width: 1240px; margin: 0 auto;
@@ -273,23 +311,36 @@ img { display: block; max-width: 100%; }
 @media (max-aspect-ratio: 9/10) {
   .ride__shade {
     background:
-      linear-gradient(180deg, rgba(14, 17, 19, .82) 0%, rgba(14, 17, 19, .62) 30%, rgba(14, 17, 19, .2) 46%, rgba(14, 17, 19, 0) 56%);
+      linear-gradient(180deg, rgba(14, 17, 19, .9) 0%, rgba(14, 17, 19, .74) 30%, rgba(14, 17, 19, .3) 46%, rgba(14, 17, 19, 0) 58%);
   }
   .ride__cards {
     left: var(--side); right: var(--side); bottom: auto; width: auto;
     top: calc(var(--hud-h) + env(safe-area-inset-top) + 12px);
   }
   .rcard { align-self: start; max-width: none; }
-  .rcard:not(.rcard--intro) { padding: 14px 16px; border-radius: 16px; }
+  .rcard:not(.rcard--intro) { padding: 14px 16px 12px; border-radius: 16px; }
   .ride__still img { object-position: 50% 80%; } /* как ay набора port в ride.js */
   .ride--live .rcard--step { padding-right: 60px; } /* место под значок счётчика */
   .rcard .eyebrow { margin-bottom: 6px; font-size: 11.5px; }
   .rcard__title { margin-bottom: 6px; font-size: clamp(21px, 6vw, 26px); }
-  .rcard p:not(.eyebrow) { font-size: 14px; line-height: 1.45; }
+  .rcard p:not(.eyebrow) { font-size: 14.5px; line-height: 1.45; }
+  .next { min-height: 38px; margin-top: 10px; padding: 0 14px 0 16px; font-size: 14px; }
+  .actions--next::before { display: none; }
+  .actions--next .next, .rcard--intro .next { margin-top: 0; min-height: 44px; }
+  .ride__cta { display: none; } /* на телефоне действие — в нижней панели */
+  .dots { right: 2px; gap: 0; }
+  .dots__dot { width: 14px; height: 18px; }
+  .dots__dot::before { width: 5px; height: 5px; }
   .rcard .actions { margin-top: 12px; gap: 8px; }
   .rcard .btn { min-height: 44px; padding: 0 16px; font-size: 15px; }
 
-  .rcard--intro .eyebrow, .scroll-hint, .rcard--intro .btn--gold { display: none; }
+  .rcard--intro .eyebrow, .rcard__wa { display: none; } /* WhatsApp — в нижней панели */
+  @media (max-width: 380px) { /* маленькие телефоны: карточка не выше ~38% экрана */
+    .rcard:not(.rcard--intro) { padding: 12px 14px 10px; }
+    .rcard__title { font-size: 20px; }
+    .rcard p:not(.eyebrow) { font-size: 14px; line-height: 1.42; }
+    .next { margin-top: 8px; }
+  }
   .rcard__title--xl { margin-bottom: 10px; font-size: clamp(30px, 8.4vw, 40px); line-height: 1.04; }
   .rcard--intro .rcard__lead { margin-bottom: 14px; font-size: 15px; line-height: 1.5; }
 
@@ -309,6 +360,6 @@ img { display: block; max-width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rcard, .ring, .ring__bar, .ride__canvas, .faq summary .icon, .gallery__item img, .btn { transition: none !important; }
-  .scroll-hint .icon { animation: none; }
+  .rcard, .ring, .ring__bar, .ride__canvas, .faq summary .icon, .gallery__item img, .btn, .ride__cta, .dots__dot::before { transition: none !important; }
+  .next .icon, .rcard--intro .next { animation: none; }
 }
