@@ -4,7 +4,7 @@
 //  Каждый язык — отдельный блок ниже, ключи во всех блоках одинаковые.
 //  Твоё наполнение — в полях с [квадратными скобками], в каждом языке:
 //    name   — имя и фамилия
-//    about  — пара предложений о себе (блок «Обо мне»)
+//    about  — пара предложений о себе (блок «Ваш преподаватель»)
 //    photo  — подпись заглушки; не видна, если есть src/assets/teacher.jpg
 //  Телефон, Facebook и домен — в build.js (PHONE, PHONE_DISPLAY, FACEBOOK_URL, SITE_URL).
 //
@@ -14,9 +14,6 @@
 module.exports = {
   pl: {
     langName: "Polski",
-    navCourse: "Kurs",
-    navPath: "Twoja droga",
-    navFaq: "Pytania",
     wa: "Napisz na WhatsApp",
     waHello: "Dzień dobry! Chcę zapytać o kurs teorii na kategorię C/D.",
     waPlan: "Dzień dobry! Moje prawo jazdy: {L}. Chcę zdobyć kategorię {V}. Chcę zapisać się na kurs teorii.",
@@ -27,62 +24,80 @@ module.exports = {
     chooseCatC: "kategoria C",
     chooseBus: "Autobus",
     chooseCatD: "kategoria D",
-    chooseSkip: "Jeszcze nie wiem, pokaż wszystko",
     soundLabel: "Dźwięk",
     soundTip: "Włącz dźwięk",
     soundOnAria: "Włącz dźwięk",
     soundOffAria: "Wyłącz dźwięk",
     busSoon: "Film z autobusem już wkrótce — na razie pokazujemy ciężarówkę.",
-    heroTitle: "Teoria na ciężarówkę i autobus w Irlandii.",
-    heroSub: "Przygotuję Cię do egzaminu teoretycznego na kategorie C i D oraz do case study CPC.",
-    heroCta2: "Sprawdź swoją drogę",
+    jTitle: "Twoja droga do zawodu kierowcy",
+    jLead: "Teoria na kategorię {cat} w Irlandii, w Twoim języku: krok po kroku, od pierwszego pytania do karty CPC.",
+    jCtaPlan: "Ułóż swój plan",
+    jStepLabel: "Krok {n}",
+    jOf5: "z 5",
+    jNext: "Dalej",
+    jS1Title: "Egzamin teoretyczny: kategoria {cat}",
+    jS1Text: "100 pytań, do zaliczenia potrzeba 74, na całość 120 minut w centrum egzaminacyjnym. Pytania są po angielsku, dlatego razem rozkładamy każdy termin.",
+    jS2Title: "Learner permit",
+    jS2Text: "Wniosek składasz online w NDLS, z raportem medycznym od lekarza. Prawa jazdy z UE nie trzeba wymieniać.",
+    jS3Title: "Case study CPC",
+    jS3Text: "Trzy sytuacje z pracy kierowcy, po 15 pytań. Obowiązkowe, jeśli chcesz jeździć zawodowo.",
+    jS4Title: "Jazdy i egzaminy praktyczne",
+    jS4Text: "Jazdy z instruktorem ADI kategorii {cat}, potem egzamin praktyczny i walkaround.",
+    jS5Title: "Prawo jazdy i karta CPC",
+    jS5Text: "Z kartą CPC możesz pracować jako kierowca zawodowy.",
+    jWhyLabel: "Zawód",
+    jW1Title: "Miejsce pracy z widokiem",
+    jW1Text: "Góry, jeziora i nadmorskie drogi zamiast czterech ścian biura.",
+    jW2Title: "Pracodawcy szukają kierowców",
+    jW2Text: "Irlandzkie firmy transportowe regularnie zgłaszają trudności ze znalezieniem wystarczającej liczby kierowców ciężarówek i autobusów.",
+    jW3Title: "Możliwość rozwoju",
+    jW3Text: "Zacznij od jednej kategorii i dodaj kolejne później, na przykład przyczepę lub drugi rodzaj pojazdu.",
+    jFinalLabel: "Twoja droga",
+    jFinalTitle: "Twoja droga zaczyna się tutaj",
+    jFinalText: "Powiedz, jakie masz prawo jazdy, a pokażę plan ułożony właśnie dla Ciebie.",
+    jPlanTitle: "Ułóż swój plan",
+    jPlanLead: "Wybierz swoje prawo jazdy i zobacz kroki do kategorii {cat}.",
+    jTeacherLabel: "Twój nauczyciel",
+    jT1Title: "W Twoim języku",
+    jT1Text: "Po polsku, portugalsku, rosyjsku lub angielsku. Egzamin jest po angielsku, dlatego razem rozkładamy każdy termin.",
+    jT2Title: "Bezpośrednio z nauczycielem",
+    jT2Text: "Piszesz do mnie na WhatsApp i odpowiadam osobiście.",
+    jDoubtsTitle: "Szczere odpowiedzi na częste wątpliwości",
+    faq: [
+      [
+        "Czy mój angielski wystarczy?",
+        "Pytania na ekranie są po angielsku, ale sformułowania się powtarzają. Uczymy się terminów i typowych zwrotów, aż staną się znajome. Dla niektórych egzaminów dostępny jest lektor w innych językach, a Twój sprawdzamy przy rezerwacji."
+      ],
+      [
+        "Minęło wiele lat od nauki. Czy dam radę?",
+        "Zajęcia są krótkie i prowadzą krok po kroku: zawsze wiesz, czego uczyć się dziś i co będzie dalej."
+      ],
+      [
+        "Czy muszę wymieniać prawo jazdy z UE?",
+        "Nie. Z ważnym prawem jazdy z UE możesz od razu złożyć wniosek o learner permit C lub D."
+      ],
+      [
+        "Od ilu lat mogę zacząć?",
+        "Kategoria C od 18 lat, D od 21, jeśli robisz CPC. Bez CPC: od 21 i 24 lat."
+      ],
+      [
+        "Czy potrzebuję badań lekarskich?",
+        "Tak. Do learner permit C lub D potrzebny jest raport medyczny od lekarza, nie starszy niż 3 miesiące."
+      ]
+    ],
+    jEndTitle: "Twoja droga zaczyna się od jednej wiadomości",
+    jEndText: "Napisz, jakie masz prawo jazdy i czym chcesz jeździć.",
+    jMetaTitle: "Twoja droga do zawodu kierowcy w Irlandii | Celtic Rainbow Truck & Bus School",
+    jMetaDesc: "Teoria na prawo jazdy na ciężarówkę (C) i autobus (D) w Irlandii po polsku, portugalsku, rosyjsku lub angielsku: od egzaminu teoretycznego do karty CPC. Napisz do nauczyciela na WhatsApp.",
+    jStillAlt: "Biały pojazd na górskiej drodze w Irlandii o zachodzie słońca",
+    changeVehicle: "Zmień pojazd",
     photo: "[Zdjęcie]",
     name: "[Imię i nazwisko]",
-    whyTitle: "Dlaczego ze mną",
-    why: [
-      [
-        "Twój język i angielskie terminy",
-        "Na egzaminie pytania są na ekranie po angielsku. Tłumaczę każdy termin, żeby od razu był dla Ciebie jasny."
-      ],
-      [
-        "Znam drogę osoby z zagranicy",
-        "Prawo jazdy z UE, z Brazylii albo żadne: powiem, od czego zacząć."
-      ],
-      [
-        "Jeden nauczyciel",
-        "Piszesz bezpośrednio do mnie na WhatsApp i to ja odpowiadam."
-      ]
-    ],
-    courseTitle: "Co obejmuje kurs",
-    course: [
-      [
-        "C / D",
-        "Egzamin teoretyczny",
-        "100 pytań, 74 poprawne odpowiedzi, 120 minut. Przepisy, ocena ryzyka, eco-driving, zagrożenia na drodze."
-      ],
-      [
-        "CPC",
-        "Case study CPC",
-        "Trzy sytuacje z pracy kierowcy, po 15 pytań. Wymagane, jeśli chcesz jeździć zawodowo."
-      ],
-      [
-        "NDLS",
-        "Formalności krok po kroku",
-        "Learner permit, raport medyczny, rezerwacja egzaminów. Pokażę, co wypełnić i w jakiej kolejności."
-      ]
-    ],
-    pathTitle: "Sprawdź swoją drogę do kategorii C lub D",
-    pathIntro: "Wybierz, jakie masz prawo jazdy i czym chcesz jeździć.",
     qLic: "Moje prawo jazdy",
     lic: {
       eu: "Z UE (kat. B)",
       nonEu: "Spoza UE",
       none: "Nie mam prawa jazdy"
-    },
-    qVeh: "Chcę jeździć",
-    veh: {
-      c: "Ciężarówką (C)",
-      d: "Autobusem (D)"
     },
     ageC: "Kategoria C: od 18 lat z CPC, bez CPC od 21.",
     ageD: "Kategoria D: od 21 lat z CPC, bez CPC od 24.",
@@ -150,48 +165,16 @@ module.exports = {
         "Teoria {V}, learner permit, CPC i egzaminy praktyczne. Tu prowadzę Cię dalej."
       ]
     ],
-    aboutTitle: "O mnie",
     about: "[Kilka zdań o sobie: skąd jesteś, jakie masz prawo jazdy i doświadczenie, dlaczego uczysz.]",
-    faqTitle: "Częste pytania",
-    faq: [
-      [
-        "Czy mogę zdawać teorię po polsku?",
-        "Pytania na ekranie są po angielsku, ale możesz słuchać polskiego lektora w słuchawkach. Zaznacz to przy rezerwacji."
-      ],
-      [
-        "Czy muszę wymieniać polskie prawo jazdy?",
-        "Nie. Z ważnym prawem jazdy z UE możesz od razu złożyć wniosek o learner permit C lub D."
-      ],
-      [
-        "Od ilu lat mogę zacząć?",
-        "Kategoria C od 18 lat, kategoria D od 21, jeśli robisz CPC. Bez CPC: od 21 i 24 lat."
-      ],
-      [
-        "Czy potrzebuję badań lekarskich?",
-        "Tak. Do learner permit C lub D potrzebny jest raport medyczny od lekarza, nie starszy niż 3 miesiące."
-      ]
-    ],
-    ctaTitle: "Napisz do mnie.",
-    ctaText: "Powiedz, jakie masz prawo jazdy i czym chcesz jeździć, a ułożę Ci plan.",
     footer: "Niezależny kurs teorii. Nie jest powiązany z RSA, NDLS ani theorytest.ie.",
     galleryTitle: "Galeria",
     galleryAlt: "Zdjęcie",
     galleryClose: "Zamknij",
-    signTitle: "Egzamin teoretyczny",
-    signQuestions: "Pytań",
-    signPass: "Do zaliczenia",
-    signTime: "Czas",
-    signMinutes: "min",
     call: "Zadzwoń",
-    langLabel: "Język",
-    menuLabel: "Menu",
-    closeLabel: "Zamknij menu"
+    langLabel: "Język"
   },
   pt: {
     langName: "Português",
-    navCourse: "Curso",
-    navPath: "Seu caminho",
-    navFaq: "Dúvidas",
     wa: "Falar no WhatsApp",
     waHello: "Olá! Quero saber sobre o curso de teoria para as categorias C/D.",
     waPlan: "Olá! Minha carteira: {L}. Quero tirar a categoria {V}. Quero me inscrever no curso de teoria.",
@@ -202,62 +185,80 @@ module.exports = {
     chooseCatC: "categoria C",
     chooseBus: "Ônibus",
     chooseCatD: "categoria D",
-    chooseSkip: "Ainda não sei, mostre tudo",
     soundLabel: "Som",
     soundTip: "Ligue o som",
     soundOnAria: "Ligar o som",
     soundOffAria: "Desligar o som",
     busSoon: "Vídeo com o ônibus em breve — por enquanto mostramos o caminhão.",
-    heroTitle: "Teoria para caminhão e ônibus na Irlanda.",
-    heroSub: "Preparo você para a prova teórica das categorias C e D e para o case study do CPC.",
-    heroCta2: "Ver meu caminho",
+    jTitle: "Seu caminho para a profissão de motorista",
+    jLead: "Teoria para a categoria {cat} na Irlanda, no seu idioma: passo a passo, da primeira pergunta ao cartão CPC.",
+    jCtaPlan: "Montar meu plano",
+    jStepLabel: "Passo {n}",
+    jOf5: "de 5",
+    jNext: "Próximo",
+    jS1Title: "Prova teórica: categoria {cat}",
+    jS1Text: "100 perguntas, 74 acertos para passar, 120 minutos em um centro de provas. As perguntas são em inglês, por isso vamos juntos por cada termo.",
+    jS2Title: "Learner permit",
+    jS2Text: "O pedido é feito online no NDLS, com laudo médico de um GP. Carteira da UE não precisa ser trocada.",
+    jS3Title: "Case study do CPC",
+    jS3Text: "Três situações reais do trabalho de motorista, 15 perguntas cada. Obrigatório para dirigir profissionalmente.",
+    jS4Title: "Aulas práticas e provas",
+    jS4Text: "Aulas com instrutor ADI da categoria {cat}, depois a prova prática e o walkaround.",
+    jS5Title: "Carteira e cartão CPC",
+    jS5Text: "Com o cartão CPC você pode trabalhar como motorista profissional.",
+    jWhyLabel: "A profissão",
+    jW1Title: "Um local de trabalho com vista",
+    jW1Text: "Montanhas, lagos e estradas costeiras no lugar de quatro paredes de escritório.",
+    jW2Title: "Empresas procuram motoristas",
+    jW2Text: "Empresas de transporte da Irlanda relatam com frequência dificuldade para encontrar motoristas de caminhão e ônibus.",
+    jW3Title: "Espaço para crescer",
+    jW3Text: "Comece com uma categoria e acrescente outras depois, como reboque ou outro tipo de veículo.",
+    jFinalLabel: "Seu caminho",
+    jFinalTitle: "Seu caminho começa aqui",
+    jFinalText: "Diga qual carteira você tem e eu mostro o plano feito para você.",
+    jPlanTitle: "Monte seu plano",
+    jPlanLead: "Escolha sua carteira e veja os passos para a categoria {cat}.",
+    jTeacherLabel: "Seu professor",
+    jT1Title: "No seu idioma",
+    jT1Text: "Em polonês, português, russo ou inglês. A prova é em inglês, por isso vamos juntos por cada termo.",
+    jT2Title: "Direto com o professor",
+    jT2Text: "Você fala comigo no WhatsApp e quem responde sou eu.",
+    jDoubtsTitle: "Respostas honestas às dúvidas mais comuns",
+    faq: [
+      [
+        "Meu inglês é suficiente?",
+        "As perguntas na tela são em inglês, mas as formulações se repetem. Estudamos os termos e as frases típicas até ficarem familiares. Para alguns testes há áudio em outros idiomas, e confirmamos o seu na hora da marcação."
+      ],
+      [
+        "Faz anos que não estudo. Consigo?",
+        "As aulas são curtas e seguem passo a passo: você sempre sabe o que estudar hoje e o que vem depois."
+      ],
+      [
+        "Preciso trocar minha carteira da UE?",
+        "Não. Com uma carteira da UE válida, você já pode pedir o learner permit C ou D."
+      ],
+      [
+        "Com que idade posso começar?",
+        "Categoria C a partir de 18 anos e D a partir de 21, com CPC. Sem CPC: 21 e 24 anos."
+      ],
+      [
+        "Preciso de exame médico?",
+        "Sim. Para o learner permit C ou D é preciso um laudo médico de um GP, com no máximo 3 meses."
+      ]
+    ],
+    jEndTitle: "Seu caminho começa com uma mensagem",
+    jEndText: "Conte qual carteira você tem e o que quer dirigir.",
+    jMetaTitle: "Seu caminho para a profissão de motorista na Irlanda | Celtic Rainbow Truck & Bus School",
+    jMetaDesc: "Teoria para as categorias de caminhão (C) e ônibus (D) na Irlanda, em polonês, português, russo ou inglês: da prova teórica ao cartão CPC. Fale com o professor no WhatsApp.",
+    jStillAlt: "Um veículo branco em uma estrada de montanha na Irlanda ao pôr do sol",
+    changeVehicle: "Trocar veículo",
     photo: "[Foto]",
     name: "[Nome e sobrenome]",
-    whyTitle: "Por que estudar comigo",
-    why: [
-      [
-        "Seu idioma e os termos em inglês",
-        "Na prova, as perguntas aparecem em inglês na tela. Explico cada termo para você reconhecer na hora."
-      ],
-      [
-        "Conheço o caminho de quem vem de fora",
-        "CNH brasileira, carteira europeia ou nenhuma: mostro por onde começar."
-      ],
-      [
-        "Um professor",
-        "Você fala direto comigo no WhatsApp, e quem responde sou eu."
-      ]
-    ],
-    courseTitle: "O que o curso inclui",
-    course: [
-      [
-        "C / D",
-        "Prova teórica",
-        "100 perguntas, 74 acertos, 120 minutos. Regras de trânsito, percepção de risco, eco-driving, perigos na estrada."
-      ],
-      [
-        "CPC",
-        "Case study do CPC",
-        "Três situações reais do trabalho de motorista, 15 perguntas cada. Obrigatório para dirigir profissionalmente."
-      ],
-      [
-        "NDLS",
-        "Burocracia passo a passo",
-        "Learner permit, laudo médico, agendamento das provas. Mostro o que preencher e em que ordem."
-      ]
-    ],
-    pathTitle: "Veja seu caminho até a categoria C ou D",
-    pathIntro: "Escolha a carteira que você tem e o que quer dirigir.",
     qLic: "Minha carteira",
     lic: {
       eu: "Europeia (cat. B)",
       nonEu: "De fora da UE",
       none: "Ainda não tenho carteira"
-    },
-    qVeh: "Quero dirigir",
-    veh: {
-      c: "Caminhão (C)",
-      d: "Ônibus (D)"
     },
     ageC: "Categoria C: a partir de 18 anos com CPC; sem CPC, a partir de 21.",
     ageD: "Categoria D: a partir de 21 anos com CPC; sem CPC, a partir de 24.",
@@ -325,48 +326,16 @@ module.exports = {
         "Teoria {V}, learner permit, CPC e provas práticas. Daqui em diante, eu te acompanho."
       ]
     ],
-    aboutTitle: "Sobre mim",
     about: "[Algumas frases sobre você: de onde é, que carteira e experiência tem, por que dá aulas.]",
-    faqTitle: "Dúvidas frequentes",
-    faq: [
-      [
-        "Posso fazer a prova em português?",
-        "As perguntas aparecem em inglês. Na prova B há áudio em português do Brasil; para C e D, confirmamos a opção de idioma na marcação."
-      ],
-      [
-        "Posso usar minha CNH brasileira?",
-        "Depois que você passa a morar aqui, não. A CNH não pode ser trocada na Irlanda, então começamos pela carteira B irlandesa."
-      ],
-      [
-        "Com que idade posso começar?",
-        "Categoria C a partir de 18 anos e D a partir de 21, com CPC. Sem CPC: 21 e 24 anos."
-      ],
-      [
-        "Preciso de exame médico?",
-        "Sim. Para o learner permit C ou D é preciso um laudo médico de um GP, com no máximo 3 meses."
-      ]
-    ],
-    ctaTitle: "Me chama no WhatsApp.",
-    ctaText: "Conta qual carteira você tem e o que quer dirigir, que eu monto seu plano.",
     footer: "Curso de teoria independente. Sem vínculo com RSA, NDLS ou theorytest.ie.",
     galleryTitle: "Galeria",
     galleryAlt: "Foto",
     galleryClose: "Fechar",
-    signTitle: "Prova teórica",
-    signQuestions: "Perguntas",
-    signPass: "Para passar",
-    signTime: "Tempo",
-    signMinutes: "min",
     call: "Ligar",
-    langLabel: "Idioma",
-    menuLabel: "Menu",
-    closeLabel: "Fechar menu"
+    langLabel: "Idioma"
   },
   ru: {
     langName: "Русский",
-    navCourse: "Курс",
-    navPath: "Ваш путь",
-    navFaq: "Вопросы",
     wa: "Написать в WhatsApp",
     waHello: "Здравствуйте! Хочу узнать про курс теории на категории C/D.",
     waPlan: "Здравствуйте! Мои права: {L}. Хочу получить категорию {V}. Хочу записаться на курс теории.",
@@ -377,62 +346,80 @@ module.exports = {
     chooseCatC: "категория C",
     chooseBus: "Автобус",
     chooseCatD: "категория D",
-    chooseSkip: "Пока не знаю, покажите всё",
     soundLabel: "Звук",
     soundTip: "Включите звук",
     soundOnAria: "Включить звук",
     soundOffAria: "Выключить звук",
     busSoon: "Видео с автобусом скоро появится — пока показываем грузовик.",
-    heroTitle: "Теория на грузовик и автобус в Ирландии.",
-    heroSub: "Подготовлю к теоретическому экзамену на категории C и D и к case study CPC.",
-    heroCta2: "Узнать свой путь",
+    jTitle: "Ваша дорога в профессию водителя",
+    jLead: "Теория на категорию {cat} в Ирландии, на вашем языке: шаг за шагом, от первого вопроса до карты CPC.",
+    jCtaPlan: "Собрать план",
+    jStepLabel: "Шаг {n}",
+    jOf5: "из 5",
+    jNext: "Далее",
+    jS1Title: "Теория: категория {cat}",
+    jS1Text: "100 вопросов, для сдачи нужно 74, на всё 120 минут в тестовом центре. Вопросы на английском, поэтому каждый термин мы разбираем вместе.",
+    jS2Title: "Learner permit",
+    jS2Text: "Оформляется онлайн в NDLS, с медицинским отчётом от врача. Права из ЕС менять не нужно.",
+    jS3Title: "Case study CPC",
+    jS3Text: "Три рабочие ситуации водителя, по 15 вопросов каждая. Обязательно, если вы хотите работать водителем.",
+    jS4Title: "Вождение и практические экзамены",
+    jS4Text: "Уроки с инструктором ADI категории {cat}, затем практический экзамен и walkaround.",
+    jS5Title: "Права и карта CPC",
+    jS5Text: "С картой CPC вы можете работать профессиональным водителем.",
+    jWhyLabel: "Профессия",
+    jW1Title: "Рабочее место с видом",
+    jW1Text: "Горы, озёра и прибрежные дороги вместо четырёх стен офиса.",
+    jW2Title: "Работодатели ищут водителей",
+    jW2Text: "Транспортные компании Ирландии регулярно сообщают, что им не хватает водителей грузовиков и автобусов.",
+    jW3Title: "Возможность расти",
+    jW3Text: "Начните с одной категории и добавляйте другие позже, например прицеп или второй тип транспорта.",
+    jFinalLabel: "Ваша дорога",
+    jFinalTitle: "Ваша дорога начинается здесь",
+    jFinalText: "Скажите, какие у вас права, и я покажу план именно для вас.",
+    jPlanTitle: "Соберите свой план",
+    jPlanLead: "Выберите свои права, и вы увидите шаги к категории {cat}.",
+    jTeacherLabel: "Ваш преподаватель",
+    jT1Title: "На вашем языке",
+    jT1Text: "На польском, португальском, русском или английском. Экзамен на английском, поэтому каждый термин мы разбираем вместе.",
+    jT2Title: "Напрямую с преподавателем",
+    jT2Text: "Вы пишете мне в WhatsApp, и отвечаю я сам.",
+    jDoubtsTitle: "Честные ответы на частые сомнения",
+    faq: [
+      [
+        "Хватит ли мне английского?",
+        "Вопросы на экране на английском, но формулировки повторяются. Мы учим термины и типичные фразы, пока они не станут привычными. Для некоторых экзаменов есть озвучка на других языках, а вашу мы уточняем при записи."
+      ],
+      [
+        "Прошло много лет с последней учёбы. Справлюсь?",
+        "Занятия короткие и идут шаг за шагом: вы всегда знаете, что учить сегодня и что дальше."
+      ],
+      [
+        "Нужно менять права из ЕС?",
+        "Нет. С действующими правами ЕС можно сразу подать на learner permit C или D."
+      ],
+      [
+        "С какого возраста можно начать?",
+        "Категория C — с 18 лет, D — с 21, если вы проходите CPC. Без CPC — с 21 и 24 лет."
+      ],
+      [
+        "Нужна медкомиссия?",
+        "Да. Для learner permit C или D нужен медицинский отчёт от врача, не старше 3 месяцев."
+      ]
+    ],
+    jEndTitle: "Ваша дорога начинается с одного сообщения",
+    jEndText: "Напишите, какие у вас права и на чём вы хотите ездить.",
+    jMetaTitle: "Ваша дорога в профессию водителя в Ирландии | Celtic Rainbow Truck & Bus School",
+    jMetaDesc: "Теория на права на грузовик (C) и автобус (D) в Ирландии на польском, португальском, русском или английском: от теоретического экзамена до карты CPC. Напишите преподавателю в WhatsApp.",
+    jStillAlt: "Белая машина на горной дороге в Ирландии на закате",
+    changeVehicle: "Сменить транспорт",
     photo: "[Фото]",
     name: "[Имя и фамилия]",
-    whyTitle: "Почему со мной",
-    why: [
-      [
-        "Ваш язык и английские термины",
-        "На экзамене вопросы на экране по-английски. Объясняю каждый термин, чтобы вы узнавали его сразу."
-      ],
-      [
-        "Знаю путь приезжего",
-        "Права из ЕС, из Бразилии или никаких: подскажу, с чего начать."
-      ],
-      [
-        "Один преподаватель",
-        "Вы пишете напрямую мне в WhatsApp, и отвечаю я сам."
-      ]
-    ],
-    courseTitle: "Что входит в курс",
-    course: [
-      [
-        "C / D",
-        "Теоретический экзамен",
-        "100 вопросов, 74 верных ответа, 120 минут. Правила, оценка риска, эко-вождение, опасности на дороге."
-      ],
-      [
-        "CPC",
-        "Case study CPC",
-        "Три рабочие ситуации водителя по 15 вопросов. Обязательно, чтобы работать водителем."
-      ],
-      [
-        "NDLS",
-        "Документы по шагам",
-        "Learner permit, медсправка, запись на экзамены. Покажу, что заполнять и в каком порядке."
-      ]
-    ],
-    pathTitle: "Ваш путь к категории C или D",
-    pathIntro: "Выберите, какие у вас права и на чём хотите ездить.",
     qLic: "Мои права",
     lic: {
       eu: "Из ЕС (кат. B)",
       nonEu: "Не из ЕС",
       none: "Прав пока нет"
-    },
-    qVeh: "Хочу водить",
-    veh: {
-      c: "Грузовик (C)",
-      d: "Автобус (D)"
     },
     ageC: "Категория C: с 18 лет с CPC, без CPC — с 21.",
     ageD: "Категория D: с 21 года с CPC, без CPC — с 24.",
@@ -500,48 +487,16 @@ module.exports = {
         "Теория {V}, learner permit, CPC и практические экзамены. Дальше веду вас я."
       ]
     ],
-    aboutTitle: "Обо мне",
     about: "[Пара предложений о себе: откуда вы, какие у вас права и опыт, почему преподаёте.]",
-    faqTitle: "Частые вопросы",
-    faq: [
-      [
-        "Можно сдавать теорию на русском?",
-        "Вопросы на экране по-английски. На экзамене B есть русская озвучка; для C и D вариант озвучки уточняем при записи."
-      ],
-      [
-        "Нужно менять права из ЕС?",
-        "Нет. С действующими правами ЕС можно сразу подать на learner permit C или D."
-      ],
-      [
-        "С какого возраста можно начать?",
-        "Категория C — с 18 лет, D — с 21, если проходите CPC. Без CPC — с 21 и 24 лет."
-      ],
-      [
-        "Нужна медкомиссия?",
-        "Да. Для learner permit C или D нужен медицинский отчёт от врача, не старше 3 месяцев."
-      ]
-    ],
-    ctaTitle: "Напишите мне.",
-    ctaText: "Расскажите, какие у вас права и на чём хотите ездить, и я составлю план.",
     footer: "Независимый курс теории. Не связан с RSA, NDLS и theorytest.ie.",
     galleryTitle: "Галерея",
     galleryAlt: "Фото",
     galleryClose: "Закрыть",
-    signTitle: "Экзамен по теории",
-    signQuestions: "Вопросов",
-    signPass: "Нужно для сдачи",
-    signTime: "Время",
-    signMinutes: "мин",
     call: "Позвонить",
-    langLabel: "Язык",
-    menuLabel: "Меню",
-    closeLabel: "Закрыть меню"
+    langLabel: "Язык"
   },
   en: {
     langName: "English",
-    navCourse: "Course",
-    navPath: "Your route",
-    navFaq: "Questions",
     wa: "Message on WhatsApp",
     waHello: "Hi! I'd like to ask about the C/D theory course.",
     waPlan: "Hi! My licence: {L}. I want category {V}. I'd like to join the theory course.",
@@ -552,62 +507,80 @@ module.exports = {
     chooseCatC: "category C",
     chooseBus: "Bus",
     chooseCatD: "category D",
-    chooseSkip: "Not sure yet, show me everything",
     soundLabel: "Sound",
     soundTip: "Turn on sound",
     soundOnAria: "Turn sound on",
     soundOffAria: "Turn sound off",
     busSoon: "Bus video coming soon — showing the truck for now.",
-    heroTitle: "Truck and bus theory in Ireland.",
-    heroSub: "I'll prepare you for the category C and D theory test and the CPC case study.",
-    heroCta2: "See your route",
+    jTitle: "Your road to a driver's career",
+    jLead: "Theory for category {cat} in Ireland, in your language: step by step, from the first question to the CPC card.",
+    jCtaPlan: "Build your plan",
+    jStepLabel: "Step {n}",
+    jOf5: "of 5",
+    jNext: "Next",
+    jS1Title: "Theory test: category {cat}",
+    jS1Text: "100 questions, 74 to pass, 120 minutes at a test centre. The questions are in English, so we go through every term together.",
+    jS2Title: "Learner permit",
+    jS2Text: "Apply online with NDLS, with a medical report from your doctor. An EU licence does not need to be exchanged.",
+    jS3Title: "CPC case study",
+    jS3Text: "Three real work situations, 15 questions each. Required if you want to drive for a living.",
+    jS4Title: "Lessons and practical tests",
+    jS4Text: "Lessons with a category {cat} ADI instructor, then the driving test and the walkaround test.",
+    jS5Title: "Licence and CPC card",
+    jS5Text: "With the CPC card you can work as a professional driver.",
+    jWhyLabel: "The profession",
+    jW1Title: "A workplace with a view",
+    jW1Text: "Mountains, lakes and coast roads instead of four office walls.",
+    jW2Title: "Employers are looking",
+    jW2Text: "Irish transport companies regularly report difficulty finding enough truck and bus drivers.",
+    jW3Title: "Room to grow",
+    jW3Text: "Start with one category and add others later, such as a trailer or a second type of vehicle.",
+    jFinalLabel: "Your road",
+    jFinalTitle: "Your road starts here",
+    jFinalText: "Tell me which licence you hold, and I will show you the plan made for you.",
+    jPlanTitle: "Build your plan",
+    jPlanLead: "Choose your licence and see the steps for category {cat}.",
+    jTeacherLabel: "Your teacher",
+    jT1Title: "In your language",
+    jT1Text: "Polish, Portuguese, Russian or English. The exam is in English, so we go through every term together.",
+    jT2Title: "Directly with the teacher",
+    jT2Text: "You message me on WhatsApp, and I answer myself.",
+    jDoubtsTitle: "Honest answers to common doubts",
+    faq: [
+      [
+        "Is my English good enough?",
+        "The questions on the screen are in English, but the wording repeats. We learn the terms and typical phrases until they feel familiar. Voiceover in other languages is available for some tests, and we check yours when booking."
+      ],
+      [
+        "I have not studied for years. Can I manage?",
+        "Sessions are short and go step by step: you always know what to study today and what comes next."
+      ],
+      [
+        "Do I need to exchange my EU licence?",
+        "No. With a valid EU licence you can apply for a category C or D learner permit straight away."
+      ],
+      [
+        "How old do I need to be?",
+        "Category C from 18 and D from 21 if you do the CPC. Without it, 21 and 24."
+      ],
+      [
+        "Do I need a medical?",
+        "Yes. A category C or D learner permit needs a medical report from a doctor, dated within the last 3 months."
+      ]
+    ],
+    jEndTitle: "Your road starts with one message",
+    jEndText: "Tell me which licence you hold and which vehicle you want to drive.",
+    jMetaTitle: "Your road to a driver's career in Ireland | Celtic Rainbow Truck & Bus School",
+    jMetaDesc: "Theory for truck (C) and bus (D) licences in Ireland, in Polish, Portuguese, Russian or English: from the theory test to the CPC card. Message the teacher on WhatsApp.",
+    jStillAlt: "A white vehicle on a mountain road in Ireland at sunset",
+    changeVehicle: "Change vehicle",
     photo: "[Photo]",
     name: "[Full name]",
-    whyTitle: "Why learn with me",
-    why: [
-      [
-        "Plain explanations, exam wording",
-        "Questions appear in English on screen. I explain every term so you recognise it instantly."
-      ],
-      [
-        "I know the newcomer's route",
-        "EU licence, non-EU licence or none at all: I'll show you where to start."
-      ],
-      [
-        "One teacher",
-        "You message me directly on WhatsApp, and I'm the one who answers."
-      ]
-    ],
-    courseTitle: "What the course covers",
-    course: [
-      [
-        "C / D",
-        "Driver Theory Test",
-        "100 questions, 74 correct to pass, 120 minutes. Rules of the Road, risk, eco-driving, hazards."
-      ],
-      [
-        "CPC",
-        "CPC case study",
-        "Three real work situations, 15 questions each. Required to drive for a living."
-      ],
-      [
-        "NDLS",
-        "Paperwork, step by step",
-        "Learner permit, medical report, test bookings. I'll show you what to fill in and in what order."
-      ]
-    ],
-    pathTitle: "Your route to a C or D licence",
-    pathIntro: "Pick the licence you hold and what you want to drive.",
     qLic: "My licence",
     lic: {
       eu: "EU (category B)",
       nonEu: "Non-EU",
       none: "No licence yet"
-    },
-    qVeh: "I want to drive",
-    veh: {
-      c: "Trucks (C)",
-      d: "Buses (D)"
     },
     ageC: "Category C: from 18 with CPC, or 21 without.",
     ageD: "Category D: from 21 with CPC, or 24 without.",
@@ -675,41 +648,12 @@ module.exports = {
         "Category {V} theory, learner permit, CPC and practical tests. I'll guide you from here."
       ]
     ],
-    aboutTitle: "About me",
     about: "[A few lines about you: where you're from, your licence and experience, why you teach.]",
-    faqTitle: "Common questions",
-    faq: [
-      [
-        "Is the test only in English?",
-        "Questions appear in English on screen. Voiceover in other languages is available for some tests, and we check yours when booking."
-      ],
-      [
-        "Do I need an Irish licence to start?",
-        "An EU or Irish B licence is enough. With another licence, you'll usually need an Irish B first."
-      ],
-      [
-        "How old do I need to be?",
-        "18 for category C and 21 for D if you do CPC; 21 and 24 without it."
-      ],
-      [
-        "Do I need a medical?",
-        "Yes. A C or D learner permit needs a medical report from a doctor, dated within the last 3 months."
-      ]
-    ],
-    ctaTitle: "Message me.",
-    ctaText: "Tell me what licence you have and what you want to drive, and I'll put a plan together.",
     footer: "Independent theory course. Not affiliated with the RSA, NDLS or theorytest.ie.",
     galleryTitle: "Gallery",
     galleryAlt: "Photo",
     galleryClose: "Close",
-    signTitle: "Theory test",
-    signQuestions: "Questions",
-    signPass: "To pass",
-    signTime: "Time",
-    signMinutes: "min",
     call: "Call",
-    langLabel: "Language",
-    menuLabel: "Menu",
-    closeLabel: "Close menu"
+    langLabel: "Language"
   }
 };

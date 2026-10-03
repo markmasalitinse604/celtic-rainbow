@@ -1,14 +1,5 @@
-/* Экран выбора транспорта (/<язык>/choose/): сцена, заголовок, подписи. Шапка и нижняя панель — hud.css.
+/* Экран выбора транспорта (/<язык>/choose/): сцена, заголовок, подписи. Токены — shared/tokens.css, шапка и нижняя панель — shared/hud.css.
    Телефон в портрете = (max-aspect-ratio: 4/5), как <source> вертикальных кадров и SETS.v в choose.js. */
-*, *::before, *::after { box-sizing: border-box; }
-:root {
-  --gold: #F2B84B;
-  --ink: #0E1113;
-  --pill-bg: rgba(14, 17, 19, .46);
-  --pill-border: rgba(255, 255, 255, .42);
-  --ui: "Overpass", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --display: "Oswald", "Arial Narrow", system-ui, sans-serif;
-}
 html, body { margin: 0; height: 100%; background: #111; color: #fff; }
 body { font: 16px/1.4 var(--ui); overflow: hidden; }
 
@@ -74,16 +65,6 @@ body { font: 16px/1.4 var(--ui); overflow: hidden; }
   background: var(--gold); border-color: var(--gold); color: var(--ink);
 }
 
-/* «Пока не знаю» — внизу по центру, около 92% высоты */
-.skip {
-  position: absolute; left: 0; right: 0; top: 92%; z-index: 3; transform: translateY(-50%);
-  display: block; width: max-content; max-width: calc(100% - 32px); margin: 0 auto; line-height: 1.35;
-  color: rgba(255, 255, 255, .9); font-size: 14px; font-weight: 600; text-decoration: none; text-align: center;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, .6);
-}
-.skip .hud__icon { display: inline-block; width: 16px; height: 16px; margin-left: 4px; vertical-align: -3px; }
-.skip:hover { color: #fff; text-decoration: underline; }
-.skip:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; border-radius: 4px; }
 
 .blackout {
   position: fixed; inset: 0; background: #000; opacity: 0;
@@ -102,7 +83,6 @@ body { font: 16px/1.4 var(--ui); overflow: hidden; }
   }
   .label__sep { display: none; }
   .label__cat { font-size: 12px; font-weight: 700; }
-  .skip { top: 81%; font-size: 14px; }
   .shade { height: 45%; background: linear-gradient(transparent, rgba(14, 17, 19, .7)); }
 }
 

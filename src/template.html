@@ -2,196 +2,171 @@
 <html lang="{{htmlLang}}">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{heroTitle}} | {{brandFull}}</title>
-  <link rel="icon" href="../assets/favicon.png">
-  <meta name="description" content="{{heroSub}}">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{jMetaTitle}}</title>
+  <meta name="description" content="{{jMetaDesc}}">
+  <link rel="canonical" href="{{canonical}}">
   {{hreflang}}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{brandFull}}">
+  <meta property="og:title" content="{{jMetaTitle}}">
+  <meta property="og:description" content="{{jMetaDesc}}">
+  <meta property="og:url" content="{{canonical}}">
+  <meta property="og:locale" content="{{ogLocale}}">
+  <meta property="og:image" content="{{ogImage}}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{jStillAlt}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0E1113">
+  <link rel="icon" href="../assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800;900&amp;display=swap">
-  <link rel="stylesheet" href="../styles.css">
-  <link rel="preload" as="image" href="../assets/ride/land/001.webp" media="(min-aspect-ratio: 9/10)">
-  <link rel="preload" as="image" href="../assets/ride/port/001.webp" media="(max-aspect-ratio: 9/10)">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600&amp;family=Overpass:wght@400;600;800&amp;display=swap">
+  <link rel="stylesheet" href="../shared/tokens.css">
+  <link rel="stylesheet" href="../shared/hud.css">
+  <link rel="stylesheet" href="../landing.css">
+  <!-- Первый кадр ролика: он же постер, пока грузятся остальные. Отдельно для горизонтального и вертикального экрана -->
+  <link rel="preload" as="image" href="../assets/ride/land/001.webp" media="(min-aspect-ratio: 9/10)" fetchpriority="high">
+  <link rel="preload" as="image" href="../assets/ride/port/001.webp" media="(max-aspect-ratio: 9/10)" fetchpriority="high">
+  <!-- Экономия трафика (Save-Data): статичная версия — один кадр и карточки списком -->
+  <script>if(navigator.connection&&navigator.connection.saveData)document.documentElement.classList.add('save-data');</script>
+  <!-- Пиксель Facebook (если понадобится) вставлять сюда, перед </head>. См. CLAUDE.md, «Аналитика» -->
 </head>
-<body id="top">
+<body>
+{{icons}}
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
-  <symbol id="i-sign" viewBox="0 0 24 24"><path d="M12 22V3M5 5h11l3 3-3 3H5z"/></symbol>
-  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h12v10H2zM14 9h4l4 4v3h-8"/><circle cx="6.5" cy="17.5" r="2"/><circle cx="17.5" cy="17.5" r="2"/></symbol>
-  <symbol id="i-bus" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 10h18M7 17v3M17 17v3"/></symbol>
-  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></symbol>
-  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 21V4M5 11l7-7 7 7"/></symbol>
-  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
-  <symbol id="i-facebook" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></symbol>
-  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
-  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
-  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
-  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
-  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
-  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
-  <symbol id="i-d-speech" viewBox="0 0 60 60"><rect x="13" y="13" width="34" height="34" rx="3" transform="rotate(45 30 30)" fill="#FFCE1F" stroke="#1D2226" stroke-width="2.5"/><path d="M21 23h18v11h-9l-5 4v-4h-4z" fill="none" stroke="#1D2226" stroke-width="2.2" stroke-linejoin="round"/></symbol>
-  <symbol id="i-d-route" viewBox="0 0 60 60"><rect x="13" y="13" width="34" height="34" rx="3" transform="rotate(45 30 30)" fill="#FFCE1F" stroke="#1D2226" stroke-width="2.5"/><path d="M24 39c0-6 12-3 12-9s-9-3-9-9" fill="none" stroke="#1D2226" stroke-width="2.4" stroke-linecap="round"/></symbol>
-  <symbol id="i-d-person" viewBox="0 0 60 60"><rect x="13" y="13" width="34" height="34" rx="3" transform="rotate(45 30 30)" fill="#FFCE1F" stroke="#1D2226" stroke-width="2.5"/><circle cx="30" cy="25" r="4" fill="none" stroke="#1D2226" stroke-width="2.2"/><path d="M22.5 37c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7" fill="none" stroke="#1D2226" stroke-width="2.2" stroke-linecap="round"/></symbol>
-</svg>
+<!-- Шапка (HUD): общая с экраном выбора, собирает renderHeader() в build.js -->
+{{header}}
 
-<header class="header">
-  <div class="wrap header__inner">
-    <a class="logo" href="#top">
-      <img class="logo__img" src="../assets/logo.png" alt="" width="60" height="60">
-      <span><span class="logo__name">{{brandName}}</span><span class="logo__sub">{{brandSub}}</span></span>
-    </a>
-    <nav class="nav">
-      <a href="#course">{{navCourse}}</a>
-      <a href="#route">{{navPath}}</a>
-      <a href="#gallery">{{galleryTitle}}</a>
-      <a href="#faq">{{navFaq}}</a>
-    </nav>
-    <div class="header__actions">
-      <details class="lang-menu">
-        <summary class="lang-menu__btn" aria-label="{{langLabel}}: {{langName}}"><svg class="icon" aria-hidden="true"><use href="#i-globe"></use></svg><span>{{langName}}</span><svg class="icon icon--sm lang-menu__chev" aria-hidden="true"><use href="#i-chevron"></use></svg></summary>
-        <ul class="lang-menu__list">{{langItems}}</ul>
-      </details>
-      <a class="header__call" href="{{telHref}}" aria-label="{{call}} {{phoneDisplay}}"><svg class="icon" aria-hidden="true"><use href="#i-phone"></use></svg><span class="header__call-num">{{phoneDisplay}}</span></a>
-      <a class="btn btn--yellow header__wa" href="{{waHref}}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-chat"></use></svg><span>{{wa}}</span></a>
-      <button class="burger" type="button" aria-controls="drawer" aria-expanded="false" aria-label="{{menuLabel}}"><svg class="icon" aria-hidden="true"><use href="#i-menu"></use></svg></button>
-    </div>
-  </div>
-</header>
-
-<dialog class="drawer" id="drawer" aria-label="{{menuLabel}}">
-  <div class="drawer__top"><button class="drawer__close" type="button" aria-label="{{closeLabel}}"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></div>
-  <nav class="drawer__nav">
-    <a href="#course">{{navCourse}}<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg></a>
-    <a href="#route">{{navPath}}<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg></a>
-    <a href="#gallery">{{galleryTitle}}<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg></a>
-    <a href="#faq">{{navFaq}}<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg></a>
-  </nav>
-  <div>
-    <p class="drawer__label">{{langLabel}}</p>
-    <div class="lang-grid">{{langGrid}}</div>
-  </div>
-  <div class="drawer__contacts">
-    <a class="btn btn--yellow" href="{{waHref}}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-chat"></use></svg><span>{{wa}}</span></a>
-    <a class="btn btn--outline" href="{{telHref}}" aria-label="{{call}} {{phoneDisplay}}"><svg class="icon" aria-hidden="true"><use href="#i-phone"></use></svg><span>{{phoneDisplay}}</span></a>
-    {{fbLink}}
-  </div>
-</dialog>
-
-<main>
-  <section class="ride" id="ride" data-frames="../assets/ride">
+<main id="top">
+  <!-- ДОРОГА: одна «прилипающая» сцена с роликом и 10 карточками поверх него (ride.js).
+       Без JS и при экономии трафика — один кадр и карточки обычным списком -->
+  <section class="ride" id="ride" aria-label="{{jTitle}}" data-frames="../assets/ride"{{framesBus}}>
     <div class="ride__sticky">
-      <div class="ride__poster" aria-hidden="true"></div>
+      <picture class="ride__still">
+        <source media="(max-aspect-ratio: 9/10)" srcset="../assets/ride/port/001.webp">
+        <img src="../assets/ride/land/001.webp" alt="{{jStillAlt}}" width="1280" height="724" fetchpriority="high">
+      </picture>
       <canvas class="ride__canvas" aria-hidden="true"></canvas>
       <div class="ride__shade" aria-hidden="true"></div>
-      <div class="wrap ride__hero">
-        <h1>{{heroTitle}}</h1>
-        <p class="hero__sub">{{heroSub}}</p>
-        <div class="hero__ctas">
-          <a class="btn btn--yellow btn--lg" href="{{waHref}}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-chat"></use></svg><span>{{wa}}</span></a>
-          <a class="btn btn--ghost btn--lg" href="#route"><svg class="icon" aria-hidden="true"><use href="#i-sign"></use></svg><span>{{heroCta2}}</span></a>
-        </div>
-      </div>
       <p class="ride__note" id="ride-note" hidden>{{busSoon}}</p>
-      <div class="ride__progress" aria-hidden="true"><span></span></div>
-    </div>
-  </section>
 
-  <section class="hero">
-    <div class="wrap hero__grid">
-      <div class="hero__art">
-        <svg class="road-sign" viewBox="0 0 200 300" aria-hidden="true"><rect x="94" y="170" width="12" height="130" fill="#8A9299"/><rect x="36" y="36" width="128" height="128" rx="12" transform="rotate(45 100 100)" fill="#FFCE1F"/><rect x="46" y="46" width="108" height="108" rx="8" transform="rotate(45 100 100)" fill="none" stroke="#1D2226" stroke-width="6"/><rect x="60" y="82" width="50" height="32" rx="2" fill="#1D2226"/><path d="M113 88h17l11 13v13h-28z" fill="#1D2226"/><path d="M118 92h10l7 9h-17z" fill="#FFCE1F"/><circle cx="76" cy="118" r="8" fill="#1D2226"/><circle cx="128" cy="118" r="8" fill="#1D2226"/><circle cx="76" cy="118" r="3" fill="#FFCE1F"/><circle cx="128" cy="118" r="3" fill="#FFCE1F"/></svg>
-        <div class="exam-sign">
-          <div class="exam-sign__board">
-            <div class="exam-sign__inner">
-              <div class="exam-sign__head"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up"></use></svg><span class="exam-sign__title">{{signTitle}}</span><span class="exam-sign__cat">C / D</span></div>
-              <dl class="exam-sign__rows">
-                <div><dt>{{signQuestions}}</dt><dd>100</dd></div>
-                <div><dt>{{signPass}}</dt><dd>74</dd></div>
-                <div><dt>{{signTime}}</dt><dd>120 {{signMinutes}}</dd></div>
-              </dl>
-            </div>
+      <ol class="ride__cards">
+        <li class="rcard rcard--intro is-on" data-i="0">
+          <p class="eyebrow">{{brandFull}}</p>
+          <h1 class="rcard__title rcard__title--xl">{{jTitle}}</h1>
+          <p class="rcard__lead">{{jLead}}</p>
+          <div class="actions">
+            <a class="btn btn--gold" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>{{wa}}</span></a>
+            <a class="btn btn--ghost" href="#plan">{{jCtaPlan}}</a>
           </div>
-          <div class="exam-sign__posts" aria-hidden="true"></div>
-        </div>
-      </div>
-    </div>
-    <div class="road" aria-hidden="true"></div>
-  </section>
+        </li>
+        {{rideSteps}}
+        <li class="rcard" data-i="6">
+          <p class="eyebrow">{{jWhyLabel}}</p>
+          <h2 class="rcard__title">{{jW1Title}}</h2>
+          <p>{{jW1Text}}</p>
+        </li>
+        <li class="rcard" data-i="7">
+          <p class="eyebrow">{{jWhyLabel}}</p>
+          <h2 class="rcard__title">{{jW2Title}}</h2>
+          <p>{{jW2Text}}</p>
+        </li>
+        <li class="rcard" data-i="8">
+          <p class="eyebrow">{{jWhyLabel}}</p>
+          <h2 class="rcard__title">{{jW3Title}}</h2>
+          <p>{{jW3Text}}</p>
+        </li>
+        <li class="rcard" data-i="9">
+          <p class="eyebrow">{{jFinalLabel}}</p>
+          <h2 class="rcard__title">{{jFinalTitle}}</h2>
+          <p>{{jFinalText}}</p>
+          <div class="actions">
+            <a class="btn btn--gold" href="#plan">{{jCtaPlan}}</a>
+            <a class="btn btn--ghost" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>WhatsApp</span></a>
+          </div>
+        </li>
+      </ol>
 
-  <section class="section">
-    <div class="wrap stack">
-      <h2>{{whyTitle}}</h2>
-      <div class="grid-3">{{why}}</div>
-    </div>
-  </section>
+      <!-- Шкала из 10 точек: где посетитель и сколько впереди (для мыши; с клавиатуры — «Далее») -->
+      <div class="dots" aria-hidden="true">{{rideDots}}</div>
 
-  <section class="section section--grey" id="course">
-    <div class="wrap stack">
-      <h2>{{courseTitle}}</h2>
-      <div class="grid-3 grid-3--cards">{{course}}</div>
-    </div>
-  </section>
+      <!-- «Далее»: плавно докручивает до следующей карточки, с последней — к плану (ride.js).
+           Доступное имя называет, куда ведёт; ride.js обновляет его при смене карточки -->
+      <button type="button" class="ride__next" id="ride-next" data-label="{{jNext}}" aria-label="{{jNext}}">
+        <span>{{jNext}}</span>{{iconDown}}
+      </button>
 
-  <section class="section" id="route">
-    <div class="wrap route">
-      <form class="route__form" id="route-form">
-        <h2>{{pathTitle}}</h2>
-        <p class="route__intro">{{pathIntro}}</p>
-        <fieldset>
-          <legend>{{qLic}}</legend>
-          <div class="opts">{{licOptions}}</div>
-        </fieldset>
-        <fieldset>
-          <legend>{{qVeh}}</legend>
-          <div class="opts opts--2">{{vehOptions}}</div>
-        </fieldset>
-        <p class="note"><svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg><span id="age">{{ageC}}</span></p>
-      </form>
-      <div class="plan">
-        <h3>{{planTitle}}</h3>
-        <ol class="steps" id="steps" aria-live="polite">{{steps}}</ol>
-        <a class="btn btn--yellow" id="plan-link" href="{{planHref}}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-chat"></use></svg><span>{{planCta}}</span></a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--grey" id="about">
-    <div class="wrap about">
-      <div class="about__photo">{{teacherPhoto}}</div>
-      <div class="about__text">
-        <h2>{{aboutTitle}}</h2>
-        <p class="about__name">{{name}}</p>
-        <p class="about__bio">{{about}}</p>
+      <!-- Счётчик шагов «N из 5»: виден только на пяти шагах -->
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><circle class="ring__track" cx="60" cy="60" r="54"/><circle class="ring__bar" cx="60" cy="60" r="54" pathLength="100"/></svg>
+        <span class="ring__n">1</span><span class="ring__of">{{jOf5}}</span>
       </div>
     </div>
   </section>
 
-  <section class="section" id="gallery">
-    <div class="wrap stack">
-      <h2>{{galleryTitle}}</h2>
-      <div class="gallery">{{gallery}}</div>
+  <!-- ПЛАН: права → шаги к категории + сообщение в WhatsApp (plan.js) -->
+  <section class="sec" id="plan" aria-labelledby="plan-title">
+    <div class="wrap plan">
+      <div class="plan__intro">
+        <p class="eyebrow">{{planTitle}}</p>
+        <h2 class="sec__title" id="plan-title">{{jPlanTitle}}</h2>
+        <p class="sec__lead">{{jPlanLead}}</p>
+        <form class="plan__form" id="plan-form">
+          <fieldset>
+            <legend class="sr-only">{{qLic}}</legend>
+            {{licOptions}}
+          </fieldset>
+        </form>
+        <p class="plan__age">{{iconInfo}}<span><span data-age="C">{{ageC}}</span> <span data-age="D">{{ageD}}</span></span></p>
+      </div>
+      <div class="plan__card glass">
+        <ol class="plan__steps" id="plan-steps" aria-live="polite">{{planSteps}}</ol>
+        <a class="btn btn--gold btn--wide" id="plan-link" href="{{planHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>{{planCta}}</span></a>
+      </div>
     </div>
   </section>
 
-  <section class="section section--grey" id="faq">
-    <div class="wrap stack stack--tight">
-      <h2>{{faqTitle}}</h2>
+  <!-- ПРЕПОДАВАТЕЛЬ -->
+  <section class="sec sec--alt" id="teacher" aria-labelledby="teacher-title">
+    <div class="wrap teacher">
+      <div class="teacher__photo">{{teacherPhoto}}</div>
+      <div class="teacher__text">
+        <p class="eyebrow">{{jTeacherLabel}}</p>
+        <h2 class="sec__title" id="teacher-title">{{name}}</h2>
+        <p class="sec__lead">{{about}}</p>
+        <ul class="points">
+          <li><h3>{{jT1Title}}</h3><p>{{jT1Text}}</p></li>
+          <li><h3>{{jT2Title}}</h3><p>{{jT2Text}}</p></li>
+        </ul>
+        <ul class="chips">{{langChips}}</ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- СОМНЕНИЯ -->
+  <section class="sec" id="doubts" aria-labelledby="doubts-title">
+    <div class="wrap wrap--narrow">
+      <h2 class="sec__title" id="doubts-title">{{jDoubtsTitle}}</h2>
       <div class="faq">{{faq}}</div>
     </div>
   </section>
 
-  <section class="cta">
-    <div class="wrap cta__inner">
-      <div class="cta__text">
-        <h2>{{ctaTitle}}</h2>
-        <p>{{ctaText}}</p>
-      </div>
-      <div class="cta__side">
-        <a class="btn btn--dark btn--xl" href="{{waHref}}" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-chat"></use></svg><span>{{wa}}</span></a>
-        <a class="btn btn--outline btn--xl" href="{{telHref}}" aria-label="{{call}} {{phoneDisplay}}"><svg class="icon" aria-hidden="true"><use href="#i-phone"></use></svg><span>{{phoneDisplay}}</span></a>
+  {{gallery}}
+
+  <!-- ФИНАЛ: последний кадр ролика фоном -->
+  <section class="final" id="final" aria-labelledby="final-title">
+    <picture class="final__bg">
+      <source media="(max-aspect-ratio: 9/10)" srcset="../assets/ride/port/120.webp">
+      <img src="../assets/ride/land/120.webp" alt="" loading="lazy" decoding="async">
+    </picture>
+    <div class="wrap final__inner">
+      <h2 class="final__title" id="final-title">{{jEndTitle}}</h2>
+      <p class="sec__lead">{{jEndText}}</p>
+      <div class="actions">
+        <a class="btn btn--gold btn--lg" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>{{wa}}</span></a>
+        <a class="btn btn--ghost btn--lg" href="{{telHref}}" aria-label="{{call}} {{phoneDisplay}}">{{iconPhone}}<span>{{phoneDisplay}}</span></a>
         {{fbLink}}
       </div>
     </div>
@@ -200,31 +175,20 @@
 
 <footer class="footer">
   <div class="wrap footer__inner">
-    <div class="footer__brand">
-      <div class="logo">
-      <img class="logo__img" src="../assets/logo.png" alt="" width="60" height="60">
-      <span><span class="logo__name">{{brandName}}</span><span class="logo__sub">{{brandSub}}</span></span>
-    </div>
-      <div class="footer__contacts"><a href="{{telHref}}"><svg class="icon" aria-hidden="true"><use href="#i-phone"></use></svg><span>{{phoneDisplay}}</span></a>{{fbLink}}</div>
-    </div>
-    <p>{{footer}}</p>
+    <p class="footer__brand"><img src="../assets/logo.png" alt="" width="36" height="36"><span>© {{year}} {{brandFull}}</span></p>
+    <p class="footer__note">{{footer}}</p>
   </div>
 </footer>
 
-<dialog class="lightbox" id="lightbox">
-  <img alt="">
-  <form method="dialog"><button class="lightbox__close" aria-label="{{galleryClose}}"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></form>
-</dialog>
+<!-- Нижняя панель на телефоне: общая с экраном выбора (renderDock в build.js) -->
+{{dock}}
 
-<!-- TEST: временная кнопка на экран выбора транспорта. Удалить вместе с этим блоком -->
-<a href="choose/" style="position:fixed;left:16px;bottom:16px;z-index:9999;padding:12px 18px;border-radius:999px;background:#D0161F;color:#fff;font:800 15px/1 Overpass,system-ui,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.35)">TEST → Choose vehicle</a>
-<!-- /TEST -->
-
-<script id="route-data" type="application/json">{{routeJson}}</script>
-<script src="../ride.js" defer></script>
-<script src="../route.js" defer></script>
+<script id="site-data" type="application/json">{{siteJson}}</script>
+<script src="../shared/hud.js" defer></script>
+<script src="../shared/sound.js" defer></script>
 <script src="../vehicle.js" defer></script>
-<script src="../gallery.js" defer></script>
-<script src="../menu.js" defer></script>
+<script src="../ride.js" defer></script>
+<script src="../plan.js" defer></script>
+{{galleryScript}}
 </body>
 </html>
