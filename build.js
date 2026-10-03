@@ -151,7 +151,7 @@ function blocks(lang, t) {
       ? `<img src="../assets/${encodeURI(teacherFile)}" alt="${esc(t.name)}" loading="lazy">`
       : `<span class="teacher__ph">${icon('i-person')}<span>${esc(t.photo)}</span></span>`,
     langChips: Object.keys(LANGS).map((dir) => `<li lang="${LANGS[dir]}">${esc(locales[dir].langName)}</li>`).join(''),
-    licOptions: ['eu', 'none'].map((k, i) =>
+    licOptions: ['eu', 'nonEu', 'none'].map((k, i) =>
       `<label class="opt"><input type="radio" name="lic" value="${k}"${i === 0 ? ' checked' : ''}><span class="opt__box"><span class="opt__dot" aria-hidden="true"></span>${esc(t.lic[k])}</span></label>`).join('\n            '),
     planSteps: t.stepsEu.map(([title, text]) =>
       `<li><strong>${esc(withV(title, CAT_BOTH))}</strong><p>${esc(withV(text, CAT_BOTH))}</p></li>`).join(''),
@@ -175,7 +175,7 @@ function blocks(lang, t) {
       .join('\n  '),
     siteJson: JSON.stringify({
       phone: PHONE, lic: t.lic, waPlan: t.waPlan, waCat: t.waCat,
-      steps: { eu: t.stepsEu, none: t.stepsNone },
+      steps: { eu: t.stepsEu, nonEu: t.stepsNonEu, none: t.stepsNone },
       ambient: hasAmbient ? `../${AMBIENT}` : null,
     }).replace(/</g, '\\u003c'),
   };

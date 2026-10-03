@@ -102,7 +102,6 @@
   const labels = [...root.querySelectorAll('.label')];
   const heading = root.querySelector('.heading');
   const title = root.querySelector('.heading__title');
-  const skip = root.querySelector('.skip');
   const GAP = 24; // мин. отступ: шапка → подсказка и заголовок → машины
 
   function placeZones() {
@@ -129,7 +128,8 @@
     const mobile = set === SETS.v;
     const lh = labels[0].offsetHeight;
     let y = Math.max(carsBottom + 12, mobile ? vh * 0.72 - lh / 2 : vh * 0.85);
-    y = Math.min(y, skip.getBoundingClientRect().top - lh - 8); // не наезжать на ссылку «Пропустить»
+    // нижняя граница ряда — там, где раньше была ссылка «Пока не знаю» (ПК 92%, телефон 81% — над нижней панелью)
+    y = Math.min(y, vh * (mobile ? 0.81 : 0.92) - 10 - lh - 8);
     root.style.setProperty('--labels-y', `${Math.round(y)}px`);
 
     // Заголовок: не ближе GAP к машинам. Сначала поднимаем блок (не выше шапки + GAP), потом уменьшаем шрифт
