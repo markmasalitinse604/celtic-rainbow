@@ -27,7 +27,6 @@
   if (kind === 'both') return;
 
   document.querySelectorAll('[data-cat]').forEach((el) => { el.textContent = V; });
-  document.querySelectorAll('.next[aria-label]').forEach((b) => { b.setAttribute('aria-label', b.getAttribute('aria-label').split('C / D').join(V)); });
   document.querySelectorAll('[data-age]').forEach((el) => { el.hidden = el.dataset.age !== V; });
 
   // Сообщения WhatsApp: дописываем категорию (ссылку плана собирает plan.js)
