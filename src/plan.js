@@ -1,11 +1,11 @@
 // «Соберите свой план»: права (ЕС / не ЕС / нет) → шаги к категории и ссылка WhatsApp с готовым текстом.
-// Категория — из выбора транспорта (window.SiteVehicle, vehicle.js): C, D или «C / D»
+// Категория — из выбора транспорта (window.SiteVehicle, vehicle.js): «C, CE», D или «C, CE / D»
 (() => {
   const data = JSON.parse(document.getElementById('site-data').textContent);
   const form = document.getElementById('plan-form');
   const list = document.getElementById('plan-steps');
   const link = document.getElementById('plan-link');
-  const V = (window.SiteVehicle && window.SiteVehicle.V) || 'C / D';
+  const V = (window.SiteVehicle && window.SiteVehicle.V) || 'C, CE / D';
   const sub = (s) => s.split('{V}').join(V);
 
   function render() {

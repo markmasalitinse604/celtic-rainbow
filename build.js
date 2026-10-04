@@ -55,9 +55,9 @@ function renderHeader(lang, t, { root, home, langHref, landing }) {
   const langs = Object.keys(LANGS).map((dir) =>
     `<li><a href="${langHref(dir)}" lang="${LANGS[dir]}" hreflang="${LANGS[dir]}" data-lang="${dir}"${dir === lang ? ' aria-current="page"' : ''}><span>${esc(locales[dir].langName)}</span>${dir === lang ? icon('i-check', 'icon icon--sm') : ''}</a></li>`).join('');
   const chip = landing
-    ? `<a class="hud__pill hud__chip" id="vehicle-chip" href="choose/" aria-label="${esc(t.changeVehicle)}: C / D"
+    ? `<a class="hud__pill hud__chip" id="vehicle-chip" href="choose/" aria-label="${esc(t.changeVehicle)}: ${CAT_BOTH}"
       data-label="${esc(t.changeVehicle)}" data-truck="${esc(t.chooseTruck)}" data-bus="${esc(t.chooseBus)}">
-      ${hudIcon('swap')}<span class="hud__chip-long">C / D</span><span class="hud__chip-short" aria-hidden="true">C·D</span></a>`
+      ${hudIcon('swap')}<span class="hud__chip-long">${CAT_BOTH}</span><span class="hud__chip-short" aria-hidden="true">${CAT_BOTH}</span></a>`
     : '';
   return `<header class="hud${landing ? ' hud--landing' : ''}" id="hud">
   <a class="hud__brand" href="${home}">
@@ -101,8 +101,9 @@ const stampRefs = (html) => html
   .replace(/"((?:\.\.\/)+)([\w/-]+\.(?:css|js))"/g, (_, up, src) => `"${up}${src}?v=${stamp(`dist/${src}`)}"`)
   .replace(/choose-assets\/img\/[\w-]+\.webp/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`);
 
-// {cat} в текстах: в статичном HTML — вариант «оба» (C / D), vehicle.js меняет на C или D
-const CAT_BOTH = 'C / D';
+// {cat} в текстах: в статичном HTML — вариант «оба» (C, CE / D), vehicle.js меняет на «C, CE» или D.
+// Грузовик — две категории: C и CE (владелец просил писать их вместе везде, где показана категория)
+const CAT_BOTH = 'C, CE / D';
 const txt = (s) => esc(s).split('{cat}').join(`<span data-cat>${CAT_BOTH}</span>`);
 const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE' };
 
