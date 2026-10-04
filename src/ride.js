@@ -26,7 +26,7 @@
   const AT = [0, 0.08, 0.18, 0.28, 0.38, 0.48, 0.58, 0.67, 0.76, 0.87];
   // Автостарт: при открытии машина сама проезжает от 0 до AUTO_TO за AUTO_MS (ease-out), дальше — прокрутка.
   // AUTO_MS = 0 выключает. При «уменьшить движение» автостарта нет
-  const AUTO_TO = 0.05;
+  const AUTO_TO = 6 / 119; // ~5%, ровно 7-й кадр из 120: в покое на экране целый кадр, без смешивания двух
   const AUTO_MS = 3200;
   // Через SNAP_DELAY после остановки прокрутки сцена доезжает до целого кадра: в покое нет двоения от смешивания
   const SNAP_DELAY = 120; // мс
@@ -68,13 +68,16 @@
   let shown = null;
   let loaded = 0;
 
-  // сначала каждый 8-й кадр (сцена сразу «живая»), потом всё более частые
+  // Порядок: сначала первые FIRST кадров подряд (на них идёт автостарт — без рывков), потом каждый 8-й
+  // (сцена сразу «живая» по всей длине), потом всё более частые. Экран выбора заранее кладёт первые кадры в кэш
+  const FIRST = 9;
   function load(s) {
     set = s;
     frames = new Array(s.count);
     shown = null;
     loaded = 0;
     const order = [], seen = new Set();
+    for (let i = 0; i < FIRST; i++) { seen.add(i); order.push(i); }
     for (const step of [8, 4, 2, 1]) {
       for (let i = 0; i < s.count; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); }
     }
@@ -207,12 +210,14 @@
   let auto = A;            // если страницу открыли не с начала — сразу «доехали»
   let autoStart = 0;       // момент старта (0 — не запущен)
   if (A && scrollY < 4) auto = 0;
-  function maybeAuto() { // ждём первые кадры (каждый 8-й), чтобы машина поехала плавно
-    if (auto >= A || autoStart || loaded < set.count / 8) return;
+  function maybeAuto() { // ждём все кадры автостарта подряд, чтобы машина поехала плавно, без рывков
+    if (auto >= A || autoStart) return;
+    for (let i = 0; i < FIRST; i++) if (!frames[i]) return;
     autoStart = performance.now();
     request();
   }
-  setTimeout(() => { if (!autoStart && auto < A) { autoStart = performance.now(); request(); } }, 2500);
+  // медленная сеть: не ждём дольше 4 с (дальше машина поедет по тем кадрам, что есть)
+  setTimeout(() => { if (!autoStart && auto < A) { autoStart = performance.now(); request(); } }, 4000);
 
   // ---------- Цикл ----------
   // Сцена идёт строго за прокруткой, с очень короткой инерцией (~0,1 с), чтобы сгладить рывки колеса мыши.

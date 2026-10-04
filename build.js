@@ -139,6 +139,7 @@ function blocks(lang, t) {
     iconDown: icon('i-down'),
     iconInfo: icon('i-info'),
     framesBus: hasBusFrames ? ' data-frames-bus="../assets/ride-bus"' : '',
+    hasBusFrames: String(hasBusFrames),
     rideSteps: steps,
     rideDots: Array.from({ length: 10 }, (_, i) => `<button type="button" class="dots__dot" data-go="${i}" tabindex="-1"></button>`).join(''),
     telHref: `tel:+${PHONE}`,
@@ -208,7 +209,7 @@ for (const lang of Object.keys(LANGS)) {
 // Звуки мотора подключаются, только если файлы есть
 const SOUND_FILES = { truck: 'engine-truck.mp3', bus: 'engine-bus.mp3' };
 fs.mkdirSync('dist/choose-assets', { recursive: true });
-for (const f of ['choose.css', 'choose.js']) fs.copyFileSync(`src/choose/${f}`, `dist/choose-assets/${f}`);
+for (const f of ['choose.css', 'choose.js', 'preload-home.js']) fs.copyFileSync(`src/choose/${f}`, `dist/choose-assets/${f}`);
 for (const d of ['img', 'media']) {
   fs.cpSync(`src/choose/${d}`, `dist/choose-assets/${d}`, { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });
 }
@@ -231,13 +232,14 @@ for (const lang of Object.keys(LANGS)) {
     if (!(key in t)) throw new Error(`choose, ${lang}: в словаре нет ключа "${key}"`);
     return esc(t[key]);
   })
-    .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}"`);
+    .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}" data-frames="../../assets/ride"${hasBusFrames ? ' data-frames-bus="../../assets/ride-bus"' : ''}`);
   html = stampRefs(html);
   fs.mkdirSync(`dist/${lang}/choose`, { recursive: true });
   fs.writeFileSync(`dist/${lang}/choose/index.html`, html);
 }
 
-// Корень: сохранённый язык → (если DETECT_BROWSER_LANGUAGE) язык браузера → английский; всегда на экран выбора.
+// Корень: сохранённый язык → (если DETECT_BROWSER_LANGUAGE) язык браузера → английский. Машину уже выбирали
+// (localStorage 'vehicle') — сразу на главную, иначе на экран выбора.
 // Без JS показывает ссылки
 const dirs = Object.keys(LANGS);
 fs.writeFileSync('dist/index.html', `<!doctype html>
@@ -245,7 +247,8 @@ fs.writeFileSync('dist/index.html', `<!doctype html>
 <title>${esc(BRAND_FULL)}</title><link rel="icon" href="assets/favicon.png">
 <script>(function(){var L=${JSON.stringify(dirs)},l=null;try{l=localStorage.getItem('lang')}catch(e){}
 if(L.indexOf(l)<0){l=null;if(${DETECT_BROWSER_LANGUAGE}){var b=(navigator.language||'').slice(0,2).toLowerCase();if(L.indexOf(b)>-1)l=b;}}
-location.replace((l||'${DEFAULT_LANG}')+'/choose/'+location.search);})();</script>
+var v=null;try{v=localStorage.getItem('vehicle')}catch(e){}
+location.replace((l||'${DEFAULT_LANG}')+(v==='truck'||v==='bus'?'/':'/choose/')+location.search);})();</script>
 </head><body>${dirs.map((d) => `<p><a href="${d}/choose/">${esc(locales[d].langName)}</a></p>`).join('')}</body></html>
 `);
 

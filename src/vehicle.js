@@ -41,4 +41,10 @@
   // Автобус, а кадров автобуса ещё нет — показываем фуру и пометку
   const ride = document.getElementById('ride');
   if (kind === 'bus' && ride && !ride.dataset.framesBus) document.getElementById('ride-note')?.removeAttribute('hidden');
+  // Автобус с кадрами: фон финала — последний кадр автобуса (заглушку «дороги» меняет скрипт в шаблоне)
+  if (kind === 'bus' && ride && ride.dataset.framesBus) {
+    document.querySelectorAll('.final__bg source, .final__bg img').forEach((e) => {
+      ['srcset', 'src'].forEach((a) => { const v = e.getAttribute(a); if (v) e.setAttribute(a, v.split('/assets/ride/').join('/assets/ride-bus/')); });
+    });
+  }
 })();
