@@ -51,9 +51,13 @@
   const nextBtn = document.getElementById('ride-next');
   ride.classList.add('ride--live');
 
+  // Высота сцены (100svh) — не меняется, когда Safari на iPhone прячет и показывает адресную строку.
+  // innerHeight при этом прыгает на ~80px, и считать от него нельзя: ролик и карточки дёргались
+  const sticky = ride.querySelector('.ride__sticky');
+  const viewH = () => sticky.clientHeight || innerHeight;
   function getProgress() {
     const r = ride.getBoundingClientRect();
-    const total = r.height - innerHeight;
+    const total = r.height - viewH();
     return total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
   }
   function pickSet() {
@@ -192,7 +196,7 @@
   function cardTop(i) { // начало карточки i (чуть дальше порога, чтобы она точно стала активной); за последней — план
     if (i >= AT.length) return document.getElementById('plan').getBoundingClientRect().top + scrollY;
     const r = ride.getBoundingClientRect();
-    return r.top + scrollY + Math.min(1, AT[i] + 0.012) * (r.height - innerHeight);
+    return r.top + scrollY + Math.min(1, AT[i] + 0.012) * (r.height - viewH());
   }
   function goTo(i) {
     stopGo();
@@ -206,9 +210,9 @@
       }
     };
     if (reduceMotion || !dist) { scrollTo({ top: to, behavior: 'instant' }); done(); return; }
-    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * 700));
+    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / viewH() * 700));
     // кадры, через которые проедет машина: грузим их первыми и ждём (не дольше GO_WAIT), чтобы не было прыжков
-    const n = set.count - 1, r = ride.getBoundingClientRect(), total = r.height - innerHeight;
+    const n = set.count - 1, r = ride.getBoundingClientRect(), total = r.height - viewH();
     const frameAt = (y) => Math.round((auto + Math.min(1, Math.max(0, (y - (r.top + scrollY)) / total)) * (1 - A)) * n);
     const f0 = frameAt(from), f1 = frameAt(to), lo = Math.min(f0, f1), hi = Math.max(f0, f1);
     want(lo, hi + 4);
