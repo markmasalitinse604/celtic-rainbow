@@ -101,8 +101,7 @@ img { display: block; max-width: 100%; }
 /* Вступление — не карточка: заголовок прямо на сцене */
 .rcard--intro { max-width: 760px; text-shadow: 0 2px 16px rgba(0, 0, 0, .45); }
 .rcard__title--xl { margin-bottom: 18px; font-size: clamp(42px, 5.6vw, 84px); line-height: 1.0; }
-.rcard--intro .rcard__lead { max-width: 560px; margin-bottom: 26px; color: #F3F1EC; font-size: 18.5px; }
-.rcard--intro .btn { text-shadow: none; }
+.rcard--intro .rcard__lead { max-width: 560px; margin-bottom: 0; color: #F3F1EC; font-size: 18.5px; }
 /* «Далее»: большая прозрачная кнопка по центру внизу (телефон — по центру экрана, между карточкой и машиной) */
 .ride__next {
   position: absolute; z-index: 3; left: 50%; bottom: 40px; transform: translateX(-50%);
@@ -128,7 +127,6 @@ img { display: block; max-width: 100%; }
 .dots__dot:hover::before { background: #fff; }
 .dots__dot.is-on::before { background: var(--gold); transform: scale(1.5); }
 .rcard .actions { margin-top: 18px; }
-.rcard--intro .actions { margin-top: 0; }
 
 /* Счётчик «N из 5»: справа внизу, только на шагах */
 .ring {
@@ -312,14 +310,14 @@ img { display: block; max-width: 100%; }
   .rcard .actions { margin-top: 12px; gap: 8px; }
   .rcard .btn { min-height: 44px; padding: 0 16px; font-size: 15px; }
 
-  .rcard--intro .eyebrow, .rcard--intro .btn--gold { display: none; }
+  .rcard--intro .eyebrow { display: none; }
   .ride__next { top: 52%; bottom: auto; transform: translate(-50%, -50%); min-width: 180px; height: 58px; font-size: 18px; }
   @media (min-width: 600px) { .ride__next { top: 42%; } } /* планшет в портрете: кадр обрезан сверху и снизу, машина выше */
   .dots { right: 2px; gap: 0; }
   .dots__dot { width: 14px; height: 18px; }
   .dots__dot::before { width: 5px; height: 5px; }
   .rcard__title--xl { margin-bottom: 10px; font-size: clamp(30px, 8.4vw, 40px); line-height: 1.04; }
-  .rcard--intro .rcard__lead { margin-bottom: 14px; font-size: 15px; line-height: 1.5; }
+  .rcard--intro .rcard__lead { margin-bottom: 0; font-size: 15px; line-height: 1.5; }
 
   /* счётчик — маленький значок в правом верхнем углу карточки */
   .ring {
