@@ -1,9 +1,9 @@
 // Транспорт главной: ?vehicle=truck|bus (с экрана выбора) → localStorage 'vehicle' → 'both' («пока не знаю»).
-// Статичный HTML собран в варианте «оба» (C / D); здесь подставляем C или D: тексты с {cat} (<span data-cat>),
+// Статичный HTML собран в варианте «оба» (C, CE / D); здесь подставляем «C, CE» или D: тексты с {cat} (<span data-cat>),
 // строка возраста, кнопка категории в шапке, сообщения WhatsApp (waCat), пометка «ролик автобуса скоро».
 // Результат — window.SiteVehicle = { kind, V }: его читают plan.js и ride.js.
 (() => {
-  const CAT = { truck: 'C', bus: 'D', both: 'C / D' };
+  const CAT = { truck: 'C, CE', bus: 'D', both: 'C, CE / D' }; // грузовик — категории C и CE
   const fromUrl = new URLSearchParams(location.search).get('vehicle');
   let kind = fromUrl;
   if (!CAT[kind] || kind === 'both') {
@@ -16,7 +16,7 @@
   window.SiteVehicle = { kind, V };
   document.documentElement.dataset.vehicle = kind;
 
-  // Кнопка категории в шапке: ПК — «Грузовик · C», телефон — «C»; в варианте «оба» — «C / D» и «C·D»
+  // Кнопка категории в шапке: ПК — «Грузовик · C, CE», телефон — «C, CE»; в варианте «оба» — «C, CE / D»
   const chip = document.getElementById('vehicle-chip');
   if (chip && kind !== 'both') {
     const name = chip.dataset[kind];
@@ -27,7 +27,8 @@
   if (kind === 'both') return;
 
   document.querySelectorAll('[data-cat]').forEach((el) => { el.textContent = V; });
-  document.querySelectorAll('[data-age]').forEach((el) => { el.hidden = el.dataset.age !== V; });
+  const ageKey = kind === 'bus' ? 'D' : 'C'; // строки возраста: data-age="C" (C, CE) и "D"
+  document.querySelectorAll('[data-age]').forEach((el) => { el.hidden = el.dataset.age !== ageKey; });
 
   // Сообщения WhatsApp: дописываем категорию (ссылку плана собирает plan.js)
   const data = JSON.parse(document.getElementById('site-data').textContent);
@@ -40,4 +41,10 @@
   // Автобус, а кадров автобуса ещё нет — показываем фуру и пометку
   const ride = document.getElementById('ride');
   if (kind === 'bus' && ride && !ride.dataset.framesBus) document.getElementById('ride-note')?.removeAttribute('hidden');
+  // Автобус с кадрами: фон финала — последний кадр автобуса (заглушку «дороги» меняет скрипт в шаблоне)
+  if (kind === 'bus' && ride && ride.dataset.framesBus) {
+    document.querySelectorAll('.final__bg source, .final__bg img').forEach((e) => {
+      ['srcset', 'src'].forEach((a) => { const v = e.getAttribute(a); if (v) e.setAttribute(a, v.split('/assets/ride/').join('/assets/ride-bus/')); });
+    });
+  }
 })();

@@ -26,8 +26,8 @@
   const AT = [0, 0.08, 0.18, 0.28, 0.38, 0.48, 0.58, 0.67, 0.76, 0.87];
   // Автостарт: при открытии машина сама проезжает от 0 до AUTO_TO за AUTO_MS (ease-out), дальше — прокрутка.
   // AUTO_MS = 0 выключает. При «уменьшить движение» автостарта нет
-  const AUTO_TO = 0.05;
-  const AUTO_MS = 3200;
+  const AUTO_TO = 6 / 119; // ~5%, ровно 7-й кадр из 120: в покое на экране целый кадр, без смешивания двух
+  const AUTO_MS = 0; // выключен по просьбе владельца: при открытии — неподвижный первый кадр (было 3200)
   // Через SNAP_DELAY после остановки прокрутки сцена доезжает до целого кадра: в покое нет двоения от смешивания
   const SNAP_DELAY = 120; // мс
 
@@ -68,20 +68,39 @@
   let shown = null;
   let loaded = 0;
 
-  // сначала каждый 8-й кадр (сцена сразу «живая»), потом всё более частые
+  // Порядок загрузки: сначала первые FIRST кадров подряд и каждый 8-й (сцена сразу «живая» по всей длине),
+  // дальше — подряд ВПЕРЁД от того места, где сейчас посетитель (потом назад). Так кадры впереди готовы раньше,
+  // чем до них доедут, и машина не перескакивает через кадры. want(a, b) ставит кадры a..b в начало очереди
+  // (так делает «Далее» перед переходом). Экран выбора заранее кладёт первые кадры в кэш (preload-home.js)
+  const FIRST = 9;
+  let pending = new Set(), prio = [];
+  function want(a, b) {
+    const add = [];
+    for (let i = Math.max(0, a); i <= Math.min(set.count - 1, b); i++) if (pending.has(i)) add.push(i);
+    prio = add.concat(prio);
+  }
+  function nextIndex() {
+    while (prio.length) { const i = prio.shift(); if (pending.has(i)) return i; }
+    if (!pending.size) return -1;
+    const c = Math.max(0, Math.round(Math.max(0, cur) * (set.count - 1)));
+    for (let i = c; i < set.count; i++) if (pending.has(i)) return i;
+    for (let i = c - 1; i >= 0; i--) if (pending.has(i)) return i;
+    return -1;
+  }
   function load(s) {
     set = s;
     frames = new Array(s.count);
     shown = null;
     loaded = 0;
-    const order = [], seen = new Set();
-    for (const step of [8, 4, 2, 1]) {
-      for (let i = 0; i < s.count; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); }
-    }
-    let next = 0;
+    pending = new Set(Array.from({ length: s.count }, (_, i) => i));
+    prio = [];
+    for (let i = 0; i < FIRST; i++) prio.push(i);
+    for (let i = FIRST; i < s.count; i += 8) prio.push(i);
     const worker = () => {
-      if (set !== s || next >= order.length) return;
-      const i = order[next++];
+      if (set !== s) return;
+      const i = nextIndex();
+      if (i < 0) return;
+      pending.delete(i);
       const img = new Image();
       img.decoding = 'async';
       // Декодируем заранее, вне основного потока: иначе первая отрисовка кадра тормозит прокрутку
@@ -165,9 +184,10 @@
   // ---------- «Далее» и точки: плавно докрутить до карточки ----------
   // Своя анимация прокрутки (а не behavior: 'smooth'): одинаковая скорость во всех браузерах, ролик успевает
   // проехать свой отрезок. Колесо, касание или клавиша посетителя сразу её останавливают
-  const GO_MS = [1800, 3200]; // мин. и макс. длительность перехода, мс (по длине пути)
-  let go = 0;
-  const stopGo = () => { cancelAnimationFrame(go); go = 0; };
+  const GO_MS = [900, 1600]; // мин. и макс. длительность перехода, мс (по длине пути); владелец попросил вдвое быстрее, чем было (1800–3200)
+  const GO_WAIT = 1500;        // мс: сколько «Далее» ждёт кадры отрезка перед переходом (медленная сеть)
+  let go = 0, goToken = 0;
+  const stopGo = () => { cancelAnimationFrame(go); go = 0; goToken++; };
   ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, stopGo, { passive: true }));
   function cardTop(i) { // начало карточки i (чуть дальше порога, чтобы она точно стала активной); за последней — план
     if (i >= AT.length) return document.getElementById('plan').getBoundingClientRect().top + scrollY;
@@ -186,16 +206,27 @@
       }
     };
     if (reduceMotion || !dist) { scrollTo({ top: to, behavior: 'instant' }); done(); return; }
-    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * 1400));
-    const t0 = performance.now();
-    const step = (now) => {
+    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * 700));
+    // кадры, через которые проедет машина: грузим их первыми и ждём (не дольше GO_WAIT), чтобы не было прыжков
+    const n = set.count - 1, r = ride.getBoundingClientRect(), total = r.height - innerHeight;
+    const frameAt = (y) => Math.round((auto + Math.min(1, Math.max(0, (y - (r.top + scrollY)) / total)) * (1 - A)) * n);
+    const f0 = frameAt(from), f1 = frameAt(to), lo = Math.min(f0, f1), hi = Math.max(f0, f1);
+    want(lo, hi + 4);
+    const ready = () => { for (let k = lo; k <= hi; k++) if (!frames[k]) return false; return true; };
+    const token = ++goToken, asked = performance.now();
+    const step = (t0) => (now) => {
       const t = Math.min(1, (now - t0) / ms);
       const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // ease-in-out
       scrollTo({ top: from + dist * e, behavior: 'instant' });
-      if (t < 1) go = requestAnimationFrame(step); else done();
+      if (t < 1) go = requestAnimationFrame(step(t0)); else done();
+    };
+    const wait = () => {
+      if (token !== goToken) return; // посетитель сам крутит колесо или нажал что-то ещё
+      if (ready() || performance.now() - asked > GO_WAIT) { const t0 = performance.now(); go = requestAnimationFrame(step(t0)); }
+      else go = requestAnimationFrame(wait);
     };
     // нажатие само вызывает pointerdown/keydown → stopGo, поэтому старт — кадром позже
-    requestAnimationFrame(() => { go = requestAnimationFrame(step); });
+    requestAnimationFrame(() => { if (token === goToken) go = requestAnimationFrame(wait); });
   }
   nextBtn.addEventListener('click', () => goTo(Math.max(0, active) + 1));
   dots.forEach((d) => d.addEventListener('click', () => goTo(Number(d.dataset.go))));
@@ -207,12 +238,14 @@
   let auto = A;            // если страницу открыли не с начала — сразу «доехали»
   let autoStart = 0;       // момент старта (0 — не запущен)
   if (A && scrollY < 4) auto = 0;
-  function maybeAuto() { // ждём первые кадры (каждый 8-й), чтобы машина поехала плавно
-    if (auto >= A || autoStart || loaded < set.count / 8) return;
+  function maybeAuto() { // ждём все кадры автостарта подряд, чтобы машина поехала плавно, без рывков
+    if (auto >= A || autoStart) return;
+    for (let i = 0; i < FIRST; i++) if (!frames[i]) return;
     autoStart = performance.now();
     request();
   }
-  setTimeout(() => { if (!autoStart && auto < A) { autoStart = performance.now(); request(); } }, 2500);
+  // медленная сеть: не ждём дольше 4 с (дальше машина поедет по тем кадрам, что есть)
+  setTimeout(() => { if (!autoStart && auto < A) { autoStart = performance.now(); request(); } }, 4000);
 
   // ---------- Цикл ----------
   // Сцена идёт строго за прокруткой, с очень короткой инерцией (~0,1 с), чтобы сгладить рывки колеса мыши.

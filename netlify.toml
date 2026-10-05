@@ -1,3 +1,15 @@
 [build]
   command = "npm run build"
   publish = "dist"
+# Кадры ролика: браузер держит их сутки — экран выбора заранее кладёт первые кадры в кэш,
+# и главная берёт их без повторных запросов. Перенарезали кадры — у вернувшихся посетителей
+# обновятся в течение суток (имена файлов те же).
+[[headers]]
+  for = "/assets/ride/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/assets/ride-bus/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

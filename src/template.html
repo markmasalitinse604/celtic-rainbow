@@ -27,8 +27,14 @@
   <link rel="stylesheet" href="../shared/hud.css">
   <link rel="stylesheet" href="../landing.css">
   <!-- Первый кадр ролика: он же постер, пока грузятся остальные. Отдельно для горизонтального и вертикального экрана -->
-  <link rel="preload" as="image" href="../assets/ride/land/001.webp" media="(min-aspect-ratio: 9/10)" fetchpriority="high">
-  <link rel="preload" as="image" href="../assets/ride/port/001.webp" media="(max-aspect-ratio: 9/10)" fetchpriority="high">
+  <!-- Первый кадр ролика — он же заглушка, пока грузятся остальные. Заранее грузим кадр нужного размера
+       (land 1280 или hd 1920 — браузер выбирает по ширине и плотности экрана; телефон — port) и нужной машины
+       (автобус — если выбран и его кадры есть). Скрипт, а не <link> в разметке: машина известна только в браузере -->
+  <script>(function(){var d=document,q=new URLSearchParams(location.search).get('vehicle'),v=q;
+try{if(v!=='truck'&&v!=='bus')v=localStorage.getItem('vehicle')}catch(e){}
+var b='../assets/'+(v==='bus'&&{{hasBusFrames}}?'ride-bus':'ride');d.documentElement.dataset.frames=b;
+[['(min-aspect-ratio: 9/10)',b+'/land/001.webp 1280w, '+b+'/hd/001.webp 1920w'],['(max-aspect-ratio: 9/10)',b+'/port/001.webp 720w']].forEach(function(x){
+var l=d.createElement('link');l.rel='preload';l.as='image';l.media=x[0];l.setAttribute('imagesrcset',x[1]);l.setAttribute('imagesizes','max(100vw, 177vh)');l.setAttribute('fetchpriority','high');d.head.appendChild(l);});})();</script>
   <!-- Экономия трафика (Save-Data): статичная версия — один кадр и карточки списком -->
   <script>if(navigator.connection&&navigator.connection.saveData)document.documentElement.classList.add('save-data');</script>
   <!-- Пиксель Facebook (если понадобится) вставлять сюда, перед </head>. См. CLAUDE.md, «Аналитика» -->
@@ -45,9 +51,14 @@
   <section class="ride" id="ride" aria-label="{{jTitle}}" data-frames="../assets/ride"{{framesBus}}>
     <div class="ride__sticky">
       <picture class="ride__still">
-        <source media="(max-aspect-ratio: 9/10)" srcset="../assets/ride/port/001.webp">
-        <img src="../assets/ride/land/001.webp" alt="{{jStillAlt}}" width="1280" height="724" fetchpriority="high">
+        <source media="(max-aspect-ratio: 9/10)" srcset="../assets/ride/port/001.webp 720w" sizes="max(100vw, 56vh)">
+        <img src="../assets/ride/land/001.webp" srcset="../assets/ride/land/001.webp 1280w, ../assets/ride/hd/001.webp 1920w"
+          sizes="max(100vw, 177vh)" alt="{{jStillAlt}}" width="1280" height="724" fetchpriority="high">
       </picture>
+      <!-- выбран автобус — заглушка тоже с автобусом (путь к кадрам выбрал скрипт в <head>) -->
+      <script>(function(){var b=document.documentElement.dataset.frames;if(!b||b==='../assets/ride')return;
+document.querySelectorAll('.ride__still source, .ride__still img').forEach(function(e){
+['srcset','src'].forEach(function(a){var v=e.getAttribute(a);if(v)e.setAttribute(a,v.split('../assets/ride/').join(b+'/'));});});})();</script>
       <canvas class="ride__canvas" aria-hidden="true"></canvas>
       <div class="ride__shade" aria-hidden="true"></div>
       <p class="ride__note" id="ride-note" hidden>{{busSoon}}</p>
