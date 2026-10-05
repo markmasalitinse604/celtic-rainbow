@@ -184,7 +184,7 @@
   // ---------- «Далее» и точки: плавно докрутить до карточки ----------
   // Своя анимация прокрутки (а не behavior: 'smooth'): одинаковая скорость во всех браузерах, ролик успевает
   // проехать свой отрезок. Колесо, касание или клавиша посетителя сразу её останавливают
-  const GO_MS = [1800, 3200]; // мин. и макс. длительность перехода, мс (по длине пути)
+  const GO_MS = [900, 1600]; // мин. и макс. длительность перехода, мс (по длине пути); владелец попросил вдвое быстрее, чем было (1800–3200)
   const GO_WAIT = 1500;        // мс: сколько «Далее» ждёт кадры отрезка перед переходом (медленная сеть)
   let go = 0, goToken = 0;
   const stopGo = () => { cancelAnimationFrame(go); go = 0; goToken++; };
@@ -206,7 +206,7 @@
       }
     };
     if (reduceMotion || !dist) { scrollTo({ top: to, behavior: 'instant' }); done(); return; }
-    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * 1400));
+    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * 700));
     // кадры, через которые проедет машина: грузим их первыми и ждём (не дольше GO_WAIT), чтобы не было прыжков
     const n = set.count - 1, r = ride.getBoundingClientRect(), total = r.height - innerHeight;
     const frameAt = (y) => Math.round((auto + Math.min(1, Math.max(0, (y - (r.top + scrollY)) / total)) * (1 - A)) * n);
