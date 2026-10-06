@@ -217,22 +217,22 @@
   let go = 0, goToken = 0;
   const stopGo = () => { cancelAnimationFrame(go); go = 0; goToken++; };
   ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, stopGo, { passive: true }));
-  function cardTop(i) { // начало карточки i (чуть дальше порога, чтобы она точно стала активной); за последней — план
-    if (i >= AT.length) return document.getElementById('plan').getBoundingClientRect().top + scrollY;
+  function cardTop(i) { // начало карточки i (чуть дальше порога, чтобы она точно стала активной)
     const r = ride.getBoundingClientRect();
     return r.top + scrollY + Math.min(1, AT[i] + 0.012) * (r.height - viewH());
   }
   function goTo(i) {
     stopGo();
+    if (i >= AT.length) { // с последней карточки — к плану той же прокруткой, что у кнопки «Собрать план» (ссылка #plan):
+      // плавная прокрутка браузера (scroll-behavior в landing.css) с отступом под шапку (scroll-padding-top)
+      document.getElementById('plan').scrollIntoView();
+      const h = document.getElementById('plan-title');
+      h.setAttribute('tabindex', '-1');
+      h.focus({ preventScroll: true });
+      return;
+    }
     const from = scrollY, to = Math.round(cardTop(i)), dist = to - from;
-    const done = () => {
-      go = 0;
-      if (i >= AT.length) { // ушли к плану — фокус на его заголовок
-        const h = document.getElementById('plan-title');
-        h.setAttribute('tabindex', '-1');
-        h.focus({ preventScroll: true });
-      }
-    };
+    const done = () => { go = 0; };
     if (reduceMotion || !dist) { scrollTo({ top: to, behavior: 'instant' }); done(); return; }
     const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / viewH() * GO_PER));
     // кадры, через которые проедет машина: грузим их первыми и ждём (не дольше GO_WAIT), чтобы не было прыжков
