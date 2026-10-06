@@ -26,8 +26,9 @@
     return;
   }
 
-  // Карточки появляются по доле прокрутки секции: 0 вступление, 1–5 шаги, 6–8 «профессия», 9 финал
-  const AT = [0, 0.08, 0.18, 0.28, 0.38, 0.48, 0.58, 0.67, 0.76, 0.87];
+  // Карточки появляются по доле прокрутки секции: 0 вступление, 1–3 «профессия», 4 финал (шаги — только в плане).
+  // Поровну: на каждую карточку ~четверть ролика
+  const AT = [0, 0.2, 0.4, 0.6, 0.8];
   // Автостарт: при открытии машина сама проезжает от 0 до AUTO_TO за AUTO_MS (ease-out), дальше — прокрутка.
   // AUTO_MS = 0 выключает. При «уменьшить движение» автостарта нет
   const AUTO_TO = 6 / 119; // ~5%, ровно 7-й кадр из 120: в покое на экране целый кадр, без смешивания двух
@@ -49,8 +50,6 @@
   const canvas = ride.querySelector('.ride__canvas');
   const ctx = canvas.getContext('2d');
   const cards = [...ride.querySelectorAll('.rcard')];
-  const ring = ride.querySelector('.ring');
-  const ringN = ring.querySelector('.ring__n');
   const dots = [...ride.querySelectorAll('.dots__dot')];
   const nextBtn = document.getElementById('ride-next');
   ride.classList.add('ride--live');
@@ -179,18 +178,15 @@
     if (to) nextBtn.setAttribute('aria-label', `${nextBtn.dataset.label}: ${to.textContent.trim()}`);
     // стрелка «Далее» снова подпрыгивает 3 раза (анимация конечная, см. landing.css)
     nextBtn.querySelector('.icon')?.getAnimations().forEach((a) => { a.cancel(); a.play(); });
-    const step = Number(cards[i].dataset.step) || 0; // 1–5 только на шагах
-    ring.classList.toggle('is-on', step > 0);
-    if (step) {
-      ringN.textContent = step;
-      ring.style.setProperty('--ring-off', String(100 - step * 20));
-    }
   }
 
   // ---------- «Далее» и точки: плавно докрутить до карточки ----------
   // Своя анимация прокрутки (а не behavior: 'smooth'): одинаковая скорость во всех браузерах, ролик успевает
   // проехать свой отрезок. Колесо, касание или клавиша посетителя сразу её останавливают
-  const GO_MS = [900, 1600]; // мин. и макс. длительность перехода, мс (по длине пути); владелец попросил вдвое быстрее, чем было (1800–3200)
+  // Длительность перехода, мс: по длине пути (GO_PER — на один экран прокрутки), в пределах GO_MS.
+  // Карточек 5: между соседними ~1,1 с (как было при 10 карточках, ~0,9 с), машина проезжает ~24 кадра
+  const GO_MS = [700, 2400];
+  const GO_PER = 700;
   const GO_WAIT = 1500;        // мс: сколько «Далее» ждёт кадры отрезка перед переходом (медленная сеть)
   let go = 0, goToken = 0;
   const stopGo = () => { cancelAnimationFrame(go); go = 0; goToken++; };
@@ -212,7 +208,7 @@
       }
     };
     if (reduceMotion || !dist) { scrollTo({ top: to, behavior: 'instant' }); done(); return; }
-    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * 700));
+    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * GO_PER));
     // кадры, через которые проедет машина: грузим их первыми и ждём (не дольше GO_WAIT), чтобы не было прыжков
     const n = set.count - 1, r = ride.getBoundingClientRect(), total = r.height - innerHeight;
     const frameAt = (y) => Math.round((auto + Math.min(1, Math.max(0, (y - (r.top + scrollY)) / total)) * (1 - A)) * n);
@@ -222,7 +218,7 @@
     const token = ++goToken, asked = performance.now();
     const step = (t0) => (now) => {
       const t = Math.min(1, (now - t0) / ms);
-      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // ease-in-out
+      const e = (1 - Math.cos(Math.PI * t)) / 2; // мягкий разгон и торможение (синус): пик скорости ×1,6 от средней, а не ×3, как у кубической — без рывка посередине
       scrollTo({ top: from + dist * e, behavior: 'instant' });
       if (t < 1) go = requestAnimationFrame(step(t0)); else done();
     };
