@@ -16,6 +16,17 @@
     hud.classList.toggle('is-solid', !onScene);
   }
 
+  // ДИАГНОСТИКА — только по адресу, обычным посетителям не видна (поиск лагов на конкретном устройстве):
+  // ?perf — счётчик на экране; ?blur=0 — без размытия стекла; ?dpr=1 — холст 1×; ?smooth=low — простое сглаживание
+  const Q = new URLSearchParams(location.search);
+  const MAX_DPR = Q.get('dpr') === '1' ? 1 : 2;
+  const SMOOTH = Q.get('smooth') === 'low' ? 'low' : 'high';
+  if (Q.get('blur') === '0') {
+    const st = document.createElement('style');
+    st.textContent = '*{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}';
+    document.head.appendChild(st);
+  }
+
   const ride = document.getElementById('ride');
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const saveData = document.documentElement.classList.contains('save-data');
@@ -155,7 +166,7 @@
       size: () => { // холст не крупнее кадров видео и не больше 2× (как в draw)
         const cw = vc.clientWidth, ch = vc.clientHeight;
         const src = cw && ch ? 1 / Math.max(cw / s.w, ch / s.h) : 1;
-        const d = Math.max(1, Math.min(devicePixelRatio || 1, 2, src));
+        const d = Math.max(1, Math.min(devicePixelRatio || 1, MAX_DPR, src));
         return [Math.round(cw * d), Math.round(ch * d)];
       },
       onInfo: (info) => { if (set === s) { s.count = info.count; s.w = info.width; s.h = info.height; shown = null; request(); } },
@@ -203,14 +214,14 @@
     // Телефон: 1080-кадр → холст 2× (не 3×); Retina-ноутбук: 1920-кадр → холст 1920, а не 2880
     const cw = canvas.clientWidth, ch = canvas.clientHeight;
     const srcPx = cw && ch ? 1 / Math.max(cw / set.w, ch / set.h) : 1; // точек кадра на CSS-пиксель при cover
-    const dpr = Math.max(1, Math.min(devicePixelRatio || 1, 2, srcPx));
+    const dpr = Math.max(1, Math.min(devicePixelRatio || 1, MAX_DPR, srcPx));
     const w = Math.round(cw * dpr), h = Math.round(ch * dpr);
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; shown = null; }
     const pos = v * (set.count - 1);
     const key = pos.toFixed(3);
     if (key === shown) return; // кадр не изменился — не перерисовываем
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = SMOOTH;
     const fast = lastPos >= 0 && Math.abs(pos - lastPos) > BLEND_MAX;
     lastPos = pos;
     const i0 = Math.floor(pos), i1 = Math.min(set.count - 1, i0 + 1), mix = pos - i0;
@@ -395,4 +406,32 @@
   if (wantVideo && pickSet() !== SETS.port) loadVideo(); else load(pickSet()); // сцена — первый экран, кадры грузим сразу
   overScene();
   request();
+
+  // ДИАГНОСТИКА ?perf: кадры в секунду, подвисания, холст, кадры в памяти, память (Chrome). Свой цикл кадров —
+  // только в этом режиме (обычной странице постоянные циклы запрещены, см. CLAUDE.md)
+  if (Q.has('perf')) {
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:9999;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.85);color:#7CFC00;font:12px/1.45 ui-monospace,monospace;white-space:pre;pointer-events:none';
+    document.body.appendChild(box);
+    let last = 0, times = [], long = [];
+    const loop = (t) => { if (last) { const d = t - last; times.push([t, d]); if (d > 50) long.push(t); } last = t; requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+    const flags = ['blur', 'dpr', 'smooth', 'engine'].filter((k) => Q.has(k)).map((k) => `${k}=${Q.get(k)}`).join(' ') || 'без переключателей';
+    const ua = navigator.userAgent, br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : '?';
+    setInterval(() => {
+      const now = performance.now();
+      times = times.filter(([t]) => now - t < 1000);
+      long = long.filter((t) => now - t < 10000);
+      const worst = times.reduce((m, x) => Math.max(m, x[1]), 0);
+      const vc = [...ride.querySelectorAll('.ride__canvas')].find((c) => c.style.display !== 'none') || canvas;
+      const d = Math.max(1, Math.min(devicePixelRatio || 1, MAX_DPR, set ? 1 / Math.max(vc.clientWidth / set.w, vc.clientHeight / set.h) : 1));
+      const inMem = vid ? `${vid.cachedCount()} (видео)` : `${frames.filter(Boolean).length}/${set ? set.count : 0}`;
+      const mem = performance.memory ? `${Math.round(performance.memory.usedJSHeapSize / 1048576)} МБ JS` : 'нет данных (не Chrome)';
+      box.textContent = `${br} · экран ${innerWidth}×${innerHeight} · dpr ${devicePixelRatio}\n`
+        + `кадров/с ${times.length} · худший кадр ${worst.toFixed(0)} мс\n`
+        + `подвисаний >50 мс за 10 с: ${long.length}\n`
+        + `холст ${Math.round(vc.clientWidth * d)}×${Math.round(vc.clientHeight * d)} · набор ${set ? set.dir : '-'}\n`
+        + `кадров в памяти ${inMem} · ${mem}\n${flags}`;
+    }, 500);
+  }
 })();

@@ -42,6 +42,7 @@ if (typeof window !== 'undefined') {
           // заранее готовить кадры от i в сторону d («Далее» перед переходом)
           need(i, d, auto) { w.postMessage({ type: 'need', i, dir: d > 0 ? 1 : -1, auto: !!auto }); },
           has: (i) => have.has(i),
+          cachedCount: () => have.size,
           // «Далее»: кадры a..b скачаны, а первые из них уже готовы
           ready(a, b) {
             if (!info) return false;
