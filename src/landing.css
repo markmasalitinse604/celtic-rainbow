@@ -2,7 +2,7 @@
    Токены — shared/tokens.css, шапка и нижняя панель — shared/hud.css.
    Телефон = (max-aspect-ratio: 9/10): вертикальные кадры (port), карточки сверху над небом.
    Узкий экран боком (max-width: 760px) — компактная шапка и нижняя панель, как на телефоне. */
-:root { --hud-h: 72px; --side: 48px; --ride-vh: 900vh; } /* --ride-vh: высота «дороги», ~180vh на карточку (5 карточек) */
+:root { --hud-h: 72px; --side: 48px; --ride-vh: 600vh; } /* --ride-vh: высота «дороги», ~120vh на карточку (5 карточек); владелец попросил ролик быстрее */
 html { background: var(--ink); scroll-padding-top: var(--hud-h); }
 body {
   margin: 0; background: var(--ink); color: var(--text); overflow-x: clip;
