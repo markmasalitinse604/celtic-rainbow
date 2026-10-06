@@ -90,7 +90,7 @@
   const FIRST = 5;
   let pending = new Set(), prio = [];
   function want(a, b, d) {
-    if (vid) { vid.need(d < 0 ? b : a, d); return; }
+    if (vid) { vid.need(d < 0 ? b : a, d, true); return; }
     const add = [];
     for (let i = Math.max(0, a); i <= Math.min(set.count - 1, b); i++) if (pending.has(i)) add.push(i);
     prio = add.concat(prio);
@@ -135,8 +135,13 @@
   function loadVideo() {
     const s = { dir: 'video', count: VIDEO.count, w: VIDEO.w, h: VIDEO.h, video: true };
     set = s; frames = []; shown = null;
+    // Свой холст: его целиком забирает фоновый поток (OffscreenCanvas), обычный холст прячем до отката
+    const vc = canvas.cloneNode();
+    canvas.after(vc);
+    canvas.style.display = 'none';
     const fail = (e) => { // откат на картинки
       console.warn('ride: video engine off —', e && e.message ? e.message : e);
+      vc.remove(); canvas.style.display = '';
       if (set === s) { vid = null; load(pickSet()); }
     };
     const sc = document.createElement('script');
@@ -146,12 +151,17 @@
     sc.onerror = () => fail('ride-video.js not loaded');
     sc.onload = () => window.RideVideo.start({
       url: VIDEO.url,
-      frames,
-      size: () => { const d = Math.min(devicePixelRatio || 1, 2); return [Math.round(canvas.clientWidth * d), Math.round(canvas.clientHeight * d)]; },
+      canvas: vc,
+      size: () => { // холст не крупнее кадров видео и не больше 2× (как в draw)
+        const cw = vc.clientWidth, ch = vc.clientHeight;
+        const src = cw && ch ? 1 / Math.max(cw / s.w, ch / s.h) : 1;
+        const d = Math.max(1, Math.min(devicePixelRatio || 1, 2, src));
+        return [Math.round(cw * d), Math.round(ch * d)];
+      },
       onInfo: (info) => { if (set === s) { s.count = info.count; s.w = info.width; s.h = info.height; shown = null; request(); } },
-      onFrame: () => { if (set === s) { shown = null; request(); } },
+      onDrawn: () => ride.classList.add('ride--ready'),
       onFail: fail,
-    }).then((api) => { if (set === s) { vid = api; vid.need(0, 1); } }, fail);
+    }).then((api) => { if (set === s) { vid = api; shown = null; request(); } }, fail);
     document.head.appendChild(sc);
   }
 
@@ -180,6 +190,14 @@
   const XFADE = 0.3; // доля пути между соседними кадрами, на которой они перетекают друг в друга
   let lastPos = -1;
   function draw(v) {
+    if (set.video) { // проба с видео: рисует фоновый поток, отсюда — только какой кадр нужен
+      if (!vid) return;
+      const pos = v * (set.count - 1);
+      vid.draw(pos, dir, go !== 0); // go — идёт переход «Далее»
+      const st = window.__rideStats || (window.__rideStats = { draws: 0, misses: 0 }); // для проверки пробы
+      st.draws++; if (!vid.has(Math.round(pos))) st.misses++;
+      return;
+    }
     // Холст не крупнее самих кадров: растянутый кадр чётче не станет, а лишние пиксели — главная нагрузка
     // при прокрутке (замер: холст 2× вместо разрешения кадра — в 2 раза меньше кадров в секунду, телефон грелся).
     // Телефон: 1080-кадр → холст 2× (не 3×); Retina-ноутбук: 1920-кадр → холст 1920, а не 2880
@@ -189,13 +207,6 @@
     const w = Math.round(cw * dpr), h = Math.round(ch * dpr);
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; shown = null; }
     const pos = v * (set.count - 1);
-    if (vid) { // видео: разжать кадры вокруг этого места; счётчик промахов — для проверки пробы (window.__rideStats)
-      vid.need(Math.round(pos), dir, go !== 0); // go — идёт переход «Далее»
-      const st = window.__rideStats || (window.__rideStats = { draws: 0, misses: 0 });
-      st.draws++;
-      const want = Math.round(pos);
-      if (!frames[want]) { st.misses++; let d = 1; while (d < set.count && !frames[want - d] && !frames[want + d]) d++; st.lag = (st.lag || 0) + d; st.maxLag = Math.max(st.maxLag || 0, d); }
-    }
     const key = pos.toFixed(3);
     if (key === shown) return; // кадр не изменился — не перерисовываем
     ctx.imageSmoothingEnabled = true;

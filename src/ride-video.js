@@ -1,51 +1,57 @@
 // ПРОБНЫЙ видео-движок «дороги» (включается только адресом ?engine=video, только ПК и фура — см. ride.js).
 // Вместо 60 картинок — один MP4 (H.264, все 24 кадра в секунду, опорный кадр каждые 12 кадров, без B-кадров).
-// Вся работа — в фоновом потоке (Web Worker; этот же файл): файл качается потоком, нужные кадры разжимает
-// WebCodecs VideoDecoder (видеоблок устройства, если есть), готовые картинки (ImageBitmap размером с холст)
-// передаются странице без копирования. В основном потоке только рисование: перевод кадра в картинку там занимал
-// ~24 мс на кадр и давал рывки. В кэше — кадры около текущего места (бюджет памяти), дальние выгружаются.
-// Быстрая ручная прокрутка — только опорные кадры (каждый 12-й), остановились — все кадры вокруг.
+// Всё — в фоновом потоке (Web Worker; этот же файл), включая РИСОВАНИЕ: странице холст отдаётся целиком
+// (OffscreenCanvas), она только сообщает, какой кадр показать. Раньше готовые кадры передавались странице и рисовались
+// в её основном потоке — при прокрутке видео основной поток был занят, и вся прокрутка сайта шла с задержкой.
+// Файл качается потоком, кадры разжимает WebCodecs VideoDecoder (видеоблок устройства, если есть), в кэше — готовые
+// картинки около текущего места (бюджет памяти). Быстрая ручная прокрутка — только опорные кадры, остановились — все.
 // Разбор MP4 — свой, без библиотек: нужны только таблицы сэмплов и avcC (vp09 — для тестов в Chromium без H.264).
 
 if (typeof window !== 'undefined') {
   // ================= Страница: обёртка над фоновым потоком =================
   window.RideVideo = (() => {
     const SELF = document.currentScript && document.currentScript.src;
-    // opts: { url, frames (массив ride.js: сюда кладём готовые кадры), size() → [ширина, высота] холста в точках,
-    //         onFrame(i), onInfo(info), onFail(err) — откатиться на картинки }
+    // opts: { url, canvas (свежий <canvas> без контекста — уходит фоновому потоку), size() → [ширина, высота] холста
+    //         в точках, onInfo(info), onDrawn() — первый кадр на холсте, onFail(err) — откатиться на картинки }
     function start(opts) {
       return new Promise((resolve, reject) => {
-        if (!('VideoDecoder' in window) || !('Worker' in window) || !SELF) { reject(new Error('no WebCodecs/Worker')); return; }
+        if (!('VideoDecoder' in window) || !('Worker' in window) || !SELF || !opts.canvas.transferControlToOffscreen) { reject(new Error('no WebCodecs/Worker/OffscreenCanvas')); return; }
         const w = new Worker(SELF);
-        const frames = opts.frames;
-        let info = null, dl = 0, failed = false;
+        const off = opts.canvas.transferControlToOffscreen();
+        const have = new Set(); // какие кадры готовы (сами картинки — в фоновом потоке)
+        let info = null, dl = 0, failed = false, drawn = false;
         const fail = (e) => { if (failed) return; failed = true; w.terminate(); opts.onFail(e); };
         w.onerror = (e) => { e.preventDefault(); fail(new Error(e.message || 'worker error')); };
         w.onmessage = ({ data: m }) => {
           if (m.type === 'info') { info = m; opts.onInfo(m); resolve(api); }
-          else if (m.type === 'frame') { if (frames[m.i]) frames[m.i].close(); frames[m.i] = m.bmp; opts.onFrame(m.i); }
-          else if (m.type === 'evict') m.list.forEach((i) => { if (frames[i]) { frames[i].close(); frames[i] = undefined; } });
+          else if (m.type === 'cached') have.add(m.i);
+          else if (m.type === 'evict') m.list.forEach((i) => have.delete(i));
           else if (m.type === 'dl') dl = m.n;
+          else if (m.type === 'drawn') { if (!drawn) { drawn = true; opts.onDrawn(); } }
           else if (m.type === 'fail') { if (!info) reject(new Error(m.msg)); fail(new Error(m.msg)); }
         };
-        let lastNeed = -1, lastDir = 0, lastAuto = false;
+        let lastKey = '';
         const api = {
-          need(i, d, auto) { // какой кадр нужен, куда едем и едем ли сами («Далее»: кадры готовят заранее)
-            const dir = d ? (d > 0 ? 1 : -1) : lastDir || 1;
-            if (i === lastNeed && dir === lastDir && !!auto === lastAuto) return;
-            lastNeed = i; lastDir = dir; lastAuto = !!auto;
-            w.postMessage({ type: 'need', i, dir, auto: !!auto });
+          // показать кадр (дробная позиция; рисуется ближайший готовый), куда едем и едем ли сами («Далее»)
+          draw(pos, d, auto) {
+            const key = `${pos.toFixed(2)}|${d > 0 ? 1 : -1}|${auto ? 1 : 0}`;
+            if (key === lastKey) return;
+            lastKey = key;
+            w.postMessage({ type: 'draw', pos, dir: d > 0 ? 1 : -1, auto: !!auto });
           },
+          // заранее готовить кадры от i в сторону d («Далее» перед переходом)
+          need(i, d, auto) { w.postMessage({ type: 'need', i, dir: d > 0 ? 1 : -1, auto: !!auto }); },
+          has: (i) => have.has(i),
           // «Далее»: кадры a..b скачаны, а первые из них уже готовы
           ready(a, b) {
             if (!info) return false;
-            for (let i = a; i <= Math.min(b, a + 3); i++) if (!frames[i]) return false;
+            for (let i = a; i <= Math.min(b, a + 3); i++) if (!have.has(i)) return false;
             return dl > Math.min(b, info.count - 1);
           },
           resize() { const [cw, ch] = opts.size(); w.postMessage({ type: 'size', cw, ch }); },
         };
         const [cw, ch] = opts.size();
-        w.postMessage({ type: 'start', url: new URL(opts.url, location.href).href, cw, ch });
+        w.postMessage({ type: 'start', url: new URL(opts.url, location.href).href, canvas: off, cw, ch }, [off]);
       });
     }
     return { start };
@@ -119,7 +125,8 @@ if (typeof window !== 'undefined') {
   let buf = new Uint8Array(0), have = 0, info = null, decoder = null;
   let gops = [], gopOf = [], dlCount = 0;
   let cw = 1920, ch = 1080, focus = 0, dir = 1;
-  const sent = new Set();     // кадры, отданные странице (лежат у неё в кэше)
+  let canvas = null, c2d = null, target = 0, drawnIdx = -1;
+  const cache = new Map();    // кадр → готовая картинка (ImageBitmap размером под холст)
   const busy = new Set();     // ГОПы в очереди на разжатие
   let queue = Promise.resolve();
   const fail = (e) => postMessage({ type: 'fail', msg: String(e && e.message ? e.message : e) });
@@ -142,15 +149,17 @@ if (typeof window !== 'undefined') {
     decoder = new VideoDecoder({
       output: (vf) => {
         const i = Math.round(vf.timestamp * FPS / 1e6);
-        if (sent.has(i) || !inWindow(i)) { vf.close(); return; }
+        if (cache.has(i) || !inWindow(i)) { vf.close(); return; }
         const k = scale();
         const o = k < 1 ? { resizeWidth: Math.round(info.width * k), resizeHeight: Math.round(info.height * k), resizeQuality: 'medium' } : {};
         createImageBitmap(vf, o).then((bmp) => {
           vf.close();
-          if (sent.has(i)) { bmp.close(); return; }
-          sent.add(i);
-          postMessage({ type: 'frame', i, bmp }, [bmp]);
+          if (cache.has(i)) { bmp.close(); return; }
+          cache.set(i, bmp);
+          postMessage({ type: 'cached', i });
           trim();
+          const t = Math.round(target); // новый кадр ближе к нужному, чем нарисованный, — перерисовать
+          if (drawnIdx < 0 || Math.abs(i - t) < Math.abs(drawnIdx - t)) paint();
         }, () => vf.close());
       },
       error: fail,
@@ -181,10 +190,10 @@ if (typeof window !== 'undefined') {
   // прокрутке кэш иначе пустел раньше, чем готовились новые кадры, и сцена замирала)
   function trim() {
     const max = maxFrames();
-    if (sent.size <= max) return;
+    if (cache.size <= max) return;
     const cost = (i) => { const d = (i - focus) * dir; return d < 0 ? -d * 2 : d; }; // позади — в первую очередь
-    const far = [...sent].sort((a, b) => cost(b) - cost(a)).slice(0, sent.size - max);
-    far.forEach((i) => sent.delete(i));
+    const far = [...cache.keys()].filter((i) => i !== drawnIdx).sort((a, b) => cost(b) - cost(a)).slice(0, cache.size - max);
+    far.forEach((i) => { cache.get(i).close(); cache.delete(i); });
     postMessage({ type: 'evict', list: far });
   }
   function decodeGop(g, keyOnly) {
@@ -228,7 +237,7 @@ if (typeof window !== 'undefined') {
       for (const g of list) {
         if (busy.size >= 2) break;
         const k = gops[g][0];
-        if (!sent.has(k) && !busy.has(-1 - g) && downloaded(k)) decodeGop(g, true);
+        if (!cache.has(k) && !busy.has(-1 - g) && downloaded(k)) decodeGop(g, true);
       }
       return;
     }
@@ -237,7 +246,7 @@ if (typeof window !== 'undefined') {
       if (busy.has(g)) continue;
       const [a, b] = gops[g];
       let missing = false;
-      for (let i = a; i <= b; i++) if (!sent.has(i) && downloaded(i)) { missing = true; break; }
+      for (let i = a; i <= b; i++) if (!cache.has(i) && downloaded(i)) { missing = true; break; }
       if (missing) decodeGop(g);
     }
   }
@@ -267,9 +276,35 @@ if (typeof window !== 'undefined') {
     if (!info) throw new Error('moov not found');
   }
 
+  // Рисуем нужный кадр (или ближайший готовый) как object-fit: cover
+  function paint() {
+    if (!c2d || !info || !cache.size) return;
+    const t = Math.min(info.count - 1, Math.max(0, Math.round(target)));
+    let j = t;
+    if (!cache.has(t)) {
+      j = -1;
+      for (let d = 1; d < info.count && j < 0; d++) j = cache.has(t - d) ? t - d : cache.has(t + d) ? t + d : -1;
+      if (j < 0) return;
+    }
+    if (j === drawnIdx) return;
+    const bmp = cache.get(j), w = canvas.width, h = canvas.height;
+    const k = Math.max(w / bmp.width, h / bmp.height), dw = bmp.width * k, dh = bmp.height * k;
+    c2d.drawImage(bmp, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    drawnIdx = j;
+    postMessage({ type: 'drawn', i: j });
+  }
+  function setSize(w, h) {
+    cw = w; ch = h;
+    if (canvas && (canvas.width !== w || canvas.height !== h)) { canvas.width = w; canvas.height = h; drawnIdx = -1; paint(); }
+  }
+
   onmessage = ({ data: m }) => {
-    if (m.type === 'start') { cw = m.cw; ch = m.ch; run(m.url).catch(fail); }
+    if (m.type === 'start') {
+      canvas = m.canvas; c2d = canvas.getContext('2d', { alpha: false });
+      setSize(m.cw, m.ch);
+      run(m.url).catch(fail);
+    } else if (m.type === 'draw') { target = m.pos; onNeed(Math.round(m.pos), m.dir, m.auto); paint(); }
     else if (m.type === 'need') onNeed(m.i, m.dir, m.auto);
-    else if (m.type === 'size') { cw = m.cw; ch = m.ch; }
+    else if (m.type === 'size') setSize(m.cw, m.ch);
   };
 }
