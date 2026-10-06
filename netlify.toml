@@ -13,3 +13,9 @@
   for = "/assets/ride-bus/*"
   [headers.values]
     Cache-Control = "public, max-age=86400"
+
+# ПРОБА видео-движка (?engine=video): тот же срок кэша, что у кадров
+[[headers]]
+  for = "/assets/ride-video/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

@@ -1,5 +1,6 @@
 // Главная: шапка над сценой и «дорога» — ролик, который едет вслед за прокруткой, и 10 карточек поверх него
 (() => {
+  const SELF = document.currentScript && document.currentScript.src; // адрес ride.js (с ?v=) — рядом лежит ride-video.js
   // ---------- Шапка: прозрачная над роликом и финалом, тёмная с размытием над обычными секциями ----------
   const hud = document.getElementById('hud');
   const scenes = [...document.querySelectorAll('#ride, #final')];
@@ -48,6 +49,11 @@
   // Кадры автобуса (src/assets/ride-bus) — только если они есть (data-frames-bus ставит build.js)
   const isBus = window.SiteVehicle && window.SiteVehicle.kind === 'bus';
   const base = isBus && ride.dataset.framesBus ? ride.dataset.framesBus : ride.dataset.frames;
+  // ПРОБА (адрес ?engine=video): ролик из одного видеофайла через WebCodecs — все 24 кадра в секунду, меньше трафика
+  // и памяти (src/ride-video.js). Пока только ПК и фура; не вышло (старый браузер, ошибка) — обычные кадры
+  const VIDEO = { url: '../assets/ride-video/truck-1920.mp4', count: 204, w: 1920, h: 1086 };
+  const wantVideo = new URLSearchParams(location.search).get('engine') === 'video' && !isBus && 'VideoDecoder' in window;
+  let vid = null; // видео-движок, пока он работает
 
   const canvas = ride.querySelector('.ride__canvas');
   const ctx = canvas.getContext('2d');
@@ -83,7 +89,8 @@
   // (так делает «Далее» перед переходом). Экран выбора заранее кладёт первые кадры в кэш (preload-home.js)
   const FIRST = 5;
   let pending = new Set(), prio = [];
-  function want(a, b) {
+  function want(a, b, d) {
+    if (vid) { vid.need(d < 0 ? b : a, d); return; }
     const add = [];
     for (let i = Math.max(0, a); i <= Math.min(set.count - 1, b); i++) if (pending.has(i)) add.push(i);
     prio = add.concat(prio);
@@ -124,6 +131,30 @@
     for (let k = 0; k < 6; k++) worker(); // 6 загрузок параллельно
   }
 
+  // ПРОБА: кадры из видео. Пока файл качается — заглушка (первый кадр); кадры кладёт ride-video.js в frames
+  function loadVideo() {
+    const s = { dir: 'video', count: VIDEO.count, w: VIDEO.w, h: VIDEO.h, video: true };
+    set = s; frames = []; shown = null;
+    const fail = (e) => { // откат на картинки
+      console.warn('ride: video engine off —', e && e.message ? e.message : e);
+      if (set === s) { vid = null; load(pickSet()); }
+    };
+    const sc = document.createElement('script');
+    const u = new URL('ride-video.js', SELF || location.href);
+    if (SELF) u.search = new URL(SELF).search;
+    sc.src = u.href;
+    sc.onerror = () => fail('ride-video.js not loaded');
+    sc.onload = () => window.RideVideo.start({
+      url: VIDEO.url,
+      frames,
+      size: () => { const d = Math.min(devicePixelRatio || 1, 2); return [Math.round(canvas.clientWidth * d), Math.round(canvas.clientHeight * d)]; },
+      onInfo: (info) => { if (set === s) { s.count = info.count; s.w = info.width; s.h = info.height; shown = null; request(); } },
+      onFrame: () => { if (set === s) { shown = null; request(); } },
+      onFail: fail,
+    }).then((api) => { if (set === s) { vid = api; vid.need(0, 1); } }, fail);
+    document.head.appendChild(sc);
+  }
+
   function nearest(i) {
     if (frames[i]) return frames[i];
     for (let d = 1; d < frames.length; d++) {
@@ -135,8 +166,9 @@
 
   function paint(img, alpha) {
     const w = canvas.width, h = canvas.height;
-    const k = Math.max(w / img.naturalWidth, h / img.naturalHeight); // как object-fit: cover
-    const dw = img.naturalWidth * k, dh = img.naturalHeight * k;
+    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height; // картинка или ImageBitmap (видео)
+    const k = Math.max(w / iw, h / ih); // как object-fit: cover
+    const dw = iw * k, dh = ih * k;
     ctx.globalAlpha = alpha;
     ctx.drawImage(img, (w - dw) / 2, (h - dh) * (set.ay || 0.5), dw, dh); // ay — как object-position по высоте
   }
@@ -157,6 +189,13 @@
     const w = Math.round(cw * dpr), h = Math.round(ch * dpr);
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; shown = null; }
     const pos = v * (set.count - 1);
+    if (vid) { // видео: разжать кадры вокруг этого места; счётчик промахов — для проверки пробы (window.__rideStats)
+      vid.need(Math.round(pos), dir);
+      const st = window.__rideStats || (window.__rideStats = { draws: 0, misses: 0 });
+      st.draws++;
+      const want = Math.round(pos);
+      if (!frames[want]) { st.misses++; let d = 1; while (d < set.count && !frames[want - d] && !frames[want + d]) d++; st.lag = (st.lag || 0) + d; st.maxLag = Math.max(st.maxLag || 0, d); }
+    }
     const key = pos.toFixed(3);
     if (key === shown) return; // кадр не изменился — не перерисовываем
     ctx.imageSmoothingEnabled = true;
@@ -239,8 +278,12 @@
     const n = set.count - 1, r = ride.getBoundingClientRect(), total = r.height - viewH();
     const frameAt = (y) => Math.round((auto + Math.min(1, Math.max(0, (y - (r.top + scrollY)) / total)) * (1 - A)) * n);
     const f0 = frameAt(from), f1 = frameAt(to), lo = Math.min(f0, f1), hi = Math.max(f0, f1);
-    want(lo, hi + 4);
-    const ready = () => { for (let k = lo; k <= hi; k++) if (!frames[k]) return false; return true; };
+    want(lo, hi + 4, f1 >= f0 ? 1 : -1);
+    const ready = () => {
+      if (vid) return vid.ready(Math.min(f0, f1), Math.max(f0, f1)); // видео: отрезок скачан, первые кадры разжаты
+      for (let k = lo; k <= hi; k++) if (!frames[k]) return false;
+      return true;
+    };
     const token = ++goToken, asked = performance.now();
     const step = (t0) => (now) => {
       const t = Math.min(1, (now - t0) / ms);
@@ -328,7 +371,8 @@
   }, { passive: true });
   addEventListener('resize', () => {
     const s = pickSet();
-    if (s !== set) load(s); else shown = null;
+    if (set && set.video) { shown = null; if (vid) vid.resize(); } // проба с видео: набор не меняем
+    else if (s !== set) load(s); else shown = null;
     overScene();
     request();
   });
@@ -337,7 +381,7 @@
   const ambient = JSON.parse(document.getElementById('site-data').textContent).ambient;
   if (ambient && !reduceMotion && window.SiteSound) window.SiteSound.setAmbient(ambient);
 
-  load(pickSet()); // сцена — первый экран, кадры грузим сразу
+  if (wantVideo && pickSet() !== SETS.port) loadVideo(); else load(pickSet()); // сцена — первый экран, кадры грузим сразу
   overScene();
   request();
 })();

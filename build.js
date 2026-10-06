@@ -179,7 +179,7 @@ function blocks(lang, t) {
 
 fs.rmSync('dist', { recursive: true, force: true });
 fs.cpSync('src/shared', 'dist/shared', { recursive: true }); // общие файлы шапки и звука
-for (const f of ['landing.css', 'ride.js', 'plan.js', 'vehicle.js']) fs.copyFileSync(`src/${f}`, `dist/${f}`);
+for (const f of ['landing.css', 'ride.js', 'ride-video.js', 'plan.js', 'vehicle.js']) fs.copyFileSync(`src/${f}`, `dist/${f}`);
 if (galleryFiles.length) fs.copyFileSync('src/gallery.js', 'dist/gallery.js');
 // фото, кадры ролика, звук: ../assets/…
 fs.cpSync('src/assets', 'dist/assets', { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });
