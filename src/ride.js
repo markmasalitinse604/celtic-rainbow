@@ -39,9 +39,9 @@
   // Наборы кадров: полный размер для больших и Retina-экранов, облегчённый для небольших
   // и вертикальный (отдельный ролик 9:16) для телефонов. Каждое устройство грузит только свой.
   const SETS = {
-    hd: { dir: 'hd', count: 120 },     // 1920×1086
-    land: { dir: 'land', count: 120 }, // 1280×724
-    port: { dir: 'port', count: 120, ay: 0.8 }, // 720×1274; машина в нижней трети — обрезаем больше неба, чем дороги
+    hd: { dir: 'hd', count: 120, w: 1920, h: 1086 },
+    land: { dir: 'land', count: 120, w: 1280, h: 724 },
+    port: { dir: 'port', count: 120, w: 720, h: 1274, ay: 0.8 }, // машина в нижней трети — обрезаем больше неба, чем дороги
   };
   // Кадры автобуса (src/assets/ride-bus) — только если они есть (data-frames-bus ставит build.js)
   const isBus = window.SiteVehicle && window.SiteVehicle.kind === 'bus';
@@ -141,8 +141,13 @@
 
   // Между соседними кадрами плавно смешиваем: движение без ступенек и «мигания»
   function draw(v) {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    // Холст не крупнее самих кадров: растянутый кадр чётче не станет, а лишние пиксели — главная нагрузка
+    // при прокрутке (замер: холст 2× вместо разрешения кадра — в 2 раза меньше кадров в секунду, телефон грелся).
+    // Телефон 390px: 720-кадр → холст ~1,65× вместо 2×; Retina-ноутбук: 1920-кадр → холст 1920, а не 2880
+    const cw = canvas.clientWidth, ch = canvas.clientHeight;
+    const srcPx = cw && ch ? 1 / Math.max(cw / set.w, ch / set.h) : 1; // точек кадра на CSS-пиксель при cover
+    const dpr = Math.max(1, Math.min(devicePixelRatio || 1, 2, srcPx));
+    const w = Math.round(cw * dpr), h = Math.round(ch * dpr);
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; shown = null; }
     const pos = v * (set.count - 1);
     const key = pos.toFixed(3);
