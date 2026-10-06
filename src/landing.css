@@ -111,7 +111,9 @@ img { display: block; max-width: 100%; }
   cursor: pointer; transition: border-color .2s, background-color .2s;
 }
 .ride__next:hover { border-color: #fff; background: rgba(255, 255, 255, .1); }
-.ride__next .icon { width: 22px; height: 22px; filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .5)); animation: hint 1.8s ease-in-out infinite; }
+.ride__next .icon { width: 22px; height: 22px; filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .5)); animation: hint 1.8s ease-in-out 3 forwards; }
+/* Стрелка подпрыгивает 3 раза при каждой смене карточки (ride.js), не бесконечно: бесконечная анимация
+   перерисовывала страницу 60 раз в секунду, и телефон грелся */
 @keyframes hint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 
 /* Шкала из 10 точек справа: где посетитель и сколько впереди */
