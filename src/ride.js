@@ -3,8 +3,12 @@
   // ---------- Шапка: прозрачная над роликом и финалом, тёмная с размытием над обычными секциями ----------
   const hud = document.getElementById('hud');
   const scenes = [...document.querySelectorAll('#ride, #final')];
-  function overScene() { // что под серединой шапки
-    if (!hud) return;
+  let hudRaf = 0;
+  function overScene() { // что под серединой шапки; не чаще раза за кадр (scroll бывает чаще кадров)
+    if (!hud || hudRaf) return;
+    hudRaf = requestAnimationFrame(() => { hudRaf = 0; checkHud(); });
+  }
+  function checkHud() {
     const y = hud.offsetHeight / 2;
     const els = document.elementsFromPoint(innerWidth / 2, y);
     const onScene = els.some((el) => !hud.contains(el) && scenes.some((s) => s.contains(el)));
@@ -177,6 +181,8 @@
     // «Далее»: доступное имя — куда ведёт (следующая карточка, с последней — план)
     const to = i + 1 < cards.length ? cards[i + 1].querySelector('.rcard__title') : document.getElementById('plan-title');
     if (to) nextBtn.setAttribute('aria-label', `${nextBtn.dataset.label}: ${to.textContent.trim()}`);
+    // стрелка «Далее» снова подпрыгивает 3 раза (анимация конечная, см. landing.css)
+    nextBtn.querySelector('.icon')?.getAnimations().forEach((a) => { a.cancel(); a.play(); });
     const step = Number(cards[i].dataset.step) || 0; // 1–5 только на шагах
     ring.classList.toggle('is-on', step > 0);
     if (step) {
