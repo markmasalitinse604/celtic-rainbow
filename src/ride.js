@@ -190,7 +190,7 @@
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; shown = null; }
     const pos = v * (set.count - 1);
     if (vid) { // видео: разжать кадры вокруг этого места; счётчик промахов — для проверки пробы (window.__rideStats)
-      vid.need(Math.round(pos), dir);
+      vid.need(Math.round(pos), dir, go !== 0); // go — идёт переход «Далее»
       const st = window.__rideStats || (window.__rideStats = { draws: 0, misses: 0 });
       st.draws++;
       const want = Math.round(pos);

@@ -4,6 +4,7 @@
 // WebCodecs VideoDecoder (видеоблок устройства, если есть), готовые картинки (ImageBitmap размером с холст)
 // передаются странице без копирования. В основном потоке только рисование: перевод кадра в картинку там занимал
 // ~24 мс на кадр и давал рывки. В кэше — кадры около текущего места (бюджет памяти), дальние выгружаются.
+// Быстрая ручная прокрутка — только опорные кадры (каждый 12-й), остановились — все кадры вокруг.
 // Разбор MP4 — свой, без библиотек: нужны только таблицы сэмплов и avcC (vp09 — для тестов в Chromium без H.264).
 
 if (typeof window !== 'undefined') {
@@ -27,13 +28,13 @@ if (typeof window !== 'undefined') {
           else if (m.type === 'dl') dl = m.n;
           else if (m.type === 'fail') { if (!info) reject(new Error(m.msg)); fail(new Error(m.msg)); }
         };
-        let lastNeed = -1, lastDir = 0;
+        let lastNeed = -1, lastDir = 0, lastAuto = false;
         const api = {
-          need(i, d) { // какой кадр нужен и куда едем
+          need(i, d, auto) { // какой кадр нужен, куда едем и едем ли сами («Далее»: кадры готовят заранее)
             const dir = d ? (d > 0 ? 1 : -1) : lastDir || 1;
-            if (i === lastNeed && dir === lastDir) return;
-            lastNeed = i; lastDir = dir;
-            w.postMessage({ type: 'need', i, dir });
+            if (i === lastNeed && dir === lastDir && !!auto === lastAuto) return;
+            lastNeed = i; lastDir = dir; lastAuto = !!auto;
+            w.postMessage({ type: 'need', i, dir, auto: !!auto });
           },
           // «Далее»: кадры a..b скачаны, а первые из них уже готовы
           ready(a, b) {
@@ -115,7 +116,7 @@ if (typeof window !== 'undefined') {
   }
 
   // ---------- Состояние ----------
-  let buf = new Uint8Array(0), have = 0, info = null, decoder = null, config = null;
+  let buf = new Uint8Array(0), have = 0, info = null, decoder = null;
   let gops = [], gopOf = [], dlCount = 0;
   let cw = 1920, ch = 1080, focus = 0, dir = 1;
   const sent = new Set();     // кадры, отданные странице (лежат у неё в кэше)
@@ -135,7 +136,7 @@ if (typeof window !== 'undefined') {
   }
   async function makeDecoder() {
     // видеоблок браузер выберет сам (требовать его нельзя: без него — отказ)
-    config = { codec: info.codec, ...(info.description ? { description: info.description } : {}), codedWidth: info.width, codedHeight: info.height, optimizeForLatency: true };
+    const config = { codec: info.codec, ...(info.description ? { description: info.description } : {}), codedWidth: info.width, codedHeight: info.height, optimizeForLatency: true };
     const sup = await VideoDecoder.isConfigSupported(config).catch(() => ({ supported: false }));
     if (!sup.supported) throw new Error(`codec ${info.codec} not supported`);
     decoder = new VideoDecoder({
@@ -158,46 +159,38 @@ if (typeof window !== 'undefined') {
     postMessage({ type: 'info', count: info.count, width: info.width, height: info.height });
   }
 
-  // Окно кэша: ГОПы вокруг текущего места, впереди вдвое больше, чем позади; сколько влезет в бюджет
+  // Окно кэша — в кадрах от текущего места: впереди по ходу движения две трети бюджета, позади треть
+  // (во время «Далее» позади всего пара кадров — всё на путь впереди). Разжимаем ГОПы, которые задевают окно:
+  // сначала тот, где посетитель, потом впереди по порядку, потом позади
   let win = new Set(), winFrames = new Set();
+  const maxFrames = () => Math.max(24, Math.floor(BUDGET / frameBytes()));
   function computeWindow() {
-    const maxFrames = Math.max(24, Math.floor(BUDGET / frameBytes()));
-    const g0 = gopOf[Math.min(info.count - 1, Math.max(0, focus))];
-    const order = [g0];
-    for (let d = 1; d <= gops.length; d++) {
-      order.push(g0 + d * dir);
-      if (d % 2 === 1) order.push(g0 - ((d + 1) / 2) * dir);
-    }
-    const list = [];
-    let n = 0;
-    for (const g of order) {
-      if (g < 0 || g >= gops.length) continue;
-      const len = gops[g][1] - gops[g][0] + 1;
-      if (n + len > maxFrames) break;
-      list.push(g); n += len;
-    }
-    win = new Set(list);
+    const M = maxFrames(), back = auto ? 2 : Math.floor(M / 3), ahead = M - back;
+    const lo = Math.max(0, dir > 0 ? focus - back : focus - ahead), hi = Math.min(info.count - 1, dir > 0 ? focus + ahead : focus + back);
     winFrames = new Set();
-    list.forEach((g) => { for (let i = gops[g][0]; i <= gops[g][1]; i++) winFrames.add(i); });
+    for (let i = lo; i <= hi; i++) winFrames.add(i);
+    const g0 = gopOf[Math.min(info.count - 1, Math.max(0, focus))], gl = gopOf[lo], gh = gopOf[hi];
+    const list = [g0];
+    if (dir > 0) { for (let g = g0 + 1; g <= gh; g++) list.push(g); for (let g = g0 - 1; g >= gl; g--) list.push(g); }
+    else { for (let g = g0 - 1; g >= gl; g--) list.push(g); for (let g = g0 + 1; g <= gh; g++) list.push(g); }
+    win = new Set(list);
     return list;
   }
   const inWindow = (i) => winFrames.has(i);
   // Кэш переполнен — выгружаем самые дальние от текущего места кадры (а не всё вне окна сразу: при быстрой
   // прокрутке кэш иначе пустел раньше, чем готовились новые кадры, и сцена замирала)
   function trim() {
-    const max = Math.max(24, Math.floor(BUDGET / frameBytes()));
+    const max = maxFrames();
     if (sent.size <= max) return;
-    const far = [...sent].sort((a, b) => Math.abs(b - focus) - Math.abs(a - focus)).slice(0, sent.size - max);
+    const cost = (i) => { const d = (i - focus) * dir; return d < 0 ? -d * 2 : d; }; // позади — в первую очередь
+    const far = [...sent].sort((a, b) => cost(b) - cost(a)).slice(0, sent.size - max);
     far.forEach((i) => sent.delete(i));
     postMessage({ type: 'evict', list: far });
   }
-  let epoch = 0; // растёт при сбросе декодера: старые задания очереди ничего не делают
   function decodeGop(g, keyOnly) {
     const tag = keyOnly ? -1 - g : g; // опорный кадр отдельно помечаем в busy
     busy.add(tag);
-    const my = epoch;
     queue = queue.then(async () => {
-      if (my !== epoch) return;
       if (!win.has(g)) return; // пока ждали очереди, посетитель уехал
       const [a, b0] = gops[g], b = keyOnly ? a : b0;
       let any = false;
@@ -207,30 +200,40 @@ if (typeof window !== 'undefined') {
         any = true;
       }
       if (any) await decoder.flush().catch(() => {});
-    }).catch(() => {}).finally(() => { if (my === epoch) { busy.delete(tag); pump(); } });
+    }).catch(() => {}).finally(() => { busy.delete(tag); pump(); });
   }
-  // Посетитель резко прыгнул (быстрая прокрутка, точки): бросаем разжатие ГОПов, которые уже не нужны рядом
-  let lastReset = 0;
-  function jump() {
-    if (!decoder || !busy.size || performance.now() - lastReset < 300) return; // не чаще раза в 0,3 с — иначе при
-    const g0 = gopOf[Math.min(info.count - 1, Math.max(0, focus))];         // быстрой прокрутке ничего не успеет
-    for (const t of busy) { const g = t < 0 ? -1 - t : t; if (Math.abs(g - g0) <= 1) return; } // рядом уже в работе
-    lastReset = performance.now();
-    epoch++;
-    busy.clear();
-    queue = Promise.resolve();
-    try { decoder.reset(); decoder.configure(config); } catch (e) { fail(e); }
+  // Быстрая ручная прокрутка (быстрее FAST кадров/с; «Далее» не в счёт — его кадры готовятся заранее): разжимаем только опорные кадры — каждый сам по себе, мгновенно,
+  // без очереди из целых ГОПов, которую потом пришлось бы бросать (сброс декодера на ПК дорогой — были рывки).
+  // Прокрутка замедлилась или встала (SETTLE мс без движения) — разжимаем все кадры вокруг места
+  const FAST = 30, SETTLE = 150;
+  let speed = 0, settleTimer = 0, auto = false;
+  const hist = []; // [время, кадр] за последние 250 мс — скорость по ним, а не по соседним сообщениям (те скачут)
+  function onNeed(i, d, a) {
+    auto = a;
+    const now = performance.now();
+    if (a) hist.length = 0; // «Далее» в замер ручной прокрутки не попадает
+    hist.push([now, i]);
+    while (hist.length > 1 && now - hist[0][0] > 250) hist.shift();
+    const span = now - hist[0][0];
+    speed = span > 60 ? Math.abs(i - hist[0][1]) * 1000 / span : 0; // кадров в секунду
+    focus = i; dir = d;
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => { speed = 0; hist.length = 0; pump(); }, SETTLE);
+    pump();
   }
   function pump() {
     if (!decoder || decoder.state !== 'configured') return;
     const list = computeWindow();
-    // нужного кадра нет, а его ГОП ещё не в работе — сперва один опорный кадр этого места (быстро), потом весь ГОП
-    const g0 = list[0];
-    let near = false; // готовый кадр в пределах 6 от нужного — это не прыжок, срочный опорный кадр не нужен
-    for (let d = 0; d <= 6 && !near; d++) near = sent.has(focus - d) || sent.has(focus + d);
-    if (!near && !sent.has(gops[g0][0]) && !busy.has(g0) && !busy.has(-1 - g0) && downloaded(gops[g0][0])) decodeGop(g0, true);
+    if (!auto && speed > FAST) { // только опорные кадры, ближайшие к месту и впереди по ходу
+      for (const g of list) {
+        if (busy.size >= 2) break;
+        const k = gops[g][0];
+        if (!sent.has(k) && !busy.has(-1 - g) && downloaded(k)) decodeGop(g, true);
+      }
+      return;
+    }
     for (const g of list) {
-      if (busy.size >= 2) break; // не больше двух ГОПов в очереди: новое место посетителя важнее старых планов
+      if (busy.size >= 2) break; // не больше двух заданий в очереди: новое место посетителя важнее старых планов
       if (busy.has(g)) continue;
       const [a, b] = gops[g];
       let missing = false;
@@ -266,7 +269,7 @@ if (typeof window !== 'undefined') {
 
   onmessage = ({ data: m }) => {
     if (m.type === 'start') { cw = m.cw; ch = m.ch; run(m.url).catch(fail); }
-    else if (m.type === 'need') { focus = m.i; dir = m.dir; jump(); pump(); }
+    else if (m.type === 'need') onNeed(m.i, m.dir, m.auto);
     else if (m.type === 'size') { cw = m.cw; ch = m.ch; }
   };
 }
