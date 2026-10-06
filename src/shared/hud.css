@@ -52,8 +52,10 @@
 .hud__lang .lang-menu__list a[aria-current="page"] { color: var(--gold); }
 .hud__lang .lang-menu__list .icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 
-/* Звук: золотое кольцо с лёгкой пульсацией, пока кнопку ни разу не нажимали */
-.hud__sound.is-fresh { box-shadow: 0 0 0 5px rgba(242, 184, 75, .35); animation: ring 2.4s ease-in-out infinite; }
+/* Звук: золотое кольцо, пока кнопку ни разу не нажимали. Пульсирует первые ~10 с и плавно гаснет совсем
+   (решение владельца): бесконечная пульсация перерисовывала шапку 60 раз в секунду, и телефон грелся */
+.hud__sound.is-fresh { box-shadow: 0 0 0 5px rgba(242, 184, 75, .35); animation: ring 2.4s ease-in-out 4, ring-out .8s ease 9.6s forwards; }
+@keyframes ring-out { to { box-shadow: 0 0 0 5px rgba(242, 184, 75, 0); } }
 @keyframes ring {
   0%, 100% { box-shadow: 0 0 0 5px rgba(242, 184, 75, .35); }
   50% { box-shadow: 0 0 0 8px rgba(242, 184, 75, .18); }

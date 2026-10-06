@@ -1,14 +1,30 @@
 // Главная: шапка над сценой и «дорога» — ролик, который едет вслед за прокруткой, и 10 карточек поверх него
 (() => {
+  const SELF = document.currentScript && document.currentScript.src; // адрес ride.js (с ?v=) — рядом лежит ride-video.js
   // ---------- Шапка: прозрачная над роликом и финалом, тёмная с размытием над обычными секциями ----------
   const hud = document.getElementById('hud');
   const scenes = [...document.querySelectorAll('#ride, #final')];
-  function overScene() { // что под серединой шапки
-    if (!hud) return;
+  let hudRaf = 0;
+  function overScene() { // что под серединой шапки; не чаще раза за кадр (scroll бывает чаще кадров)
+    if (!hud || hudRaf) return;
+    hudRaf = requestAnimationFrame(() => { hudRaf = 0; checkHud(); });
+  }
+  function checkHud() {
     const y = hud.offsetHeight / 2;
     const els = document.elementsFromPoint(innerWidth / 2, y);
     const onScene = els.some((el) => !hud.contains(el) && scenes.some((s) => s.contains(el)));
     hud.classList.toggle('is-solid', !onScene);
+  }
+
+  // ДИАГНОСТИКА — только по адресу, обычным посетителям не видна (поиск лагов на конкретном устройстве):
+  // ?perf — счётчик на экране; ?blur=0 — без размытия стекла; ?dpr=1 — холст 1×; ?smooth=low — простое сглаживание
+  const Q = new URLSearchParams(location.search);
+  const MAX_DPR = Q.get('dpr') === '1' ? 1 : 2;
+  const SMOOTH = Q.get('smooth') === 'low' ? 'low' : 'high';
+  if (Q.get('blur') === '0') {
+    const st = document.createElement('style');
+    st.textContent = '*{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}';
+    document.head.appendChild(st);
   }
 
   const ride = document.getElementById('ride');
@@ -22,11 +38,12 @@
     return;
   }
 
-  // Карточки появляются по доле прокрутки секции: 0 вступление, 1–5 шаги, 6–8 «профессия», 9 финал
-  const AT = [0, 0.08, 0.18, 0.28, 0.38, 0.48, 0.58, 0.67, 0.76, 0.87];
+  // Карточки появляются по доле прокрутки секции: 0 вступление, 1–3 «профессия», 4 финал (шаги — только в плане).
+  // Поровну: на каждую карточку ~четверть ролика
+  const AT = [0, 0.2, 0.4, 0.6, 0.8];
   // Автостарт: при открытии машина сама проезжает от 0 до AUTO_TO за AUTO_MS (ease-out), дальше — прокрутка.
   // AUTO_MS = 0 выключает. При «уменьшить движение» автостарта нет
-  const AUTO_TO = 6 / 119; // ~5%, ровно 7-й кадр из 120: в покое на экране целый кадр, без смешивания двух
+  const AUTO_TO = 3 / 59; // ~5%, ровно 4-й кадр из 60: в покое на экране целый кадр, без смешивания двух
   const AUTO_MS = 0; // выключен по просьбе владельца: при открытии — неподвижный первый кадр (было 3200)
   // Через SNAP_DELAY после остановки прокрутки сцена доезжает до целого кадра: в покое нет двоения от смешивания
   const SNAP_DELAY = 120; // мс
@@ -34,26 +51,35 @@
   // Наборы кадров: полный размер для больших и Retina-экранов, облегчённый для небольших
   // и вертикальный (отдельный ролик 9:16) для телефонов. Каждое устройство грузит только свой.
   const SETS = {
-    hd: { dir: 'hd', count: 120 },     // 1920×1086
-    land: { dir: 'land', count: 120 }, // 1280×724
-    port: { dir: 'port', count: 120, ay: 0.8 }, // 720×1274; машина в нижней трети — обрезаем больше неба, чем дороги
+    // 60 кадров (6 к/с из 10-секундного ролика): вдвое меньше кадров, зато телефонные — 1080 вместо 720 (были мыльные
+    // на экранах 1170–1290 точек), а весь набор не тяжелее прежнего; соседние кадры смешиваются — без ступенек
+    hd: { dir: 'hd', count: 60, w: 1920, h: 1086 },
+    land: { dir: 'land', count: 60, w: 1280, h: 724 },
+    port: { dir: 'port', count: 60, w: 1080, h: 1912, ay: 0.8 }, // машина в нижней трети — обрезаем больше неба, чем дороги
   };
   // Кадры автобуса (src/assets/ride-bus) — только если они есть (data-frames-bus ставит build.js)
   const isBus = window.SiteVehicle && window.SiteVehicle.kind === 'bus';
   const base = isBus && ride.dataset.framesBus ? ride.dataset.framesBus : ride.dataset.frames;
+  // ПРОБА (адрес ?engine=video): ролик из одного видеофайла через WebCodecs — все 24 кадра в секунду, меньше трафика
+  // и памяти (src/ride-video.js). Пока только ПК и фура; не вышло (старый браузер, ошибка) — обычные кадры
+  const VIDEO = { url: '../assets/ride-video/truck-1920.mp4', count: 204, w: 1920, h: 1086 };
+  const wantVideo = new URLSearchParams(location.search).get('engine') === 'video' && !isBus && 'VideoDecoder' in window;
+  let vid = null; // видео-движок, пока он работает
 
   const canvas = ride.querySelector('.ride__canvas');
   const ctx = canvas.getContext('2d');
   const cards = [...ride.querySelectorAll('.rcard')];
-  const ring = ride.querySelector('.ring');
-  const ringN = ring.querySelector('.ring__n');
   const dots = [...ride.querySelectorAll('.dots__dot')];
   const nextBtn = document.getElementById('ride-next');
   ride.classList.add('ride--live');
 
+  // Высота сцены (100svh) — не меняется, когда Safari на iPhone прячет и показывает адресную строку.
+  // innerHeight при этом прыгает на ~80px, и считать от него нельзя: ролик и карточки дёргались
+  const sticky = ride.querySelector('.ride__sticky');
+  const viewH = () => sticky.clientHeight || innerHeight;
   function getProgress() {
     const r = ride.getBoundingClientRect();
-    const total = r.height - innerHeight;
+    const total = r.height - viewH();
     return total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
   }
   function pickSet() {
@@ -68,13 +94,14 @@
   let shown = null;
   let loaded = 0;
 
-  // Порядок загрузки: сначала первые FIRST кадров подряд и каждый 8-й (сцена сразу «живая» по всей длине),
+  // Порядок загрузки: сначала первые FIRST кадров подряд и каждый 4-й (сцена сразу «живая» по всей длине),
   // дальше — подряд ВПЕРЁД от того места, где сейчас посетитель (потом назад). Так кадры впереди готовы раньше,
   // чем до них доедут, и машина не перескакивает через кадры. want(a, b) ставит кадры a..b в начало очереди
   // (так делает «Далее» перед переходом). Экран выбора заранее кладёт первые кадры в кэш (preload-home.js)
-  const FIRST = 9;
+  const FIRST = 5;
   let pending = new Set(), prio = [];
-  function want(a, b) {
+  function want(a, b, d) {
+    if (vid) { vid.need(d < 0 ? b : a, d, true); return; }
     const add = [];
     for (let i = Math.max(0, a); i <= Math.min(set.count - 1, b); i++) if (pending.has(i)) add.push(i);
     prio = add.concat(prio);
@@ -95,7 +122,7 @@
     pending = new Set(Array.from({ length: s.count }, (_, i) => i));
     prio = [];
     for (let i = 0; i < FIRST; i++) prio.push(i);
-    for (let i = FIRST; i < s.count; i += 8) prio.push(i);
+    for (let i = FIRST; i < s.count; i += 4) prio.push(i);
     const worker = () => {
       if (set !== s) return;
       const i = nextIndex();
@@ -115,6 +142,40 @@
     for (let k = 0; k < 6; k++) worker(); // 6 загрузок параллельно
   }
 
+  // ПРОБА: кадры из видео. Пока файл качается — заглушка (первый кадр); кадры кладёт ride-video.js в frames
+  function loadVideo() {
+    const s = { dir: 'video', count: VIDEO.count, w: VIDEO.w, h: VIDEO.h, video: true };
+    set = s; frames = []; shown = null;
+    // Свой холст: его целиком забирает фоновый поток (OffscreenCanvas), обычный холст прячем до отката
+    const vc = canvas.cloneNode();
+    canvas.after(vc);
+    canvas.style.display = 'none';
+    const fail = (e) => { // откат на картинки
+      console.warn('ride: video engine off —', e && e.message ? e.message : e);
+      vc.remove(); canvas.style.display = '';
+      if (set === s) { vid = null; load(pickSet()); }
+    };
+    const sc = document.createElement('script');
+    const u = new URL('ride-video.js', SELF || location.href);
+    if (SELF) u.search = new URL(SELF).search;
+    sc.src = u.href;
+    sc.onerror = () => fail('ride-video.js not loaded');
+    sc.onload = () => window.RideVideo.start({
+      url: VIDEO.url,
+      canvas: vc,
+      size: () => { // холст не крупнее кадров видео и не больше 2× (как в draw)
+        const cw = vc.clientWidth, ch = vc.clientHeight;
+        const src = cw && ch ? 1 / Math.max(cw / s.w, ch / s.h) : 1;
+        const d = Math.max(1, Math.min(devicePixelRatio || 1, MAX_DPR, src));
+        return [Math.round(cw * d), Math.round(ch * d)];
+      },
+      onInfo: (info) => { if (set === s) { s.count = info.count; s.w = info.width; s.h = info.height; shown = null; request(); } },
+      onDrawn: () => ride.classList.add('ride--ready'),
+      onFail: fail,
+    }).then((api) => { if (set === s) { vid = api; shown = null; request(); } }, fail);
+    document.head.appendChild(sc);
+  }
+
   function nearest(i) {
     if (frames[i]) return frames[i];
     for (let d = 1; d < frames.length; d++) {
@@ -126,26 +187,54 @@
 
   function paint(img, alpha) {
     const w = canvas.width, h = canvas.height;
-    const k = Math.max(w / img.naturalWidth, h / img.naturalHeight); // как object-fit: cover
-    const dw = img.naturalWidth * k, dh = img.naturalHeight * k;
+    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height; // картинка или ImageBitmap (видео)
+    const k = Math.max(w / iw, h / ih); // как object-fit: cover
+    const dw = iw * k, dh = ih * k;
     ctx.globalAlpha = alpha;
     ctx.drawImage(img, (w - dw) / 2, (h - dh) * (set.ay || 0.5), dw, dh); // ay — как object-position по высоте
   }
 
-  // Между соседними кадрами плавно смешиваем: движение без ступенек и «мигания»
+  // Между соседними кадрами плавно смешиваем: движение без ступенек и «мигания». Только при медленном движении
+  // (меньше BLEND_MAX кадра за кадр экрана: «Далее», доводка, спокойная прокрутка) — при быстрой прокрутке глаз
+  // смешивания не видит, а второй кадр поверх первого вдвое удорожает отрисовку (замер: 8,6 → 20 кадров/с)
+  const BLEND_MAX = 0.35;
+  const XFADE = 0.3; // доля пути между соседними кадрами, на которой они перетекают друг в друга
+  let lastPos = -1;
   function draw(v) {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    if (set.video) { // проба с видео: рисует фоновый поток, отсюда — только какой кадр нужен
+      if (!vid) return;
+      const pos = v * (set.count - 1);
+      vid.draw(pos, dir, go !== 0); // go — идёт переход «Далее»
+      const st = window.__rideStats || (window.__rideStats = { draws: 0, misses: 0 }); // для проверки пробы
+      st.draws++; if (!vid.has(Math.round(pos))) st.misses++;
+      return;
+    }
+    // Холст не крупнее самих кадров: растянутый кадр чётче не станет, а лишние пиксели — главная нагрузка
+    // при прокрутке (замер: холст 2× вместо разрешения кадра — в 2 раза меньше кадров в секунду, телефон грелся).
+    // Телефон: 1080-кадр → холст 2× (не 3×); Retina-ноутбук: 1920-кадр → холст 1920, а не 2880
+    const cw = canvas.clientWidth, ch = canvas.clientHeight;
+    const srcPx = cw && ch ? 1 / Math.max(cw / set.w, ch / set.h) : 1; // точек кадра на CSS-пиксель при cover
+    const dpr = Math.max(1, Math.min(devicePixelRatio || 1, MAX_DPR, srcPx));
+    const w = Math.round(cw * dpr), h = Math.round(ch * dpr);
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; shown = null; }
     const pos = v * (set.count - 1);
     const key = pos.toFixed(3);
     if (key === shown) return; // кадр не изменился — не перерисовываем
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = SMOOTH;
+    const fast = lastPos >= 0 && Math.abs(pos - lastPos) > BLEND_MAX;
+    lastPos = pos;
     const i0 = Math.floor(pos), i1 = Math.min(set.count - 1, i0 + 1), mix = pos - i0;
-    if (frames[i0] && frames[i1]) {
-      paint(frames[i0], 1);
-      if (mix > 0.01) paint(frames[i1], mix);
+    if (fast && frames[Math.round(pos)]) {
+      paint(frames[Math.round(pos)], 1); // быстро листают — один ближайший кадр, без смешивания
+    } else if (frames[i0] && frames[i1]) {
+      // Короткая смена кадра: бо́льшую часть пути между кадрами виден один целый кадр (чётко), а перетекание —
+      // только в узком окне посередине (XFADE). Раньше смешивали на всём пути: в начале и в конце движения, когда
+      // машина едет медленно, два кадра долго просвечивали друг через друга — картинка двоилась и казалась мыльной
+      const m = Math.min(1, Math.max(0, (mix - (1 - XFADE) / 2) / XFADE));
+      const a = m * m * (3 - 2 * m); // плавные края окна
+      if (a > 0.99) paint(frames[i1], 1);
+      else { paint(frames[i0], 1); if (a > 0.01) paint(frames[i1], a); }
     } else {
       const img = nearest(Math.round(pos)); // кадры ещё грузятся — показываем ближайший
       if (!img) return;
@@ -173,50 +262,54 @@
     // «Далее»: доступное имя — куда ведёт (следующая карточка, с последней — план)
     const to = i + 1 < cards.length ? cards[i + 1].querySelector('.rcard__title') : document.getElementById('plan-title');
     if (to) nextBtn.setAttribute('aria-label', `${nextBtn.dataset.label}: ${to.textContent.trim()}`);
-    const step = Number(cards[i].dataset.step) || 0; // 1–5 только на шагах
-    ring.classList.toggle('is-on', step > 0);
-    if (step) {
-      ringN.textContent = step;
-      ring.style.setProperty('--ring-off', String(100 - step * 20));
-    }
+    // стрелка «Далее» снова подпрыгивает 3 раза (анимация конечная, см. landing.css)
+    nextBtn.querySelector('.icon')?.getAnimations().forEach((a) => { a.cancel(); a.play(); });
   }
 
   // ---------- «Далее» и точки: плавно докрутить до карточки ----------
   // Своя анимация прокрутки (а не behavior: 'smooth'): одинаковая скорость во всех браузерах, ролик успевает
   // проехать свой отрезок. Колесо, касание или клавиша посетителя сразу её останавливают
-  const GO_MS = [900, 1600]; // мин. и макс. длительность перехода, мс (по длине пути); владелец попросил вдвое быстрее, чем было (1800–3200)
+  // Длительность перехода, мс: по длине пути (GO_PER — на один экран прокрутки), в пределах GO_MS.
+  // Карточек 5, кадров 60, «дорога» 600vh: за одно «Далее» машина проезжает ~12 кадров за ~1,15 с
+  // (владелец попросил ролик быстрее). Синусный разгон — без рывка посередине
+  const GO_MS = [700, 2400];
+  const GO_PER = 1150;
   const GO_WAIT = 1500;        // мс: сколько «Далее» ждёт кадры отрезка перед переходом (медленная сеть)
   let go = 0, goToken = 0;
   const stopGo = () => { cancelAnimationFrame(go); go = 0; goToken++; };
   ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, stopGo, { passive: true }));
-  function cardTop(i) { // начало карточки i (чуть дальше порога, чтобы она точно стала активной); за последней — план
-    if (i >= AT.length) return document.getElementById('plan').getBoundingClientRect().top + scrollY;
+  function cardTop(i) { // начало карточки i (чуть дальше порога, чтобы она точно стала активной)
     const r = ride.getBoundingClientRect();
-    return r.top + scrollY + Math.min(1, AT[i] + 0.012) * (r.height - innerHeight);
+    return r.top + scrollY + Math.min(1, AT[i] + 0.012) * (r.height - viewH());
   }
   function goTo(i) {
     stopGo();
+    if (i >= AT.length) { // с последней карточки — к плану той же прокруткой, что у кнопки «Собрать план» (ссылка #plan):
+      // плавная прокрутка браузера (scroll-behavior в landing.css) с отступом под шапку (scroll-padding-top)
+      document.getElementById('plan').scrollIntoView();
+      const h = document.getElementById('plan-title');
+      h.setAttribute('tabindex', '-1');
+      h.focus({ preventScroll: true });
+      return;
+    }
     const from = scrollY, to = Math.round(cardTop(i)), dist = to - from;
-    const done = () => {
-      go = 0;
-      if (i >= AT.length) { // ушли к плану — фокус на его заголовок
-        const h = document.getElementById('plan-title');
-        h.setAttribute('tabindex', '-1');
-        h.focus({ preventScroll: true });
-      }
-    };
+    const done = () => { go = 0; };
     if (reduceMotion || !dist) { scrollTo({ top: to, behavior: 'instant' }); done(); return; }
-    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / innerHeight * 700));
+    const ms = Math.min(GO_MS[1], Math.max(GO_MS[0], Math.abs(dist) / viewH() * GO_PER));
     // кадры, через которые проедет машина: грузим их первыми и ждём (не дольше GO_WAIT), чтобы не было прыжков
-    const n = set.count - 1, r = ride.getBoundingClientRect(), total = r.height - innerHeight;
+    const n = set.count - 1, r = ride.getBoundingClientRect(), total = r.height - viewH();
     const frameAt = (y) => Math.round((auto + Math.min(1, Math.max(0, (y - (r.top + scrollY)) / total)) * (1 - A)) * n);
     const f0 = frameAt(from), f1 = frameAt(to), lo = Math.min(f0, f1), hi = Math.max(f0, f1);
-    want(lo, hi + 4);
-    const ready = () => { for (let k = lo; k <= hi; k++) if (!frames[k]) return false; return true; };
+    want(lo, hi + 4, f1 >= f0 ? 1 : -1);
+    const ready = () => {
+      if (vid) return vid.ready(Math.min(f0, f1), Math.max(f0, f1)); // видео: отрезок скачан, первые кадры разжаты
+      for (let k = lo; k <= hi; k++) if (!frames[k]) return false;
+      return true;
+    };
     const token = ++goToken, asked = performance.now();
     const step = (t0) => (now) => {
       const t = Math.min(1, (now - t0) / ms);
-      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // ease-in-out
+      const e = (1 - Math.cos(Math.PI * t)) / 2; // мягкий разгон и торможение (синус): пик скорости ×1,6 от средней, а не ×3, как у кубической — без рывка посередине
       scrollTo({ top: from + dist * e, behavior: 'instant' });
       if (t < 1) go = requestAnimationFrame(step(t0)); else done();
     };
@@ -300,7 +393,8 @@
   }, { passive: true });
   addEventListener('resize', () => {
     const s = pickSet();
-    if (s !== set) load(s); else shown = null;
+    if (set && set.video) { shown = null; if (vid) vid.resize(); } // проба с видео: набор не меняем
+    else if (s !== set) load(s); else shown = null;
     overScene();
     request();
   });
@@ -309,7 +403,35 @@
   const ambient = JSON.parse(document.getElementById('site-data').textContent).ambient;
   if (ambient && !reduceMotion && window.SiteSound) window.SiteSound.setAmbient(ambient);
 
-  load(pickSet()); // сцена — первый экран, кадры грузим сразу
+  if (wantVideo && pickSet() !== SETS.port) loadVideo(); else load(pickSet()); // сцена — первый экран, кадры грузим сразу
   overScene();
   request();
+
+  // ДИАГНОСТИКА ?perf: кадры в секунду, подвисания, холст, кадры в памяти, память (Chrome). Свой цикл кадров —
+  // только в этом режиме (обычной странице постоянные циклы запрещены, см. CLAUDE.md)
+  if (Q.has('perf')) {
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:9999;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.85);color:#7CFC00;font:12px/1.45 ui-monospace,monospace;white-space:pre;pointer-events:none';
+    document.body.appendChild(box);
+    let last = 0, times = [], long = [];
+    const loop = (t) => { if (last) { const d = t - last; times.push([t, d]); if (d > 50) long.push(t); } last = t; requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+    const flags = ['blur', 'dpr', 'smooth', 'engine'].filter((k) => Q.has(k)).map((k) => `${k}=${Q.get(k)}`).join(' ') || 'без переключателей';
+    const ua = navigator.userAgent, br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : '?';
+    setInterval(() => {
+      const now = performance.now();
+      times = times.filter(([t]) => now - t < 1000);
+      long = long.filter((t) => now - t < 10000);
+      const worst = times.reduce((m, x) => Math.max(m, x[1]), 0);
+      const vc = [...ride.querySelectorAll('.ride__canvas')].find((c) => c.style.display !== 'none') || canvas;
+      const d = Math.max(1, Math.min(devicePixelRatio || 1, MAX_DPR, set ? 1 / Math.max(vc.clientWidth / set.w, vc.clientHeight / set.h) : 1));
+      const inMem = vid ? `${vid.cachedCount()} (видео)` : `${frames.filter(Boolean).length}/${set ? set.count : 0}`;
+      const mem = performance.memory ? `${Math.round(performance.memory.usedJSHeapSize / 1048576)} МБ JS` : 'нет данных (не Chrome)';
+      box.textContent = `${br} · экран ${innerWidth}×${innerHeight} · dpr ${devicePixelRatio}\n`
+        + `кадров/с ${times.length} · худший кадр ${worst.toFixed(0)} мс\n`
+        + `подвисаний >50 мс за 10 с: ${long.length}\n`
+        + `холст ${Math.round(vc.clientWidth * d)}×${Math.round(vc.clientHeight * d)} · набор ${set ? set.dir : '-'}\n`
+        + `кадров в памяти ${inMem} · ${mem}\n${flags}`;
+    }, 500);
+  }
 })();

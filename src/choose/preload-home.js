@@ -9,7 +9,7 @@
   // тот же выбор набора кадров, что в ride.js (pickSet)
   const dir = () => (innerWidth / innerHeight < 0.9 ? 'port'
     : innerWidth * Math.min(devicePixelRatio || 1, 2) > 1500 ? 'hd' : 'land');
-  const FIRST = 9; // как FIRST в ride.js: кадры автостарта
+  const FIRST = 5; // как FIRST в ride.js: кадры автостарта
   const range = (from, to, step = 1) => { const a = []; for (let i = from; i < to; i += step) a.push(i); return a; };
 
   const queue = [], seen = new Set();
@@ -36,7 +36,7 @@
     link.href = root.dataset.next; // HTML главной
     document.head.appendChild(link);
     add('truck', range(0, FIRST)); add('bus', range(0, FIRST));
-    add('truck', range(FIRST, 120, 8)); add('bus', range(FIRST, 120, 8));
+    add('truck', range(FIRST, 60, 4)); add('bus', range(FIRST, 60, 4));
   }
   const go = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 300));
   if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true });
@@ -46,7 +46,7 @@
     const side = e.target.closest('[data-side]')?.dataset.side;
     if (side !== 'truck' && side !== 'bus') return;
     started = true;
-    add(side, range(0, 120, 4), true);
+    add(side, range(0, 60, 2), true);
     add(side, range(0, FIRST), true);
   });
 })();

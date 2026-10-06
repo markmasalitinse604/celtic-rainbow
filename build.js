@@ -118,11 +118,6 @@ const hasAmbient = fs.existsSync(`src/${AMBIENT}`);
 // Блоки главной, которые собираются из словаря
 function blocks(lang, t) {
   const plan = withV(t.waPlan.split('{L}').join(t.lic.eu), CAT_BOTH);
-  const steps = [1, 2, 3, 4, 5].map((n) => `<li class="rcard rcard--step" data-i="${n}" data-step="${n}">
-          <p class="eyebrow">${esc(t.jStepLabel.split('{n}').join(n))}</p>
-          <h2 class="rcard__title">${txt(t[`jS${n}Title`])}</h2>
-          <p>${txt(t[`jS${n}Text`])}</p>
-        </li>`).join('\n        ');
 
   return {
     htmlLang: LANGS[lang],
@@ -140,8 +135,7 @@ function blocks(lang, t) {
     iconInfo: icon('i-info'),
     framesBus: hasBusFrames ? ' data-frames-bus="../assets/ride-bus"' : '',
     hasBusFrames: String(hasBusFrames),
-    rideSteps: steps,
-    rideDots: Array.from({ length: 10 }, (_, i) => `<button type="button" class="dots__dot" data-go="${i}" tabindex="-1"></button>`).join(''),
+    rideDots: Array.from({ length: 5 }, (_, i) => `<button type="button" class="dots__dot" data-go="${i}" tabindex="-1"></button>`).join(''),
     telHref: `tel:+${PHONE}`,
     phoneDisplay: esc(PHONE_DISPLAY),
     waHref: esc(wa(t.waHello)),
@@ -185,7 +179,7 @@ function blocks(lang, t) {
 
 fs.rmSync('dist', { recursive: true, force: true });
 fs.cpSync('src/shared', 'dist/shared', { recursive: true }); // общие файлы шапки и звука
-for (const f of ['landing.css', 'ride.js', 'plan.js', 'vehicle.js']) fs.copyFileSync(`src/${f}`, `dist/${f}`);
+for (const f of ['landing.css', 'ride.js', 'ride-video.js', 'plan.js', 'vehicle.js']) fs.copyFileSync(`src/${f}`, `dist/${f}`);
 if (galleryFiles.length) fs.copyFileSync('src/gallery.js', 'dist/gallery.js');
 // фото, кадры ролика, звук: ../assets/…
 fs.cpSync('src/assets', 'dist/assets', { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });

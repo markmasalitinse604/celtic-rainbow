@@ -2,7 +2,7 @@
    Токены — shared/tokens.css, шапка и нижняя панель — shared/hud.css.
    Телефон = (max-aspect-ratio: 9/10): вертикальные кадры (port), карточки сверху над небом.
    Узкий экран боком (max-width: 760px) — компактная шапка и нижняя панель, как на телефоне. */
-:root { --hud-h: 72px; --side: 48px; --ride-vh: 900vh; } /* --ride-vh: высота «дороги», ~90vh на карточку */
+:root { --hud-h: 72px; --side: 48px; --ride-vh: 600vh; } /* --ride-vh: высота «дороги», ~120vh на карточку (5 карточек); владелец попросил ролик быстрее */
 html { background: var(--ink); scroll-padding-top: var(--hud-h); }
 body {
   margin: 0; background: var(--ink); color: var(--text); overflow-x: clip;
@@ -101,8 +101,7 @@ img { display: block; max-width: 100%; }
 /* Вступление — не карточка: заголовок прямо на сцене */
 .rcard--intro { max-width: 760px; text-shadow: 0 2px 16px rgba(0, 0, 0, .45); }
 .rcard__title--xl { margin-bottom: 18px; font-size: clamp(42px, 5.6vw, 84px); line-height: 1.0; }
-.rcard--intro .rcard__lead { max-width: 560px; margin-bottom: 26px; color: #F3F1EC; font-size: 18.5px; }
-.rcard--intro .btn { text-shadow: none; }
+.rcard--intro .rcard__lead { max-width: 560px; margin-bottom: 0; color: #F3F1EC; font-size: 18.5px; }
 /* «Далее»: большая прозрачная кнопка по центру внизу (телефон — по центру экрана, между карточкой и машиной) */
 .ride__next {
   position: absolute; z-index: 3; left: 50%; bottom: 40px; transform: translateX(-50%);
@@ -112,7 +111,9 @@ img { display: block; max-width: 100%; }
   cursor: pointer; transition: border-color .2s, background-color .2s;
 }
 .ride__next:hover { border-color: #fff; background: rgba(255, 255, 255, .1); }
-.ride__next .icon { width: 22px; height: 22px; filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .5)); animation: hint 1.8s ease-in-out infinite; }
+.ride__next .icon { width: 22px; height: 22px; filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .5)); animation: hint 1.8s ease-in-out 3 forwards; }
+/* Стрелка подпрыгивает 3 раза при каждой смене карточки (ride.js), не бесконечно: бесконечная анимация
+   перерисовывала страницу 60 раз в секунду, и телефон грелся */
 @keyframes hint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 
 /* Шкала из 10 точек справа: где посетитель и сколько впереди */
@@ -128,27 +129,11 @@ img { display: block; max-width: 100%; }
 .dots__dot:hover::before { background: #fff; }
 .dots__dot.is-on::before { background: var(--gold); transform: scale(1.5); }
 .rcard .actions { margin-top: 18px; }
-.rcard--intro .actions { margin-top: 0; }
-
-/* Счётчик «N из 5»: справа внизу, только на шагах */
-.ring {
-  position: absolute; z-index: 2; right: var(--side); bottom: 128px; width: 120px; height: 120px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border-radius: 50%; background: rgba(14, 17, 19, .55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-  opacity: 0; transform: scale(.92); transition: opacity .4s ease, transform .4s ease; pointer-events: none;
-}
-.ring.is-on { opacity: 1; transform: none; }
-.ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-.ring circle { fill: none; stroke-width: 4; }
-.ring__track { stroke: rgba(255, 255, 255, .18); }
-.ring__bar { stroke: var(--gold); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: var(--ring-off, 80); transition: stroke-dashoffset .5s ease; }
-.ring__n { font: 600 44px/1 var(--display); }
-.ring__of { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 
 /* Статичная версия (без JS, экономия трафика): один кадр, вступление на нём, остальные карточки списком */
 .ride:not(.ride--live) .ride__sticky { height: auto; overflow: visible; }
 .ride:not(.ride--live) .ride__still { height: 100vh; height: 100svh; }
-.ride:not(.ride--live) .ride__canvas, .ride:not(.ride--live) .ring, .ride:not(.ride--live) .ride__next,
+.ride:not(.ride--live) .ride__canvas, .ride:not(.ride--live) .ride__next,
 .ride:not(.ride--live) .dots { display: none; }
 .ride:not(.ride--live) .ride__shade { height: 100vh; height: 100svh; }
 .ride:not(.ride--live) .ride__cards {
@@ -305,30 +290,20 @@ img { display: block; max-width: 100%; }
   .rcard { align-self: start; max-width: none; }
   .rcard:not(.rcard--intro) { padding: 14px 16px; border-radius: 16px; }
   .ride__still img { object-position: 50% 80%; } /* как ay набора port в ride.js */
-  .ride--live .rcard--step { padding-right: 60px; } /* место под значок счётчика */
   .rcard .eyebrow { margin-bottom: 6px; font-size: 11.5px; }
   .rcard__title { margin-bottom: 6px; font-size: clamp(21px, 6vw, 26px); }
   .rcard p:not(.eyebrow) { font-size: 14px; line-height: 1.45; }
   .rcard .actions { margin-top: 12px; gap: 8px; }
   .rcard .btn { min-height: 44px; padding: 0 16px; font-size: 15px; }
 
-  .rcard--intro .eyebrow, .rcard--intro .btn--gold { display: none; }
+  .rcard--intro .eyebrow { display: none; }
   .ride__next { top: 52%; bottom: auto; transform: translate(-50%, -50%); min-width: 180px; height: 58px; font-size: 18px; }
   @media (min-width: 600px) { .ride__next { top: 42%; } } /* планшет в портрете: кадр обрезан сверху и снизу, машина выше */
   .dots { right: 2px; gap: 0; }
   .dots__dot { width: 14px; height: 18px; }
   .dots__dot::before { width: 5px; height: 5px; }
   .rcard__title--xl { margin-bottom: 10px; font-size: clamp(30px, 8.4vw, 40px); line-height: 1.04; }
-  .rcard--intro .rcard__lead { margin-bottom: 14px; font-size: 15px; line-height: 1.5; }
-
-  /* счётчик — маленький значок в правом верхнем углу карточки */
-  .ring {
-    right: calc(var(--side) + 12px); bottom: auto; top: calc(var(--hud-h) + env(safe-area-inset-top) + 24px);
-    width: 44px; height: 44px; background: none; top: calc(var(--hud-h) + env(safe-area-inset-top) + 22px); right: calc(var(--side) + 10px); -webkit-backdrop-filter: none; backdrop-filter: none;
-  }
-  .ring circle { stroke-width: 7; }
-  .ring__n { font-size: 18px; }
-  .ring__of { display: none; }
+  .rcard--intro .rcard__lead { margin-bottom: 0; font-size: 15px; line-height: 1.5; }
 
   .ride:not(.ride--live) .rcard--intro { justify-content: flex-start; padding: calc(var(--hud-h) + 24px) 0 0; }
   .ride:not(.ride--live) .ride__shade { background: linear-gradient(180deg, rgba(14, 17, 19, .82) 0%, rgba(14, 17, 19, .5) 40%, rgba(14, 17, 19, 0) 60%), linear-gradient(0deg, var(--ink) 0%, rgba(14, 17, 19, 0) 25%); }
@@ -337,7 +312,7 @@ img { display: block; max-width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rcard, .ring, .ring__bar, .ride__canvas, .faq summary .icon, .gallery__item img, .btn { transition: none !important; }
+  .rcard, .ride__canvas, .faq summary .icon, .gallery__item img, .btn { transition: none !important; }
   .ride__next .icon { animation: none; }
   .dots__dot::before { transition: none; }
 }
