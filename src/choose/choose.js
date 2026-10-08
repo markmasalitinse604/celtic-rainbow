@@ -20,8 +20,8 @@
   }
   const HYST = 0.012;         // рамку показанной машины расширяем на столько (доля фото), чтобы у края не мигало
   const SWITCH_DELAY = 150;   // мс: задержка перед уходом из рамки / сменой машины
-  const LIT_HOLD = 1600;      // мс: сколько горят фары до затемнения
-  const FADE_OUT = 500;       // мс: затемнение перед переходом (как .blackout в choose.css)
+  const LIT_HOLD = 800;       // мс: сколько горят фары до затемнения (владелец попросил переход вдвое быстрее, было 1600)
+  const FADE_OUT = 250;       // мс: затемнение перед переходом (как .blackout в choose.css; было 500)
   const FADE_IN = 400;        // мс: проявление слоя (как transition у .layer в choose.css)
 
   const root = document.getElementById('choose');
@@ -220,7 +220,7 @@
     playSound(side);
 
     const url = `${root.dataset.next}?vehicle=${side}`;
-    if (reduceMotion) { setTimeout(() => location.assign(url), 700); return; }
+    if (reduceMotion) { setTimeout(() => location.assign(url), 350); return; }
     setTimeout(() => {
       root.classList.add('is-leaving');
       setTimeout(() => location.assign(url), FADE_OUT);
