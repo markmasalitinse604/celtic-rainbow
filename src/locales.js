@@ -8,7 +8,7 @@
 //    photo  — подпись заглушки; не видна, если есть src/assets/teacher.jpg
 //  Телефон, Facebook и домен — в build.js (PHONE, PHONE_DISPLAY, FACEBOOK_URL, SITE_URL).
 //
-//  Меняешь текст — меняй во всех четырёх языках, потом npm run build.
+//  Меняешь текст — меняй во всех пяти языках, потом npm run build.
 // ─────────────────────────────────────────────────────────────
 
 module.exports = {
@@ -47,7 +47,7 @@ module.exports = {
     jPlanLead: "Wybierz swoje prawo jazdy i zobacz kroki do kategorii {cat}.",
     jTeacherLabel: "Twój nauczyciel",
     jT1Title: "W Twoim języku",
-    jT1Text: "Po polsku, portugalsku, rosyjsku lub angielsku. Egzamin jest po angielsku, dlatego razem rozkładamy każdy termin.",
+    jT1Text: "Po polsku, portugalsku, rosyjsku, hiszpańsku lub angielsku. Egzamin jest po angielsku, dlatego razem rozkładamy każdy termin.",
     jT2Title: "Bezpośrednio z nauczycielem",
     jT2Text: "Piszesz do mnie na WhatsApp i odpowiadam osobiście.",
     jDoubtsTitle: "Szczere odpowiedzi na częste wątpliwości",
@@ -76,7 +76,7 @@ module.exports = {
     jEndTitle: "Twoja droga zaczyna się od jednej wiadomości",
     jEndText: "Napisz, jakie masz prawo jazdy i czym chcesz jeździć.",
     jMetaTitle: "Twoja droga do zawodu kierowcy w Irlandii | Celtic Rainbow International Driving School",
-    jMetaDesc: "Teoria na prawo jazdy na ciężarówkę (C & CE) i autobus (D) w Irlandii po polsku, portugalsku, rosyjsku lub angielsku: od egzaminu teoretycznego do karty CPC. Napisz do nauczyciela na WhatsApp.",
+    jMetaDesc: "Teoria na prawo jazdy na ciężarówkę (C & CE) i autobus (D) w Irlandii po polsku, portugalsku, rosyjsku, hiszpańsku lub angielsku: od egzaminu teoretycznego do karty CPC. Napisz do nauczyciela na WhatsApp.",
     jStillAlt: "Biały pojazd na górskiej drodze w Irlandii o zachodzie słońca",
     changeVehicle: "Zmień pojazd",
     photo: "[Zdjęcie]",
@@ -196,7 +196,7 @@ module.exports = {
     jPlanLead: "Escolha sua carteira e veja os passos para a categoria {cat}.",
     jTeacherLabel: "Seu professor",
     jT1Title: "No seu idioma",
-    jT1Text: "Em polonês, português, russo ou inglês. A prova é em inglês, por isso vamos juntos por cada termo.",
+    jT1Text: "Em polonês, português, russo, espanhol ou inglês. A prova é em inglês, por isso vamos juntos por cada termo.",
     jT2Title: "Direto com o professor",
     jT2Text: "Você fala comigo no WhatsApp e quem responde sou eu.",
     jDoubtsTitle: "Respostas honestas às dúvidas mais comuns",
@@ -225,7 +225,7 @@ module.exports = {
     jEndTitle: "Seu caminho começa com uma mensagem",
     jEndText: "Conte qual carteira você tem e o que quer dirigir.",
     jMetaTitle: "Seu caminho para a profissão de motorista na Irlanda | Celtic Rainbow International Driving School",
-    jMetaDesc: "Teoria para as categorias de caminhão (C & CE) e ônibus (D) na Irlanda, em polonês, português, russo ou inglês: da prova teórica ao cartão CPC. Fale com o professor no WhatsApp.",
+    jMetaDesc: "Teoria para as categorias de caminhão (C & CE) e ônibus (D) na Irlanda, em polonês, português, russo, espanhol ou inglês: da prova teórica ao cartão CPC. Fale com o professor no WhatsApp.",
     jStillAlt: "Um veículo branco em uma estrada de montanha na Irlanda ao pôr do sol",
     changeVehicle: "Trocar veículo",
     photo: "[Foto]",
@@ -345,7 +345,7 @@ module.exports = {
     jPlanLead: "Выберите свои права, и вы увидите шаги к категории {cat}.",
     jTeacherLabel: "Ваш преподаватель",
     jT1Title: "На вашем языке",
-    jT1Text: "На польском, португальском, русском или английском. Экзамен на английском, поэтому каждый термин мы разбираем вместе.",
+    jT1Text: "На польском, португальском, русском, испанском или английском. Экзамен на английском, поэтому каждый термин мы разбираем вместе.",
     jT2Title: "Напрямую с преподавателем",
     jT2Text: "Вы пишете мне в WhatsApp, и отвечаю я сам.",
     jDoubtsTitle: "Честные ответы на частые сомнения",
@@ -374,7 +374,7 @@ module.exports = {
     jEndTitle: "Ваша дорога начинается с одного сообщения",
     jEndText: "Напишите, какие у вас права и на чём вы хотите ездить.",
     jMetaTitle: "Ваша дорога в профессию водителя в Ирландии | Celtic Rainbow International Driving School",
-    jMetaDesc: "Теория на права на грузовик (C & CE) и автобус (D) в Ирландии на польском, португальском, русском или английском: от теоретического экзамена до карты CPC. Напишите преподавателю в WhatsApp.",
+    jMetaDesc: "Теория на права на грузовик (C & CE) и автобус (D) в Ирландии на польском, португальском, русском, испанском или английском: от теоретического экзамена до карты CPC. Напишите преподавателю в WhatsApp.",
     jStillAlt: "Белая машина на горной дороге в Ирландии на закате",
     changeVehicle: "Сменить транспорт",
     photo: "[Фото]",
@@ -494,7 +494,7 @@ module.exports = {
     jPlanLead: "Choose your licence and see the steps for category {cat}.",
     jTeacherLabel: "Your teacher",
     jT1Title: "In your language",
-    jT1Text: "Polish, Portuguese, Russian or English. The exam is in English, so we go through every term together.",
+    jT1Text: "Polish, Portuguese, Russian, Spanish or English. The exam is in English, so we go through every term together.",
     jT2Title: "Directly with the teacher",
     jT2Text: "You message me on WhatsApp, and I answer myself.",
     jDoubtsTitle: "Honest answers to common doubts",
@@ -523,7 +523,7 @@ module.exports = {
     jEndTitle: "Your road starts with one message",
     jEndText: "Tell me which licence you hold and which vehicle you want to drive.",
     jMetaTitle: "Your road to a driver's career in Ireland | Celtic Rainbow International Driving School",
-    jMetaDesc: "Theory for truck (C & CE) and bus (D) licences in Ireland, in Polish, Portuguese, Russian or English: from the theory test to the CPC card. Message the teacher on WhatsApp.",
+    jMetaDesc: "Theory for truck (C & CE) and bus (D) licences in Ireland, in Polish, Portuguese, Russian, Spanish or English: from the theory test to the CPC card. Message the teacher on WhatsApp.",
     jStillAlt: "A white vehicle on a mountain road in Ireland at sunset",
     changeVehicle: "Change vehicle",
     photo: "[Photo]",
@@ -607,5 +607,154 @@ module.exports = {
     galleryClose: "Close",
     call: "Call",
     langLabel: "Language"
+  },
+  es: {
+    langName: "Español",
+    wa: "Escribir por WhatsApp",
+    waHello: "¡Hola! Quiero preguntar por el curso de teoría para las categorías C, CE & D.",
+    waPlan: "¡Hola! Mi carné: {L}. Quiero la categoría {V}. Me gustaría apuntarme al curso de teoría.",
+    waCat: "Me interesa la categoría {V}.",
+    chooseTitle: "Elige tu categoría",
+    chooseHint: "Teoría y tests CPC, categoría C & D",
+    chooseTruck: "Camión",
+    chooseCatC: "categoría C & CE",
+    chooseBus: "Autobús",
+    chooseCatD: "categoría D",
+    soundLabel: "Sonido",
+    soundTip: "Activa el sonido",
+    soundOnAria: "Activar el sonido",
+    soundOffAria: "Desactivar el sonido",
+    busSoon: "El vídeo del autobús llega pronto: por ahora mostramos el camión.",
+    jTitle: "Tu camino hacia un futuro mejor",
+    jLead: "Teoría para la categoría {cat} en Irlanda, en tu idioma: paso a paso, desde la primera pregunta hasta la tarjeta CPC.",
+    jCtaPlan: "Arma tu plan",
+    jNext: "Siguiente",
+    jWhyLabel: "La profesión",
+    jW1Title: "Un lugar de trabajo con vistas",
+    jW1Text: "Montañas, lagos y carreteras de costa en lugar de cuatro paredes de oficina.",
+    jW2Title: "Las empresas buscan conductores",
+    jW2Text: "Las empresas de transporte de Irlanda informan con frecuencia de que les cuesta encontrar conductores de camión y autobús.",
+    jW3Title: "Espacio para crecer",
+    jW3Text: "Empieza con una categoría y añade otras más adelante, como el remolque o un segundo tipo de vehículo.",
+    jFinalLabel: "Tu camino",
+    jFinalTitle: "Tu camino empieza aquí",
+    jFinalText: "Dime qué carné tienes y te mostraré el plan hecho para ti.",
+    jPlanTitle: "Arma tu plan",
+    jPlanLead: "Elige tu carné y verás los pasos para la categoría {cat}.",
+    jTeacherLabel: "Tu profesor",
+    jT1Title: "En tu idioma",
+    jT1Text: "Polaco, portugués, ruso, español o inglés. El examen es en inglés, así que repasamos juntos cada término.",
+    jT2Title: "Directamente con el profesor",
+    jT2Text: "Me escribes por WhatsApp y te respondo yo mismo.",
+    jDoubtsTitle: "Respuestas sinceras a dudas frecuentes",
+    faq: [
+      [
+        "¿Mi inglés es suficiente?",
+        "Las preguntas en pantalla están en inglés, pero las formulaciones se repiten. Aprendemos los términos y las frases típicas hasta que te resulten familiares. Algunos exámenes tienen audio en otros idiomas; lo comprobamos al reservar."
+      ],
+      [
+        "Hace años que no estudio. ¿Podré?",
+        "Las clases son cortas y van paso a paso: siempre sabes qué estudiar hoy y qué viene después."
+      ],
+      [
+        "¿Tengo que canjear mi carné de la UE?",
+        "No. Con un carné de la UE válido puedes solicitar directamente el learner permit de la categoría C o D."
+      ],
+      [
+        "¿Qué edad necesito?",
+        "Categorías C & CE desde los 18 y D desde los 21 si haces el CPC. Sin él, 21 y 24."
+      ],
+      [
+        "¿Necesito un informe médico?",
+        "Sí. Para el learner permit de las categorías C, CE & D necesitas un informe médico de un médico, de hace menos de 3 meses."
+      ]
+    ],
+    jEndTitle: "Tu camino empieza con un mensaje",
+    jEndText: "Dime qué carné tienes y qué vehículo quieres conducir.",
+    jMetaTitle: "Tu camino a la profesión de conductor en Irlanda | Celtic Rainbow International Driving School",
+    jMetaDesc: "Teoría para el carné de camión (C & CE) y autobús (D) en Irlanda, en polaco, portugués, ruso, español o inglés: del examen teórico a la tarjeta CPC. Escribe al profesor por WhatsApp.",
+    jStillAlt: "Un vehículo blanco en una carretera de montaña en Irlanda al atardecer",
+    changeVehicle: "Cambiar de vehículo",
+    photo: "[Foto]",
+    name: "[Nombre y apellido]",
+    qLic: "Mi carné",
+    lic: {
+      eu: "De la UE (categoría B)",
+      nonEu: "De fuera de la UE",
+      none: "Aún no tengo carné"
+    },
+    ageC: "Categoría C & CE: desde los 18 con CPC; sin CPC, desde los 21.",
+    ageD: "Categoría D: desde los 21 con CPC; sin CPC, desde los 24.",
+    planTitle: "Tu plan",
+    planCta: "Enviar este plan por WhatsApp",
+    stepsEu: [
+      [
+        "Examen teórico de la categoría {V}",
+        "En un centro de exámenes. Las preguntas aparecen en inglés."
+      ],
+      [
+        "Learner permit de la categoría {V}",
+        "Online en NDLS, con un informe médico de tu médico. El carné de la UE no hay que canjearlo."
+      ],
+      [
+        "Case study del CPC",
+        "Obligatorio si vas a conducir por trabajo."
+      ],
+      [
+        "Clases y exámenes prácticos",
+        "Clases con un instructor ADI de la categoría {V}, luego el examen práctico y el walkaround."
+      ],
+      [
+        "Carné y tarjeta CPC",
+        "Con la tarjeta CPC puedes trabajar como conductor profesional."
+      ]
+    ],
+    stepsNonEu: [
+      [
+        "Primero, el carné B irlandés",
+        "Los carnés brasileños no se pueden canjear en Irlanda. ¿Eres de otro país? Compruebo si el tuyo se puede canjear."
+      ],
+      [
+        "Examen teórico de coche (B)",
+        "Hay audio en 21 idiomas."
+      ],
+      [
+        "Learner permit y EDT reducido",
+        "Con un carné extranjero puedes pedir 6 clases EDT en lugar de 12."
+      ],
+      [
+        "Examen práctico de coche",
+        "Al aprobarlo obtienes el carné B irlandés completo."
+      ],
+      [
+        "Ahora, el camino a la categoría {V}",
+        "Teoría de la categoría {V}, learner permit, CPC y exámenes prácticos. A partir de aquí te guío yo."
+      ]
+    ],
+    stepsNone: [
+      [
+        "Examen teórico de coche (B)",
+        "El primer paso para cualquier carné en Irlanda."
+      ],
+      [
+        "Learner permit y 12 clases EDT",
+        "Clases con un instructor ADI. Puedes presentarte al examen como pronto a los 6 meses."
+      ],
+      [
+        "Examen práctico de coche",
+        "Al aprobarlo tienes el carné B completo."
+      ],
+      [
+        "Ahora, el camino a la categoría {V}",
+        "Teoría de la categoría {V}, learner permit, CPC y exámenes prácticos. A partir de aquí te guío yo."
+      ]
+    ],
+    about: "[Unas líneas sobre ti: de dónde eres, qué carné y experiencia tienes, por qué enseñas.]",
+    footer: "Curso de teoría independiente. Sin relación con la RSA, NDLS ni theorytest.ie.",
+    galleryTitle: "Galería",
+    galleryAlt: "Foto",
+    galleryClose: "Cerrar",
+    call: "Llamar",
+    langLabel: "Idioma"
   }
 };

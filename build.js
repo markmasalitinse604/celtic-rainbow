@@ -2,14 +2,14 @@
 const fs = require('fs');
 const crypto = require('crypto');
 
-const SITE_URL = 'https://example.ie';   // заменить на настоящий домен
+const SITE_URL = 'https://idsch.ie';     // основной домен: canonical, hreflang, Open Graph, sitemap.xml, robots.txt
 const PHONE = '353000000000';            // для WhatsApp и звонков: только цифры, без + и пробелов
 const PHONE_DISPLAY = '+353 [номер]';   // как номер выглядит на странице
 const FACEBOOK_URL = 'https://www.facebook.com/'; // ссылка на страницу; '' — ссылка не показывается
-const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', ru: 'ru' }; // папка → код языка
+const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', es: 'es', ru: 'ru' }; // папка → код языка; порядок = порядок в меню языков и в списке языков преподавателя
 const DEFAULT_LANG = 'en';
 // Корень сайта: сохранённый язык (localStorage 'lang') → язык браузера (только если true) → английский
-const DETECT_BROWSER_LANGUAGE = false;
+const DETECT_BROWSER_LANGUAGE = true; // корень сайта выбирает язык по настройкам браузера (решение владельца)
 const BRAND = { name: 'Celtic Rainbow', sub: 'International Driving School' }; // название: шапка, заголовки вкладок, подвал, соцсети (было Truck & Bus School)
 const BRAND_FULL = `${BRAND.name} ${BRAND.sub}`;
 
@@ -105,7 +105,7 @@ const stampRefs = (html) => html
 // Грузовик — две категории: C & CE (владелец просил писать их вместе везде, где показана категория)
 const CAT_BOTH = 'C, CE & D';
 const txt = (s) => esc(s).split('{cat}').join(`<span data-cat>${CAT_BOTH}</span>`);
-const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE' };
+const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE', es: 'es_ES' };
 
 // Кадры ролика: src/assets/ride/{hd,land,port} — фура. Если появится src/assets/ride-bus/{hd,land,port},
 // ride.js возьмёт его для ?vehicle=bus; пока его нет — везде фура и пометка busSoon для автобуса
@@ -231,18 +231,39 @@ for (const lang of Object.keys(LANGS)) {
   fs.writeFileSync(`dist/${lang}/choose/index.html`, html);
 }
 
-// Корень: сохранённый язык → (если DETECT_BROWSER_LANGUAGE) язык браузера → английский. Машину уже выбирали
+// Корень: ?lang=pl|pt|es|ru|en (так ведут отдельные домены через переадресацию Cloudflare; язык запоминается) → сохранённый язык → (если DETECT_BROWSER_LANGUAGE) первый подходящий из языков браузера по порядку → английский. Машину уже выбирали
 // (localStorage 'vehicle') — сразу на главную, иначе на экран выбора.
 // Без JS показывает ссылки
 const dirs = Object.keys(LANGS);
 fs.writeFileSync('dist/index.html', `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(BRAND_FULL)}</title><link rel="icon" href="assets/favicon.png">
-<script>(function(){var L=${JSON.stringify(dirs)},l=null;try{l=localStorage.getItem('lang')}catch(e){}
-if(L.indexOf(l)<0){l=null;if(${DETECT_BROWSER_LANGUAGE}){var b=(navigator.language||'').slice(0,2).toLowerCase();if(L.indexOf(b)>-1)l=b;}}
+<script>(function(){var L=${JSON.stringify(dirs)},l=null,q=new URLSearchParams(location.search),f=(q.get('lang')||'').toLowerCase();
+if(L.indexOf(f)>-1){l=f;q.delete('lang');try{localStorage.setItem('lang',l)}catch(e){}}else{try{l=localStorage.getItem('lang')}catch(e){}}
+if(L.indexOf(l)<0){l=null;if(${DETECT_BROWSER_LANGUAGE}){var bs=navigator.languages||[navigator.language||''];for(var i=0;i<bs.length&&!l;i++){var b=(bs[i]||'').slice(0,2).toLowerCase();if(L.indexOf(b)>-1)l=b;}}}
 var v=null;try{v=localStorage.getItem('vehicle')}catch(e){}
-location.replace((l||'${DEFAULT_LANG}')+(v==='truck'||v==='bus'?'/':'/choose/')+location.search);})();</script>
+var r=q.toString();location.replace((l||'${DEFAULT_LANG}')+(v==='truck'||v==='bus'?'/':'/choose/')+(r?'?'+r:''));})();</script>
 </head><body>${dirs.map((d) => `<p><a href="${d}/choose/">${esc(locales[d].langName)}</a></p>`).join('')}</body></html>
+`);
+
+// Для поисковиков: robots.txt и sitemap.xml — главные страницы всех языков со ссылками друг на друга (hreflang).
+// Экраны выбора и корень (развилка) в sitemap не входят: в них почти нет текста
+const today = new Date().toISOString().slice(0, 10);
+const alt = Object.entries(LANGS).map(([dir, code]) => `    <xhtml:link rel="alternate" hreflang="${code}" href="${SITE_URL}/${dir}/"/>`)
+  .concat(`    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}/${DEFAULT_LANG}/"/>`).join('\n');
+fs.writeFileSync('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${Object.keys(LANGS).map((dir) => `  <url>
+    <loc>${SITE_URL}/${dir}/</loc>
+    <lastmod>${today}</lastmod>
+${alt}
+  </url>`).join('\n')}
+</urlset>
+`);
+fs.writeFileSync('dist/robots.txt', `User-agent: *
+Allow: /
+
+Sitemap: ${SITE_URL}/sitemap.xml
 `);
 
 console.log('Готово: dist/');
