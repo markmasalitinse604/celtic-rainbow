@@ -6,7 +6,7 @@ const SITE_URL = 'https://example.ie';   // заменить на настоящ
 const PHONE = '353000000000';            // для WhatsApp и звонков: только цифры, без + и пробелов
 const PHONE_DISPLAY = '+353 [номер]';   // как номер выглядит на странице
 const FACEBOOK_URL = 'https://www.facebook.com/'; // ссылка на страницу; '' — ссылка не показывается
-const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', ru: 'ru' }; // папка → код языка
+const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', ru: 'ru', es: 'es' }; // папка → код языка
 const DEFAULT_LANG = 'en';
 // Корень сайта: сохранённый язык (localStorage 'lang') → язык браузера (только если true) → английский
 const DETECT_BROWSER_LANGUAGE = true; // корень сайта выбирает язык по настройкам браузера (решение владельца)
@@ -105,7 +105,7 @@ const stampRefs = (html) => html
 // Грузовик — две категории: C & CE (владелец просил писать их вместе везде, где показана категория)
 const CAT_BOTH = 'C, CE & D';
 const txt = (s) => esc(s).split('{cat}').join(`<span data-cat>${CAT_BOTH}</span>`);
-const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE' };
+const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE', es: 'es_ES' };
 
 // Кадры ролика: src/assets/ride/{hd,land,port} — фура. Если появится src/assets/ride-bus/{hd,land,port},
 // ride.js возьмёт его для ?vehicle=bus; пока его нет — везде фура и пометка busSoon для автобуса
