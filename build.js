@@ -86,7 +86,7 @@ function renderHeader(lang, t, { root, home, langHref, landing }) {
 </header>`;
 }
 
-// Нижняя панель на телефоне (WhatsApp + звонок): {{dock}}
+// Нижняя панель на телефоне (WhatsApp + звонок): {{dock}} — только на экране выбора (с главной владелец попросил убрать)
 const renderDock = (t) => `<nav class="dock" aria-label="${esc(BRAND_FULL)}">
   <a class="dock__wa" href="${esc(wa(t.waHello))}" target="_blank" rel="noopener" data-track="whatsapp">
     ${hudIcon('chat')}<span>WhatsApp</span>
@@ -128,7 +128,6 @@ function blocks(lang, t) {
     year: String(new Date().getFullYear()),
     icons: iconSprite,
     header: renderHeader(lang, t, { root: '../', home: '#top', langHref: (dir) => `../${dir}/`, landing: true }),
-    dock: renderDock(t),
     iconChat: icon('i-chat'),
     iconPhone: icon('i-phone'),
     iconDown: icon('i-down'),

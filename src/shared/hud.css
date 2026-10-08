@@ -158,7 +158,6 @@
   .hud--landing .hud__sound { width: 40px; padding: 0; }
   .hud--landing .hud__chip { min-width: 40px; padding: 0 10px; }
   .hud--landing .hud__chip-short { display: inline; }
-  .hud--landing ~ .dock { display: flex; }
 }
 
 @media (prefers-reduced-motion: reduce) {
