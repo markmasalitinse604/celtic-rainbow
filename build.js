@@ -6,7 +6,7 @@ const SITE_URL = 'https://example.ie';   // заменить на настоящ
 const PHONE = '353000000000';            // для WhatsApp и звонков: только цифры, без + и пробелов
 const PHONE_DISPLAY = '+353 [номер]';   // как номер выглядит на странице
 const FACEBOOK_URL = 'https://www.facebook.com/'; // ссылка на страницу; '' — ссылка не показывается
-const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', ru: 'ru', es: 'es' }; // папка → код языка
+const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', es: 'es', ru: 'ru' }; // папка → код языка; порядок = порядок в меню языков и в списке языков преподавателя
 const DEFAULT_LANG = 'en';
 // Корень сайта: сохранённый язык (localStorage 'lang') → язык браузера (только если true) → английский
 const DETECT_BROWSER_LANGUAGE = true; // корень сайта выбирает язык по настройкам браузера (решение владельца)
