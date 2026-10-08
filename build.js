@@ -2,7 +2,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 
-const SITE_URL = 'https://example.ie';   // заменить на настоящий домен
+const SITE_URL = 'https://idsch.ie';     // основной домен: canonical, hreflang, Open Graph, sitemap.xml, robots.txt
 const PHONE = '353000000000';            // для WhatsApp и звонков: только цифры, без + и пробелов
 const PHONE_DISPLAY = '+353 [номер]';   // как номер выглядит на странице
 const FACEBOOK_URL = 'https://www.facebook.com/'; // ссылка на страницу; '' — ссылка не показывается
@@ -244,6 +244,26 @@ if(L.indexOf(l)<0){l=null;if(${DETECT_BROWSER_LANGUAGE}){var bs=navigator.langua
 var v=null;try{v=localStorage.getItem('vehicle')}catch(e){}
 var r=q.toString();location.replace((l||'${DEFAULT_LANG}')+(v==='truck'||v==='bus'?'/':'/choose/')+(r?'?'+r:''));})();</script>
 </head><body>${dirs.map((d) => `<p><a href="${d}/choose/">${esc(locales[d].langName)}</a></p>`).join('')}</body></html>
+`);
+
+// Для поисковиков: robots.txt и sitemap.xml — главные страницы всех языков со ссылками друг на друга (hreflang).
+// Экраны выбора и корень (развилка) в sitemap не входят: в них почти нет текста
+const today = new Date().toISOString().slice(0, 10);
+const alt = Object.entries(LANGS).map(([dir, code]) => `    <xhtml:link rel="alternate" hreflang="${code}" href="${SITE_URL}/${dir}/"/>`)
+  .concat(`    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}/${DEFAULT_LANG}/"/>`).join('\n');
+fs.writeFileSync('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${Object.keys(LANGS).map((dir) => `  <url>
+    <loc>${SITE_URL}/${dir}/</loc>
+    <lastmod>${today}</lastmod>
+${alt}
+  </url>`).join('\n')}
+</urlset>
+`);
+fs.writeFileSync('dist/robots.txt', `User-agent: *
+Allow: /
+
+Sitemap: ${SITE_URL}/sitemap.xml
 `);
 
 console.log('Готово: dist/');

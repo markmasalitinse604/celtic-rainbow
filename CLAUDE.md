@@ -209,7 +209,11 @@
 
 ## SEO
 
-- `<title>` = `jMetaTitle`, description = `jMetaDesc`, canonical и `hreflang` от `SITE_URL`, Open Graph и Twitter.
+- Домен — `https://idsch.ie` (`SITE_URL` в `build.js`): от него canonical, `hreflang`, Open Graph и Twitter.
+  `<title>` = `jMetaTitle`, description = `jMetaDesc`.
+- `build.js` пишет `dist/robots.txt` (всё разрешено + ссылка на sitemap) и `dist/sitemap.xml` — главные страницы
+  пяти языков с `xhtml:link hreflang` друг на друга; экраны выбора и корень-развилка в sitemap не входят (почти без текста).
+  Сайт добавить в Google Search Console и отправить туда sitemap; дополнительные домены (301) добавлять не обязательно.
 - `src/assets/og.jpg` 1200×630 из первого кадра:
   `ffmpeg -i src/assets/ride/hd/001.webp -vf "scale=1200:-2:flags=lanczos,crop=1200:630" -q:v 3 src/assets/og.jpg`.
 
@@ -298,7 +302,7 @@
 
 - Идея: выбор «грузовик / автобус» в виде 3D-объектов, которые крутятся при прокрутке и показывают шаги.
   Предложено делать заранее отрендеренными кадрами поворота (Blender), а не Three.js. У автобуса двери слева, руль справа.
-- Данные преподавателя: `name`, `about` в словаре; `PHONE`, `PHONE_DISPLAY`, `FACEBOOK_URL`, `SITE_URL` в `build.js`.
+- Данные преподавателя: `name`, `about` в словаре; `PHONE`, `PHONE_DISPLAY`, `FACEBOOK_URL` в `build.js`.
 - Фото преподавателя (`src/assets/teacher.jpg`) и фото для галереи.
 - Носителям языка вычитать тексты главной (pl, pt-BR, es; ru и en — по желанию).
-- Свой домен, `hreflang` уже генерируется от `SITE_URL`.
+- Google Search Console для `idsch.ie` (sitemap: `https://idsch.ie/sitemap.xml`).
