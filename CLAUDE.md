@@ -84,6 +84,8 @@
   ролика фоном, WhatsApp, звонок, Facebook если задан) → подвал с дисклеймером. Нижней панели WhatsApp + звонок
   на главной НЕТ (владелец попросил убрать; на экране выбора она осталась).
 - Логотип — круглый значок «Celtic Rainbow / Truck & Bus School» с радужным колесом.
+- В шапке вторая строка названия — «International Driving School» (`HEADER_SUB` в `build.js`, решение владельца);
+  полное название в заголовках вкладок, подвале и описании логотипа пока прежнее — `BRAND` («Celtic Rainbow Truck & Bus School»).
 
 ## Шапка (общая, `renderHeader()` + `src/shared/hud.css`)
 
