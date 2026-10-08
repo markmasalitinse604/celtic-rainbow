@@ -232,6 +232,11 @@
   }
   nextBtn.addEventListener('click', () => goTo(Math.max(0, active) + 1));
   dots.forEach((d) => d.addEventListener('click', () => goTo(Number(d.dataset.go))));
+  // «Собрать план» на карточках ролика — тот же переход к плану, что у «Далее» с последней карточки (решение владельца)
+  ride.querySelectorAll('.rcard a[href="#plan"]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    goTo(AT.length);
+  }));
 
   // ---------- Автостарт ----------
   // Положение ролика v = auto + p · (1 − A): auto плавно растёт от 0 до A = AUTO_TO, поэтому после автостарта
