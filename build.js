@@ -9,7 +9,7 @@ const FACEBOOK_URL = 'https://www.facebook.com/'; // ссылка на стра�
 const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', ru: 'ru' }; // папка → код языка
 const DEFAULT_LANG = 'en';
 // Корень сайта: сохранённый язык (localStorage 'lang') → язык браузера (только если true) → английский
-const DETECT_BROWSER_LANGUAGE = false;
+const DETECT_BROWSER_LANGUAGE = true; // корень сайта выбирает язык по настройкам браузера (решение владельца)
 const BRAND = { name: 'Celtic Rainbow', sub: 'International Driving School' }; // название: шапка, заголовки вкладок, подвал, соцсети (было Truck & Bus School)
 const BRAND_FULL = `${BRAND.name} ${BRAND.sub}`;
 
@@ -231,7 +231,7 @@ for (const lang of Object.keys(LANGS)) {
   fs.writeFileSync(`dist/${lang}/choose/index.html`, html);
 }
 
-// Корень: сохранённый язык → (если DETECT_BROWSER_LANGUAGE) язык браузера → английский. Машину уже выбирали
+// Корень: сохранённый язык → (если DETECT_BROWSER_LANGUAGE) первый подходящий из языков браузера по порядку → английский. Машину уже выбирали
 // (localStorage 'vehicle') — сразу на главную, иначе на экран выбора.
 // Без JS показывает ссылки
 const dirs = Object.keys(LANGS);
@@ -239,7 +239,7 @@ fs.writeFileSync('dist/index.html', `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(BRAND_FULL)}</title><link rel="icon" href="assets/favicon.png">
 <script>(function(){var L=${JSON.stringify(dirs)},l=null;try{l=localStorage.getItem('lang')}catch(e){}
-if(L.indexOf(l)<0){l=null;if(${DETECT_BROWSER_LANGUAGE}){var b=(navigator.language||'').slice(0,2).toLowerCase();if(L.indexOf(b)>-1)l=b;}}
+if(L.indexOf(l)<0){l=null;if(${DETECT_BROWSER_LANGUAGE}){var bs=navigator.languages||[navigator.language||''];for(var i=0;i<bs.length&&!l;i++){var b=(bs[i]||'').slice(0,2).toLowerCase();if(L.indexOf(b)>-1)l=b;}}}
 var v=null;try{v=localStorage.getItem('vehicle')}catch(e){}
 location.replace((l||'${DEFAULT_LANG}')+(v==='truck'||v==='bus'?'/':'/choose/')+location.search);})();</script>
 </head><body>${dirs.map((d) => `<p><a href="${d}/choose/">${esc(locales[d].langName)}</a></p>`).join('')}</body></html>

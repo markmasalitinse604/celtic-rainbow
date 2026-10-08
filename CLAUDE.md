@@ -221,8 +221,9 @@
   `build.js` собирает его для каждого языка. Свои файлы — один раз в `dist/choose-assets/`: `choose.css` (сцена,
   заголовок, подписи), `choose.js` (сцена, выбор, своя кнопка звука и подсказка), `img/`, `media/`.
   Общие с главной (`shared/tokens.css`, `shared/hud.css`, `shared/hud.js`, `shared/sound.js`) — в `dist/shared/`.
-- Корень `dist/index.html`: язык из `localStorage.lang` → если `DETECT_BROWSER_LANGUAGE = true` (в `build.js`,
-  сейчас `false`) — язык браузера → иначе `/en/choose/`. Строка запроса сохраняется.
+- Корень `dist/index.html`: язык из `localStorage.lang` → язык браузера (`DETECT_BROWSER_LANGUAGE = true` в `build.js`,
+  включено по решению владельца: первый подходящий из `navigator.languages` по порядку, pt-BR → pt) → иначе `/en/choose/`.
+  Строка запроса сохраняется. Для рекламы — прямые ссылки на язык: `/pl/choose/`, `/pt/choose/`.
 - После выбора: `localStorage.vehicle` = `truck` | `bus` и переход на главную `/<язык>/?vehicle=…`.
   Вернувшийся посетитель (машина уже в `localStorage`) с корня сайта попадает сразу на главную; экран выбора открывается
   кнопкой категории в шапке.
