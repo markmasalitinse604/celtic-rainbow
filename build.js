@@ -10,7 +10,7 @@ const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', ru: 'ru' }; // папка → 
 const DEFAULT_LANG = 'en';
 // Корень сайта: сохранённый язык (localStorage 'lang') → язык браузера (только если true) → английский
 const DETECT_BROWSER_LANGUAGE = false;
-const BRAND = { name: 'Celtic Rainbow', sub: 'Truck & Bus School' }; // название в шапке и подвале
+const BRAND = { name: 'Celtic Rainbow', sub: 'International Driving School' }; // название: шапка, заголовки вкладок, подвал, соцсети (было Truck & Bus School)
 const BRAND_FULL = `${BRAND.name} ${BRAND.sub}`;
 
 // Фото преподавателя: src/assets/teacher.jpg (или .png/.webp). Галерея: любые картинки в src/assets/gallery/
@@ -61,7 +61,7 @@ function renderHeader(lang, t, { root, home, langHref, landing }) {
     : '';
   return `<header class="hud${landing ? ' hud--landing' : ''}" id="hud">
   <a class="hud__brand" href="${home}">
-    <img class="hud__logo" src="${root}assets/logo.png" alt="${esc(BRAND_FULL)}" width="44" height="44">
+    <img class="hud__logo" src="${root}assets/logo.webp" alt="${esc(BRAND_FULL)}" width="44" height="44">
     <span class="hud__brand-text" aria-hidden="true"><span class="hud__name">${esc(BRAND.name)}</span><span class="hud__sub">${esc(BRAND.sub)}</span></span>
   </a>
   <div class="hud__actions">
