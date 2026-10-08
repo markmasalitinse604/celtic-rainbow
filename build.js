@@ -86,7 +86,7 @@ function renderHeader(lang, t, { root, home, langHref, landing }) {
 </header>`;
 }
 
-// Нижняя панель на телефоне (WhatsApp + звонок): {{dock}}
+// Нижняя панель на телефоне (WhatsApp + звонок): {{dock}} — только на экране выбора (с главной владелец попросил убрать)
 const renderDock = (t) => `<nav class="dock" aria-label="${esc(BRAND_FULL)}">
   <a class="dock__wa" href="${esc(wa(t.waHello))}" target="_blank" rel="noopener" data-track="whatsapp">
     ${hudIcon('chat')}<span>WhatsApp</span>
@@ -118,11 +118,6 @@ const hasAmbient = fs.existsSync(`src/${AMBIENT}`);
 // Блоки главной, которые собираются из словаря
 function blocks(lang, t) {
   const plan = withV(t.waPlan.split('{L}').join(t.lic.eu), CAT_BOTH);
-  const steps = [1, 2, 3, 4, 5].map((n) => `<li class="rcard rcard--step" data-i="${n}" data-step="${n}">
-          <p class="eyebrow">${esc(t.jStepLabel.split('{n}').join(n))}</p>
-          <h2 class="rcard__title">${txt(t[`jS${n}Title`])}</h2>
-          <p>${txt(t[`jS${n}Text`])}</p>
-        </li>`).join('\n        ');
 
   return {
     htmlLang: LANGS[lang],
@@ -133,15 +128,13 @@ function blocks(lang, t) {
     year: String(new Date().getFullYear()),
     icons: iconSprite,
     header: renderHeader(lang, t, { root: '../', home: '#top', langHref: (dir) => `../${dir}/`, landing: true }),
-    dock: renderDock(t),
     iconChat: icon('i-chat'),
     iconPhone: icon('i-phone'),
     iconDown: icon('i-down'),
     iconInfo: icon('i-info'),
     framesBus: hasBusFrames ? ' data-frames-bus="../assets/ride-bus"' : '',
     hasBusFrames: String(hasBusFrames),
-    rideSteps: steps,
-    rideDots: Array.from({ length: 10 }, (_, i) => `<button type="button" class="dots__dot" data-go="${i}" tabindex="-1"></button>`).join(''),
+    rideDots: Array.from({ length: 5 }, (_, i) => `<button type="button" class="dots__dot" data-go="${i}" tabindex="-1"></button>`).join(''),
     telHref: `tel:+${PHONE}`,
     phoneDisplay: esc(PHONE_DISPLAY),
     waHref: esc(wa(t.waHello)),

@@ -50,8 +50,15 @@ window.SiteSound = (() => {
     const t = ctx.currentTime;
     amb.gain.gain.setTargetAtTime(0.35 + amb.speed * 0.55, t, 0.05);
     amb.src.playbackRate.setTargetAtTime(1 + amb.speed * 0.12, t, 0.05);
+    // прокрутка стоит и скорость затухла — цикл засыпает до следующей прокрутки (не крутим JS 60 раз в секунду впустую)
+    if (pps === 0 && amb.speed < 0.002) { amb.speed = 0; amb.raf = 0; return; }
     amb.raf = requestAnimationFrame(ambTick);
   }
+  addEventListener('scroll', () => {
+    if (!amb || !amb.src || amb.raf) return;
+    amb.lastY = scrollY; amb.lastT = performance.now();
+    amb.raf = requestAnimationFrame(ambTick);
+  }, { passive: true });
   async function ambStart() {
     if (!amb || amb.src || amb.loading || !isOn() || document.hidden || !ctx) return;
     amb.loading = true;
@@ -74,7 +81,7 @@ window.SiteSound = (() => {
     if (!amb || !amb.src) return;
     const src = amb.src, g = amb.gain;
     amb.src = null;
-    cancelAnimationFrame(amb.raf);
+    cancelAnimationFrame(amb.raf); amb.raf = 0;
     g.gain.setTargetAtTime(0, ctx.currentTime, 0.08);
     setTimeout(() => { try { src.stop(); } catch (_) { /* уже остановлен */ } src.disconnect(); }, 400);
   }

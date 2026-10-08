@@ -46,7 +46,8 @@ var l=d.createElement('link');l.rel='preload';l.as='image';l.media=x[0];l.setAtt
 {{header}}
 
 <main id="top">
-  <!-- ДОРОГА: одна «прилипающая» сцена с роликом и 10 карточками поверх него (ride.js).
+  <!-- ДОРОГА: одна «прилипающая» сцена с роликом: вступление и 4 карточки «профессии» поверх него (ride.js).
+       Шаги к категории — только в плане ниже (решение владельца: на ролике они его дублировали).
        Без JS и при экономии трафика — один кадр и карточки обычным списком -->
   <section class="ride" id="ride" aria-label="{{jTitle}}" data-frames="../assets/ride"{{framesBus}}>
     <div class="ride__sticky">
@@ -68,28 +69,23 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
           <p class="eyebrow">{{brandFull}}</p>
           <h1 class="rcard__title rcard__title--xl">{{jTitle}}</h1>
           <p class="rcard__lead">{{jLead}}</p>
-          <div class="actions">
-            <a class="btn btn--gold" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>{{wa}}</span></a>
-            <a class="btn btn--ghost" href="#plan">{{jCtaPlan}}</a>
-          </div>
         </li>
-        {{rideSteps}}
-        <li class="rcard" data-i="6">
+        <li class="rcard" data-i="1">
           <p class="eyebrow">{{jWhyLabel}}</p>
           <h2 class="rcard__title">{{jW1Title}}</h2>
           <p>{{jW1Text}}</p>
         </li>
-        <li class="rcard" data-i="7">
+        <li class="rcard" data-i="2">
           <p class="eyebrow">{{jWhyLabel}}</p>
           <h2 class="rcard__title">{{jW2Title}}</h2>
           <p>{{jW2Text}}</p>
         </li>
-        <li class="rcard" data-i="8">
+        <li class="rcard" data-i="3">
           <p class="eyebrow">{{jWhyLabel}}</p>
           <h2 class="rcard__title">{{jW3Title}}</h2>
           <p>{{jW3Text}}</p>
         </li>
-        <li class="rcard" data-i="9">
+        <li class="rcard" data-i="4">
           <p class="eyebrow">{{jFinalLabel}}</p>
           <h2 class="rcard__title">{{jFinalTitle}}</h2>
           <p>{{jFinalText}}</p>
@@ -100,7 +96,7 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
         </li>
       </ol>
 
-      <!-- Шкала из 10 точек: где посетитель и сколько впереди (для мыши; с клавиатуры — «Далее») -->
+      <!-- Шкала из 5 точек: где посетитель и сколько впереди (для мыши; с клавиатуры — «Далее») -->
       <div class="dots" aria-hidden="true">{{rideDots}}</div>
 
       <!-- «Далее»: плавно докручивает до следующей карточки, с последней — к плану (ride.js).
@@ -109,11 +105,6 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
         <span>{{jNext}}</span>{{iconDown}}
       </button>
 
-      <!-- Счётчик шагов «N из 5»: виден только на пяти шагах -->
-      <div class="ring" aria-hidden="true">
-        <svg viewBox="0 0 120 120"><circle class="ring__track" cx="60" cy="60" r="54"/><circle class="ring__bar" cx="60" cy="60" r="54" pathLength="100"/></svg>
-        <span class="ring__n">1</span><span class="ring__of">{{jOf5}}</span>
-      </div>
     </div>
   </section>
 
@@ -190,9 +181,6 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
     <p class="footer__note">{{footer}}</p>
   </div>
 </footer>
-
-<!-- Нижняя панель на телефоне: общая с экраном выбора (renderDock в build.js) -->
-{{dock}}
 
 <script id="site-data" type="application/json">{{siteJson}}</script>
 <script src="../shared/hud.js" defer></script>
