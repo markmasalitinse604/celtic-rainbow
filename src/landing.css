@@ -261,11 +261,8 @@ img { display: block; max-width: 100%; }
 
 /* Телефон: компактная шапка 56px; нижней панели (WhatsApp + звонок) на главной нет — владелец попросил убрать */
 @media (max-aspect-ratio: 9/10), (max-width: 760px) {
-  /* ролик заканчивается над нижней полосой 72px (с отступом под полоску «домой» на iPhone), в полосе — «Далее»:
-     кнопка поверх кадра закрыла бы низ машины (у автобуса колёса на ~89% высоты кадра) */
-  .ride--live .ride__still, .ride--live .ride__canvas { bottom: auto; height: calc(100% - 72px - env(safe-area-inset-bottom)); }
-  .ride--live .ride__still img { height: 100%; }
-  .ride__next { top: auto; bottom: calc(7px + env(safe-area-inset-bottom)); transform: translateX(-50%); min-width: 180px; height: 58px; font-size: 18px; }
+  /* ролик на весь экран (решение владельца), «Далее» — поверх него внизу, с отступом под полоску «домой» на iPhone */
+  .ride__next { top: auto; bottom: calc(10px + env(safe-area-inset-bottom)); transform: translateX(-50%); min-width: 180px; height: 58px; font-size: 18px; }
   :root { --hud-h: 56px; --side: 16px; }
   .sec { padding: 80px 0; }
   .sec__lead { font-size: 16.5px; }
