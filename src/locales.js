@@ -15,13 +15,13 @@ module.exports = {
   pl: {
     langName: "Polski",
     wa: "Napisz na WhatsApp",
-    waHello: "Dzień dobry! Chcę zapytać o kurs teorii na kategorie C, CE i D.",
+    waHello: "Dzień dobry! Chcę zapytać o kurs teorii na kategorie C, CE & D.",
     waPlan: "Dzień dobry! Moje prawo jazdy: {L}. Chcę zdobyć kategorię {V}. Chcę zapisać się na kurs teorii.",
     waCat: "Interesuje mnie kategoria {V}.",
     chooseTitle: "Wybierz kategorię",
-    chooseHint: "Teoria na prawo jazdy C, CE i D w Irlandii",
+    chooseHint: "Testy z teorii i CPC, kategoria C & D",
     chooseTruck: "Ciężarówka",
-    chooseCatC: "kategoria C, CE",
+    chooseCatC: "kategoria C & CE",
     chooseBus: "Autobus",
     chooseCatD: "kategoria D",
     soundLabel: "Dźwięk",
@@ -29,7 +29,7 @@ module.exports = {
     soundOnAria: "Włącz dźwięk",
     soundOffAria: "Wyłącz dźwięk",
     busSoon: "Film z autobusem już wkrótce — na razie pokazujemy ciężarówkę.",
-    jTitle: "Twoja droga do zawodu kierowcy",
+    jTitle: "Twoja droga do lepszej przyszłości",
     jLead: "Teoria na kategorię {cat} w Irlandii, w Twoim języku: krok po kroku, od pierwszego pytania do karty CPC.",
     jCtaPlan: "Ułóż swój plan",
     jNext: "Dalej",
@@ -66,17 +66,17 @@ module.exports = {
       ],
       [
         "Od ilu lat mogę zacząć?",
-        "Kategorie C i CE od 18 lat, D od 21, jeśli robisz CPC. Bez CPC: od 21 i 24 lat."
+        "Kategorie C & CE od 18 lat, D od 21, jeśli robisz CPC. Bez CPC: od 21 i 24 lat."
       ],
       [
         "Czy potrzebuję badań lekarskich?",
-        "Tak. Do learner permit C, CE lub D potrzebny jest raport medyczny od lekarza, nie starszy niż 3 miesiące."
+        "Tak. Do learner permit C, CE & D potrzebny jest raport medyczny od lekarza, nie starszy niż 3 miesiące."
       ]
     ],
     jEndTitle: "Twoja droga zaczyna się od jednej wiadomości",
     jEndText: "Napisz, jakie masz prawo jazdy i czym chcesz jeździć.",
     jMetaTitle: "Twoja droga do zawodu kierowcy w Irlandii | Celtic Rainbow Truck & Bus School",
-    jMetaDesc: "Teoria na prawo jazdy na ciężarówkę (C, CE) i autobus (D) w Irlandii po polsku, portugalsku, rosyjsku lub angielsku: od egzaminu teoretycznego do karty CPC. Napisz do nauczyciela na WhatsApp.",
+    jMetaDesc: "Teoria na prawo jazdy na ciężarówkę (C & CE) i autobus (D) w Irlandii po polsku, portugalsku, rosyjsku lub angielsku: od egzaminu teoretycznego do karty CPC. Napisz do nauczyciela na WhatsApp.",
     jStillAlt: "Biały pojazd na górskiej drodze w Irlandii o zachodzie słońca",
     changeVehicle: "Zmień pojazd",
     photo: "[Zdjęcie]",
@@ -87,7 +87,7 @@ module.exports = {
       nonEu: "Spoza UE",
       none: "Nie mam prawa jazdy"
     },
-    ageC: "Kategoria C, CE: od 18 lat z CPC, bez CPC od 21.",
+    ageC: "Kategoria C & CE: od 18 lat z CPC, bez CPC od 21.",
     ageD: "Kategoria D: od 21 lat z CPC, bez CPC od 24.",
     planTitle: "Twój plan",
     planCta: "Wyślij ten plan na WhatsApp",
@@ -164,13 +164,13 @@ module.exports = {
   pt: {
     langName: "Português",
     wa: "Falar no WhatsApp",
-    waHello: "Olá! Quero saber sobre o curso de teoria para as categorias C, CE e D.",
+    waHello: "Olá! Quero saber sobre o curso de teoria para as categorias C, CE & D.",
     waPlan: "Olá! Minha carteira: {L}. Quero tirar a categoria {V}. Quero me inscrever no curso de teoria.",
     waCat: "Tenho interesse na categoria {V}.",
     chooseTitle: "Escolha a categoria",
-    chooseHint: "Teoria para as categorias C, CE e D na Irlanda",
+    chooseHint: "Provas de teoria e CPC, categoria C & D",
     chooseTruck: "Caminhão",
-    chooseCatC: "categoria C, CE",
+    chooseCatC: "categoria C & CE",
     chooseBus: "Ônibus",
     chooseCatD: "categoria D",
     soundLabel: "Som",
@@ -178,7 +178,7 @@ module.exports = {
     soundOnAria: "Ligar o som",
     soundOffAria: "Desligar o som",
     busSoon: "Vídeo com o ônibus em breve — por enquanto mostramos o caminhão.",
-    jTitle: "Seu caminho para a profissão de motorista",
+    jTitle: "Seu caminho para um futuro melhor",
     jLead: "Teoria para a categoria {cat} na Irlanda, no seu idioma: passo a passo, da primeira pergunta ao cartão CPC.",
     jCtaPlan: "Montar meu plano",
     jNext: "Próximo",
@@ -215,17 +215,17 @@ module.exports = {
       ],
       [
         "Com que idade posso começar?",
-        "Categorias C e CE a partir de 18 anos e D a partir de 21, com CPC. Sem CPC: 21 e 24 anos."
+        "Categorias C & CE a partir de 18 anos e D a partir de 21, com CPC. Sem CPC: 21 e 24 anos."
       ],
       [
         "Preciso de exame médico?",
-        "Sim. Para o learner permit C, CE ou D é preciso um laudo médico de um GP, com no máximo 3 meses."
+        "Sim. Para o learner permit C, CE & D é preciso um laudo médico de um GP, com no máximo 3 meses."
       ]
     ],
     jEndTitle: "Seu caminho começa com uma mensagem",
     jEndText: "Conte qual carteira você tem e o que quer dirigir.",
     jMetaTitle: "Seu caminho para a profissão de motorista na Irlanda | Celtic Rainbow Truck & Bus School",
-    jMetaDesc: "Teoria para as categorias de caminhão (C, CE) e ônibus (D) na Irlanda, em polonês, português, russo ou inglês: da prova teórica ao cartão CPC. Fale com o professor no WhatsApp.",
+    jMetaDesc: "Teoria para as categorias de caminhão (C & CE) e ônibus (D) na Irlanda, em polonês, português, russo ou inglês: da prova teórica ao cartão CPC. Fale com o professor no WhatsApp.",
     jStillAlt: "Um veículo branco em uma estrada de montanha na Irlanda ao pôr do sol",
     changeVehicle: "Trocar veículo",
     photo: "[Foto]",
@@ -236,7 +236,7 @@ module.exports = {
       nonEu: "De fora da UE",
       none: "Ainda não tenho carteira"
     },
-    ageC: "Categoria C, CE: a partir de 18 anos com CPC; sem CPC, a partir de 21.",
+    ageC: "Categoria C & CE: a partir de 18 anos com CPC; sem CPC, a partir de 21.",
     ageD: "Categoria D: a partir de 21 anos com CPC; sem CPC, a partir de 24.",
     planTitle: "Seu plano",
     planCta: "Enviar este plano no WhatsApp",
@@ -313,13 +313,13 @@ module.exports = {
   ru: {
     langName: "Русский",
     wa: "Написать в WhatsApp",
-    waHello: "Здравствуйте! Хочу узнать про курс теории на категории C, CE и D.",
+    waHello: "Здравствуйте! Хочу узнать про курс теории на категории C, CE & D.",
     waPlan: "Здравствуйте! Мои права: {L}. Хочу получить категорию {V}. Хочу записаться на курс теории.",
     waCat: "Интересует категория {V}.",
     chooseTitle: "Выберите категорию",
-    chooseHint: "Теория на права C, CE и D в Ирландии",
+    chooseHint: "Теория и тесты CPC, категория C & D",
     chooseTruck: "Грузовик",
-    chooseCatC: "категория C, CE",
+    chooseCatC: "категория C & CE",
     chooseBus: "Автобус",
     chooseCatD: "категория D",
     soundLabel: "Звук",
@@ -327,7 +327,7 @@ module.exports = {
     soundOnAria: "Включить звук",
     soundOffAria: "Выключить звук",
     busSoon: "Видео с автобусом скоро появится — пока показываем грузовик.",
-    jTitle: "Ваша дорога в профессию водителя",
+    jTitle: "Ваша дорога к лучшему будущему",
     jLead: "Теория на категорию {cat} в Ирландии, на вашем языке: шаг за шагом, от первого вопроса до карты CPC.",
     jCtaPlan: "Собрать план",
     jNext: "Далее",
@@ -364,17 +364,17 @@ module.exports = {
       ],
       [
         "С какого возраста можно начать?",
-        "Категории C и CE — с 18 лет, D — с 21, если вы проходите CPC. Без CPC — с 21 и 24 лет."
+        "Категории C & CE — с 18 лет, D — с 21, если вы проходите CPC. Без CPC — с 21 и 24 лет."
       ],
       [
         "Нужна медкомиссия?",
-        "Да. Для learner permit C, CE или D нужен медицинский отчёт от врача, не старше 3 месяцев."
+        "Да. Для learner permit C, CE & D нужен медицинский отчёт от врача, не старше 3 месяцев."
       ]
     ],
     jEndTitle: "Ваша дорога начинается с одного сообщения",
     jEndText: "Напишите, какие у вас права и на чём вы хотите ездить.",
     jMetaTitle: "Ваша дорога в профессию водителя в Ирландии | Celtic Rainbow Truck & Bus School",
-    jMetaDesc: "Теория на права на грузовик (C, CE) и автобус (D) в Ирландии на польском, португальском, русском или английском: от теоретического экзамена до карты CPC. Напишите преподавателю в WhatsApp.",
+    jMetaDesc: "Теория на права на грузовик (C & CE) и автобус (D) в Ирландии на польском, португальском, русском или английском: от теоретического экзамена до карты CPC. Напишите преподавателю в WhatsApp.",
     jStillAlt: "Белая машина на горной дороге в Ирландии на закате",
     changeVehicle: "Сменить транспорт",
     photo: "[Фото]",
@@ -385,7 +385,7 @@ module.exports = {
       nonEu: "Не из ЕС",
       none: "Прав пока нет"
     },
-    ageC: "Категория C, CE: с 18 лет с CPC, без CPC — с 21.",
+    ageC: "Категория C & CE: с 18 лет с CPC, без CPC — с 21.",
     ageD: "Категория D: с 21 года с CPC, без CPC — с 24.",
     planTitle: "Ваш план",
     planCta: "Отправить этот план в WhatsApp",
@@ -462,13 +462,13 @@ module.exports = {
   en: {
     langName: "English",
     wa: "Message on WhatsApp",
-    waHello: "Hi! I'd like to ask about the C, CE and D theory course.",
+    waHello: "Hi! I'd like to ask about the C, CE & D theory course.",
     waPlan: "Hi! My licence: {L}. I want category {V}. I'd like to join the theory course.",
     waCat: "I'm interested in category {V}.",
     chooseTitle: "Choose your category",
-    chooseHint: "Theory for C, CE and D licences in Ireland",
+    chooseHint: "Theory and CPC tests category C & D",
     chooseTruck: "Truck",
-    chooseCatC: "category C, CE",
+    chooseCatC: "category C & CE",
     chooseBus: "Bus",
     chooseCatD: "category D",
     soundLabel: "Sound",
@@ -476,7 +476,7 @@ module.exports = {
     soundOnAria: "Turn sound on",
     soundOffAria: "Turn sound off",
     busSoon: "Bus video coming soon — showing the truck for now.",
-    jTitle: "Your road to a driver's career",
+    jTitle: "Your road to a better future",
     jLead: "Theory for category {cat} in Ireland, in your language: step by step, from the first question to the CPC card.",
     jCtaPlan: "Build your plan",
     jNext: "Next",
@@ -513,17 +513,17 @@ module.exports = {
       ],
       [
         "How old do I need to be?",
-        "Categories C and CE from 18 and D from 21 if you do the CPC. Without it, 21 and 24."
+        "Categories C & CE from 18 and D from 21 if you do the CPC. Without it, 21 and 24."
       ],
       [
         "Do I need a medical?",
-        "Yes. A category C, CE or D learner permit needs a medical report from a doctor, dated within the last 3 months."
+        "Yes. A category C, CE & D learner permit needs a medical report from a doctor, dated within the last 3 months."
       ]
     ],
     jEndTitle: "Your road starts with one message",
     jEndText: "Tell me which licence you hold and which vehicle you want to drive.",
     jMetaTitle: "Your road to a driver's career in Ireland | Celtic Rainbow Truck & Bus School",
-    jMetaDesc: "Theory for truck (C, CE) and bus (D) licences in Ireland, in Polish, Portuguese, Russian or English: from the theory test to the CPC card. Message the teacher on WhatsApp.",
+    jMetaDesc: "Theory for truck (C & CE) and bus (D) licences in Ireland, in Polish, Portuguese, Russian or English: from the theory test to the CPC card. Message the teacher on WhatsApp.",
     jStillAlt: "A white vehicle on a mountain road in Ireland at sunset",
     changeVehicle: "Change vehicle",
     photo: "[Photo]",
@@ -534,7 +534,7 @@ module.exports = {
       nonEu: "Non-EU",
       none: "No licence yet"
     },
-    ageC: "Category C, CE: from 18 with CPC, or 21 without.",
+    ageC: "Category C & CE: from 18 with CPC, or 21 without.",
     ageD: "Category D: from 21 with CPC, or 24 without.",
     planTitle: "Your plan",
     planCta: "Send this plan on WhatsApp",

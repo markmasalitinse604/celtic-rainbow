@@ -1,9 +1,9 @@
 // Транспорт главной: ?vehicle=truck|bus (с экрана выбора) → localStorage 'vehicle' → 'both' («пока не знаю»).
-// Статичный HTML собран в варианте «оба» (C, CE / D); здесь подставляем «C, CE» или D: тексты с {cat} (<span data-cat>),
+// Статичный HTML собран в варианте «оба» (C, CE & D); здесь подставляем «C & CE» или D: тексты с {cat} (<span data-cat>),
 // строка возраста, кнопка категории в шапке, сообщения WhatsApp (waCat), пометка «ролик автобуса скоро».
 // Результат — window.SiteVehicle = { kind, V }: его читают plan.js и ride.js.
 (() => {
-  const CAT = { truck: 'C, CE', bus: 'D', both: 'C, CE / D' }; // грузовик — категории C и CE
+  const CAT = { truck: 'C & CE', bus: 'D', both: 'C, CE & D' }; // грузовик — категории C & CE
   const fromUrl = new URLSearchParams(location.search).get('vehicle');
   let kind = fromUrl;
   if (!CAT[kind] || kind === 'both') {
@@ -16,7 +16,7 @@
   window.SiteVehicle = { kind, V };
   document.documentElement.dataset.vehicle = kind;
 
-  // Кнопка категории в шапке: ПК — «Грузовик · C, CE», телефон — «C, CE»; в варианте «оба» — «C, CE / D»
+  // Кнопка категории в шапке: ПК — «Грузовик · C & CE», телефон — «C & CE»; в варианте «оба» — «C, CE & D»
   const chip = document.getElementById('vehicle-chip');
   if (chip && kind !== 'both') {
     const name = chip.dataset[kind];
@@ -27,7 +27,7 @@
   if (kind === 'both') return;
 
   document.querySelectorAll('[data-cat]').forEach((el) => { el.textContent = V; });
-  const ageKey = kind === 'bus' ? 'D' : 'C'; // строки возраста: data-age="C" (C, CE) и "D"
+  const ageKey = kind === 'bus' ? 'D' : 'C'; // строки возраста: data-age="C" (C & CE) и "D"
   document.querySelectorAll('[data-age]').forEach((el) => { el.hidden = el.dataset.age !== ageKey; });
 
   // Сообщения WhatsApp: дописываем категорию (ссылку плана собирает plan.js)

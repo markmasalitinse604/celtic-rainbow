@@ -101,9 +101,9 @@ const stampRefs = (html) => html
   .replace(/"((?:\.\.\/)+)([\w/-]+\.(?:css|js))"/g, (_, up, src) => `"${up}${src}?v=${stamp(`dist/${src}`)}"`)
   .replace(/choose-assets\/img\/[\w-]+\.webp/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`);
 
-// {cat} в текстах: в статичном HTML — вариант «оба» (C, CE / D), vehicle.js меняет на «C, CE» или D.
-// Грузовик — две категории: C и CE (владелец просил писать их вместе везде, где показана категория)
-const CAT_BOTH = 'C, CE / D';
+// {cat} в текстах: в статичном HTML — вариант «оба» (C, CE & D), vehicle.js меняет на «C & CE» или D.
+// Грузовик — две категории: C & CE (владелец просил писать их вместе везде, где показана категория)
+const CAT_BOTH = 'C, CE & D';
 const txt = (s) => esc(s).split('{cat}').join(`<span data-cat>${CAT_BOTH}</span>`);
 const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE' };
 
