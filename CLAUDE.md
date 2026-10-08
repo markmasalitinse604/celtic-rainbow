@@ -224,7 +224,11 @@
   Общие с главной (`shared/tokens.css`, `shared/hud.css`, `shared/hud.js`, `shared/sound.js`) — в `dist/shared/`.
 - Корень `dist/index.html`: язык из `localStorage.lang` → язык браузера (`DETECT_BROWSER_LANGUAGE = true` в `build.js`,
   включено по решению владельца: первый подходящий из `navigator.languages` по порядку, pt-BR → pt) → иначе `/en/choose/`.
-  Строка запроса сохраняется. Для рекламы — прямые ссылки на язык: `/pl/choose/`, `/pt/choose/`.
+  Строка запроса сохраняется. `?lang=pl|pt|es|ru|en` на корне — главнее всего: язык запоминается, параметр из адреса
+  убирается, дальше как обычно (новичок — экран выбора, машину уже выбирали — главная). Так работают отдельные домены
+  владельца: в Cloudflare правило Redirect Rules (Static, 301) на `https://idsch.ie/?lang=pl` (например, `pl.prawojazdy.ie`)
+  и `https://idsch.ie/?lang=es`; адрес назначения — обязательно с `https://`, иначе Cloudflare считает его папкой
+  и переадресация зацикливается. Для рекламы годятся и прямые ссылки `/pl/choose/`, `/es/choose/`.
 - После выбора: `localStorage.vehicle` = `truck` | `bus` и переход на главную `/<язык>/?vehicle=…`.
   Вернувшийся посетитель (машина уже в `localStorage`) с корня сайта попадает сразу на главную; экран выбора открывается
   кнопкой категории в шапке.

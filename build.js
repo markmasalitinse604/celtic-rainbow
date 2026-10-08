@@ -231,17 +231,18 @@ for (const lang of Object.keys(LANGS)) {
   fs.writeFileSync(`dist/${lang}/choose/index.html`, html);
 }
 
-// Корень: сохранённый язык → (если DETECT_BROWSER_LANGUAGE) первый подходящий из языков браузера по порядку → английский. Машину уже выбирали
+// Корень: ?lang=pl|pt|es|ru|en (так ведут отдельные домены через переадресацию Cloudflare; язык запоминается) → сохранённый язык → (если DETECT_BROWSER_LANGUAGE) первый подходящий из языков браузера по порядку → английский. Машину уже выбирали
 // (localStorage 'vehicle') — сразу на главную, иначе на экран выбора.
 // Без JS показывает ссылки
 const dirs = Object.keys(LANGS);
 fs.writeFileSync('dist/index.html', `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(BRAND_FULL)}</title><link rel="icon" href="assets/favicon.png">
-<script>(function(){var L=${JSON.stringify(dirs)},l=null;try{l=localStorage.getItem('lang')}catch(e){}
+<script>(function(){var L=${JSON.stringify(dirs)},l=null,q=new URLSearchParams(location.search),f=(q.get('lang')||'').toLowerCase();
+if(L.indexOf(f)>-1){l=f;q.delete('lang');try{localStorage.setItem('lang',l)}catch(e){}}else{try{l=localStorage.getItem('lang')}catch(e){}}
 if(L.indexOf(l)<0){l=null;if(${DETECT_BROWSER_LANGUAGE}){var bs=navigator.languages||[navigator.language||''];for(var i=0;i<bs.length&&!l;i++){var b=(bs[i]||'').slice(0,2).toLowerCase();if(L.indexOf(b)>-1)l=b;}}}
 var v=null;try{v=localStorage.getItem('vehicle')}catch(e){}
-location.replace((l||'${DEFAULT_LANG}')+(v==='truck'||v==='bus'?'/':'/choose/')+location.search);})();</script>
+var r=q.toString();location.replace((l||'${DEFAULT_LANG}')+(v==='truck'||v==='bus'?'/':'/choose/')+(r?'?'+r:''));})();</script>
 </head><body>${dirs.map((d) => `<p><a href="${d}/choose/">${esc(locales[d].langName)}</a></p>`).join('')}</body></html>
 `);
 
