@@ -104,7 +104,7 @@ const stampRefs = (html) => html
 // {cat} в текстах: в статичном HTML — вариант «оба» (C, CE & D), vehicle.js меняет на «C & CE» или D.
 // Грузовик — две категории: C & CE (владелец просил писать их вместе везде, где показана категория)
 const CAT_BOTH = 'C, CE & D';
-const TRUCK_PC = require('./src/truck-pc.js'); // тексты заказчика: фура, ПК, только en
+const CLIENT_PC = require('./src/client-pc.js'); // тексты заказчика: ПК, только en, фура и автобус
 const txt = (s) => esc(s).split('{cat}').join(`<span data-cat>${CAT_BOTH}</span>`);
 const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE', es: 'es_ES' };
 
@@ -118,16 +118,16 @@ const hasAmbient = fs.existsSync(`src/${AMBIENT}`);
 
 // Блоки главной, которые собираются из словаря
 function tpcBlocks(lang, t) {
-  const c = TRUCK_PC[lang];
-  const p = (text, cls = '') => `<p class="tpc${cls}">${esc(text)}</p>`;
+  const c = CLIENT_PC[lang];
+  // элемент для каждой машины: data-v="truck" / "bus", показывает CSS по выбранной
+  const both = (fn) => ['truck', 'bus'].map((v) => fn(c[v], v)).join('');
+  const card = (k) => c ? both((x, v) => (x.cards[k][0] ? `<h2 class="rcard__title tpc" data-v="${v}">${esc(x.cards[k][0])}</h2>` : '')
+    + `<p class="tpc rcard__lead" data-v="${v}">${esc(x.cards[k][1])}</p>`) : '';
   return {
     tpcOn: c ? ' data-tpc' : '',
     jTitleH1: c ? txt(t.jTitle).replace(/^(Your road to) (.+)$/, '$1 <span class="tpc-nl">$2</span>') : txt(t.jTitle),
-    tpcLead: c ? p(c.lead, ' rcard__lead') : '',
-    tpcCard1: c ? p(c.cards[0], ' rcard__lead') : '',
-    tpcCard2: c ? p(c.cards[1], ' rcard__lead') : '',
-    tpcCard3: c ? p(c.cards[2], ' rcard__lead') : '',
-    tpcCard4: c ? p(c.cards[3], ' rcard__lead') : '',
+    tpcLead: c ? both((x, v) => `<p class="tpc rcard__lead" data-v="${v}">${esc(x.lead)}</p>`) : '',
+    tpcCard1: card(0), tpcCard2: card(1), tpcCard3: card(2), tpcCard4: card(3),
     tpcEndTitle: c ? `<span class="tpc">${esc(c.endTitle)}</span>` : '',
   };
 }
@@ -150,7 +150,7 @@ function blocks(lang, t) {
     iconInfo: icon('i-info'),
     framesBus: hasBusFrames ? ' data-frames-bus="../assets/ride-bus"' : '',
     hasBusFrames: String(hasBusFrames),
-    // Фура, ПК, только en (src/truck-pc.js): второй вариант текстов рядом со старым, переключает CSS.
+    // ПК, только en (src/client-pc.js): второй вариант текстов рядом со старым, переключает CSS.
     // Старые элементы — .tpc-def, новые — .tpc; в других языках новых нет и ничего не меняется
     ...tpcBlocks(lang, t),
     rideDots: Array.from({ length: 5 }, (_, i) => `<button type="button" class="dots__dot" data-go="${i}" tabindex="-1"></button>`).join(''),

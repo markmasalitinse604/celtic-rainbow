@@ -313,14 +313,16 @@ img { display: block; max-width: 100%; }
   .dots__dot::before { transition: none; }
 }
 
-/* ---------- Фура, ПК, английский: тексты заказчика (src/truck-pc.js) ----------
-   Рядом со старыми элементами (.tpc-def) лежат новые (.tpc). Включается, только когда выбрана фура,
-   язык en (html[data-tpc]) и экран не телефонный; без плана, преподавателя, сомнений и дисклеймера */
+/* ---------- Тексты заказчика: ПК, английский, фура и автобус (src/client-pc.js) ----------
+   Рядом со старыми элементами (.tpc-def) лежат новые (.tpc, у текстов машины — data-v="truck" / "bus").
+   Включается, только когда машина выбрана, язык en (html[data-tpc]) и экран не телефонный;
+   без плана, преподавателя, сомнений и дисклеймера */
 .tpc { display: none; }
 @media (min-aspect-ratio: 9/10) and (min-width: 761px) {
-  html[data-tpc][data-vehicle="truck"] .tpc { display: block; }
-  html[data-tpc][data-vehicle="truck"] span.tpc { display: inline; }
-  html[data-tpc][data-vehicle="truck"] .tpc-nl { display: block; }
-  html[data-tpc][data-vehicle="truck"] .tpc-def { display: none !important; }
-  html[data-tpc][data-vehicle="truck"] .rcard:not(.rcard--intro) .tpc { margin: 0; font-size: 18px; line-height: 1.55; }
+  html[data-tpc][data-vehicle="truck"] .tpc:not([data-v="bus"]),
+  html[data-tpc][data-vehicle="bus"] .tpc:not([data-v="truck"]) { display: block; }
+  html[data-tpc][data-vehicle="truck"] span.tpc, html[data-tpc][data-vehicle="bus"] span.tpc { display: inline; }
+  html[data-tpc][data-vehicle="truck"] .tpc-nl, html[data-tpc][data-vehicle="bus"] .tpc-nl { display: block; }
+  html[data-tpc][data-vehicle="truck"] .tpc-def, html[data-tpc][data-vehicle="bus"] .tpc-def { display: none !important; }
+  html[data-tpc] .rcard:not(.rcard--intro) p.tpc { margin: 0; font-size: 18px; line-height: 1.55; }
 }

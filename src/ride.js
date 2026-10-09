@@ -159,7 +159,7 @@
     ride.classList.add('ride--ready');
   }
 
-  // Куда ведёт «Далее» с последней карточки: план, а если он скрыт (фура на ПК в английском) — финал
+  // Куда ведёт «Далее» с последней карточки: план, а если он скрыт (тексты заказчика на ПК в английском) — финал
   function afterRide() {
     const plan = document.getElementById('plan');
     return plan.getClientRects().length
@@ -182,10 +182,10 @@
     });
     dots.forEach((d, k) => d.classList.toggle('is-on', k === i));
     // «Далее»: доступное имя — куда ведёт (следующая карточка, с последней — план)
-    // (у фуры на ПК в английском у карточек нет заголовка и нет плана — тогда просто «Далее» / финал, см. src/truck-pc.js)
-    const title = i + 1 < cards.length ? cards[i + 1].querySelector('.rcard__title') : afterRide().h;
-    const to = title && title.getClientRects().length ? title : null;
-    const shown = to && ([...to.querySelectorAll('.tpc, .tpc-def')].find((e) => e.getClientRects().length) || to);
+    // (на ПК в английском у карточек может не быть заголовка и нет плана — тогда просто «Далее» / финал, см. src/client-pc.js)
+    const vis = (e) => e.getClientRects().length > 0;
+    const to = i + 1 < cards.length ? [...cards[i + 1].querySelectorAll('.rcard__title')].find(vis) : afterRide().h;
+    const shown = to && ([...to.querySelectorAll('.tpc, .tpc-def')].find(vis) || to);
     nextBtn.setAttribute('aria-label', shown ? `${nextBtn.dataset.label}: ${shown.textContent.trim()}` : nextBtn.dataset.label);
     // стрелка «Далее» снова подпрыгивает 3 раза (анимация конечная, см. landing.css)
     nextBtn.querySelector('.icon')?.getAnimations().forEach((a) => { a.cancel(); a.play(); });
