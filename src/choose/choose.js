@@ -23,6 +23,7 @@
   const LIT_HOLD = 1400;      // мс: сколько горят фары до затемнения (владелец: было 1600, потом 800, ×1,5 = 1200, +0,2 с)
   const FADE_OUT = 375;       // мс: затемнение перед переходом (как .blackout в choose.css; было 500, потом 250)
   const SOUND_FADE = 1200;    // мс: мотор стихает дольше затемнения — начинает раньше и заканчивает вместе с ним
+  const SOUND_PAN = 0.35;     // насколько звук мотора смещён к своей машине (0 — по центру, 1 — только в одном ухе)
   const FADE_IN = 400;        // мс: проявление слоя (как transition у .layer в choose.css)
 
   const root = document.getElementById('choose');
@@ -206,7 +207,8 @@
   function playSound(side) {
     // только если звук включён; при уменьшенной анимации и без файла — тишина; при наведении — никогда
     if (reduceMotion || !SOUNDS[side] || !window.SiteSound || !SiteSound.isOn()) return null;
-    return SiteSound.play(SOUNDS[side]); // обещание { fade(ms) }
+    // со стороны машины: фура стоит слева, автобус справа (немного, не до упора)
+    return SiteSound.play(SOUNDS[side], { pan: side === 'truck' ? -SOUND_PAN : SOUND_PAN }); // обещание { fade(ms) }
   }
 
   function choose(side) {

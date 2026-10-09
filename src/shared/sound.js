@@ -139,15 +139,18 @@ window.SiteSound = (() => {
       try { if (ctx) await load(url); else await fetch(url); } catch (_) { /* без звука */ }
     },
     // Проиграть файл; если файла нет или звук недоступен — молча ничего.
+    // pan: −1 (лево) … 1 (право) — откуда звучит, например со стороны машины на экране.
     // Возвращает { fade(ms) } — плавно заглушить звук за ms (например, вместе с затемнением экрана)
-    async play(url) {
+    async play(url, { pan = 0 } = {}) {
       try {
         const buf = await load(url);
         if (!buf) return null;
         const src = ctx.createBufferSource();
         const gain = ctx.createGain();
         src.buffer = buf;
-        src.connect(gain).connect(ctx.destination);
+        let out = src.connect(gain);
+        if (pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = pan; out = out.connect(p); }
+        out.connect(ctx.destination);
         src.start();
         return {
           fade(ms) { // плавная S-кривая (косинус): без резкого начала и без обрыва в конце
