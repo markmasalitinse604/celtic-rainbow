@@ -204,8 +204,8 @@
   // ---------- Выбор ----------
   function playSound(side) {
     // только если звук включён; при уменьшенной анимации и без файла — тишина; при наведении — никогда
-    if (reduceMotion || !SOUNDS[side] || !window.SiteSound || !SiteSound.isOn()) return;
-    SiteSound.play(SOUNDS[side]);
+    if (reduceMotion || !SOUNDS[side] || !window.SiteSound || !SiteSound.isOn()) return null;
+    return SiteSound.play(SOUNDS[side]); // обещание { fade(ms) }
   }
 
   function choose(side) {
@@ -217,12 +217,14 @@
 
     shown = side;
     showScene(`${side}-lit`); // вторая машина исчезает, у выбранной загораются фары
-    playSound(side);
+    const sound = playSound(side);
 
     const url = `${root.dataset.next}?vehicle=${side}`;
     if (reduceMotion) { setTimeout(() => location.assign(url), 350); return; }
     setTimeout(() => {
       root.classList.add('is-leaving');
+      // мотор стихает вместе с затемнением: на главную приходят уже в тишине (файл звука не обрезаем)
+      if (sound) sound.then((s) => s && s.fade(FADE_OUT));
       setTimeout(() => location.assign(url), FADE_OUT);
     }, LIT_HOLD);
   }

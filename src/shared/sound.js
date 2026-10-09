@@ -138,16 +138,26 @@ window.SiteSound = (() => {
     async warm(url) {
       try { if (ctx) await load(url); else await fetch(url); } catch (_) { /* без звука */ }
     },
-    // Проиграть файл; если файла нет или звук недоступен — молча ничего
+    // Проиграть файл; если файла нет или звук недоступен — молча ничего.
+    // Возвращает { fade(ms) } — плавно заглушить звук за ms (например, вместе с затемнением экрана)
     async play(url) {
       try {
         const buf = await load(url);
-        if (!buf) return;
+        if (!buf) return null;
         const src = ctx.createBufferSource();
+        const gain = ctx.createGain();
         src.buffer = buf;
-        src.connect(ctx.destination);
+        src.connect(gain).connect(ctx.destination);
         src.start();
-      } catch (_) { /* без звука */ }
+        return {
+          fade(ms) {
+            const t = ctx.currentTime;
+            gain.gain.setValueAtTime(gain.gain.value, t);
+            gain.gain.linearRampToValueAtTime(0, t + ms / 1000);
+            src.stop(t + ms / 1000 + 0.05);
+          },
+        };
+      } catch (_) { return null; /* без звука */ }
     },
   };
 })();
