@@ -72,7 +72,7 @@ html[lang="en"] .label__cat::first-letter { text-transform: uppercase; }
 
 .blackout {
   position: fixed; inset: 0; background: #000; opacity: 0;
-  transition: opacity 250ms ease; pointer-events: none; z-index: 1000;
+  transition: opacity 375ms ease; pointer-events: none; z-index: 1000;
 }
 .choose.is-leaving .blackout { opacity: 1; }
 
