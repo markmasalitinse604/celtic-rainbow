@@ -74,11 +74,11 @@ function renderHeader(lang, t, { root, home, langHref, landing }) {
       </summary>
       <ul class="lang-menu__list">${langs}</ul>
     </details>
-    <button type="button" class="hud__pill hud__sound" id="sound-btn" aria-pressed="false"
+    ${landing && !hasAmbient ? '' : `<button type="button" class="hud__pill hud__sound" id="sound-btn" aria-pressed="false"
       aria-label="${esc(t.soundOnAria)}" data-on-aria="${esc(t.soundOnAria)}" data-off-aria="${esc(t.soundOffAria)}"${landing ? ' data-sound-auto' : ''}>
       ${hudIcon('mute')}
       <span class="hud__sound-label">${esc(t.soundLabel)}</span>
-    </button>
+    </button>`}
     <a class="hud__pill hud__wa" href="${esc(wa(t.waHello))}" target="_blank" rel="noopener" data-track="whatsapp">
       ${hudIcon('chat')}<span>WhatsApp</span>
     </a>
@@ -112,9 +112,11 @@ const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE', es: 'es_
 // ride.js возьмёт его для ?vehicle=bus; пока его нет — везде фура и пометка busSoon для автобуса
 const hasBusFrames = ['hd', 'land', 'port'].every((d) => fs.existsSync(`src/assets/ride-bus/${d}/001.webp`));
 if (!hasBusFrames) console.warn('Внимание: нет кадров автобуса (src/assets/ride-bus/{hd,land,port}) — для автобуса показываем фуру');
-// Фоновый звук главной: подключается, только если файл есть
+// Фоновый звук главной: подключается, только если файл есть и AMBIENT_ON = true.
+// Выключен по просьбе владельца: на главной нет ни звуковой дорожки, ни кнопки звука (на экране выбора — как было)
+const AMBIENT_ON = false;
 const AMBIENT = 'assets/media/ambient.m4a';
-const hasAmbient = fs.existsSync(`src/${AMBIENT}`);
+const hasAmbient = AMBIENT_ON && fs.existsSync(`src/${AMBIENT}`);
 
 // Блоки главной, которые собираются из словаря
 function tpcBlocks(lang, t) {
@@ -200,7 +202,8 @@ fs.cpSync('src/shared', 'dist/shared', { recursive: true }); // общие фа�
 for (const f of ['landing.css', 'ride.js', 'plan.js', 'vehicle.js']) fs.copyFileSync(`src/${f}`, `dist/${f}`);
 if (galleryFiles.length) fs.copyFileSync('src/gallery.js', 'dist/gallery.js');
 // фото, кадры ролика, звук: ../assets/…
-fs.cpSync('src/assets', 'dist/assets', { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });
+fs.cpSync('src/assets', 'dist/assets', { recursive: true,
+  filter: (src) => !src.endsWith('.gitkeep') && (hasAmbient || !src.endsWith(AMBIENT)) });
 
 for (const lang of Object.keys(LANGS)) {
   const t = locales[lang];
