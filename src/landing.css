@@ -312,3 +312,18 @@ img { display: block; max-width: 100%; }
   .ride__next .icon { animation: none; }
   .dots__dot::before { transition: none; }
 }
+
+/* ---------- Тексты заказчика: английский, фура и автобус (src/client-pc.js) ----------
+   Рядом со старыми элементами (.tpc-def) лежат новые (.tpc, у текстов машины — data-v="truck" / "bus").
+   Включается, только когда машина выбрана и язык en (html[data-tpc]); ПК и телефон;
+   без плана, преподавателя, сомнений и дисклеймера */
+.tpc { display: none; }
+html[data-tpc][data-vehicle="truck"] .tpc:not([data-v="bus"]),
+html[data-tpc][data-vehicle="bus"] .tpc:not([data-v="truck"]) { display: block; }
+html[data-tpc][data-vehicle="truck"] span.tpc, html[data-tpc][data-vehicle="bus"] span.tpc { display: inline; }
+html[data-tpc][data-vehicle="truck"] .tpc-nl, html[data-tpc][data-vehicle="bus"] .tpc-nl { display: block; }
+html[data-tpc][data-vehicle="truck"] .tpc-def, html[data-tpc][data-vehicle="bus"] .tpc-def { display: none !important; }
+html[data-tpc] .rcard:not(.rcard--intro) p.tpc { margin: 0; font-size: 18px; line-height: 1.55; }
+@media (max-aspect-ratio: 9/10), (max-width: 760px) {
+  html[data-tpc] .rcard:not(.rcard--intro) p.tpc { font-size: 14px; line-height: 1.45; }
+}
