@@ -3,8 +3,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 const SITE_URL = 'https://idsch.ie';     // основной домен: canonical, hreflang, Open Graph, sitemap.xml, robots.txt
-const PHONE = '353000000000';            // для WhatsApp и звонков: только цифры, без + и пробелов
-const PHONE_DISPLAY = '+353 [номер]';   // как номер выглядит на странице
+const PHONE = '353871488444';            // для WhatsApp и звонков: только цифры, без + и пробелов
+const PHONE_DISPLAY = '+353 87 148 8444';   // как номер выглядит на странице
 const FACEBOOK_URL = 'https://www.facebook.com/'; // ссылка на страницу; '' — ссылка не показывается
 const LANGS = {  en: 'en', pl: 'pl', pt: 'pt-BR', es: 'es', ru: 'ru' }; // папка → код языка; порядок = порядок в меню языков и в списке языков преподавателя
 const DEFAULT_LANG = 'en';
