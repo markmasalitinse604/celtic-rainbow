@@ -249,11 +249,18 @@
   }
   let tipTimer = 0;
   const hideTip = () => { clearTimeout(tipTimer); tip.hidden = true; };
+  // звуки мотора — заранее, чтобы при выборе машины играли без задержки (только если звук включён)
+  const warmSounds = () => {
+    if (reduceMotion || !SiteSound.isOn()) return;
+    Object.values(SOUNDS).forEach((u) => SiteSound.warm(u));
+  };
   btn.addEventListener('click', () => {
     SiteSound.setOn(!SiteSound.isOn()); // жест пользователя — здесь же создаётся аудиоконтекст
     renderSound();
     hideTip();
+    warmSounds();
   });
+  if (document.readyState === 'complete') warmSounds(); else addEventListener('load', warmSounds);
   renderSound();
   addEventListener('pageshow', renderSound); // вернулись «Назад» или меняли звук на другой странице
 

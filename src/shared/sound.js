@@ -134,6 +134,10 @@ window.SiteSound = (() => {
     touched: () => get(KEY) !== null, // пользователь уже нажимал кнопку звука
     setOn(on) { set(KEY, on ? 'on' : 'off'); if (on) unlock(); },
     unlock,
+    // Заранее подготовить файл, чтобы play() звучал сразу: после жеста — декодируем, до жеста — только скачиваем в кэш
+    async warm(url) {
+      try { if (ctx) await load(url); else await fetch(url); } catch (_) { /* без звука */ }
+    },
     // Проиграть файл; если файла нет или звук недоступен — молча ничего
     async play(url) {
       try {
