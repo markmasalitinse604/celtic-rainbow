@@ -59,11 +59,9 @@ body { font: 16px/1.4 var(--ui); overflow: hidden; }
   font-size: 16px; font-weight: 800; white-space: nowrap; cursor: pointer; transition: background .2s, color .2s;
 }
 .label__sep { margin: 0 .55em 0 .35em; } /* у «·» в Overpass глиф смещён влево */
-/* Английский, ПК: «Category C & CE» с заглавной (просьба заказчика; телефон — как было) */
-@media (min-aspect-ratio: 4/5) {
-  html[lang="en"] .label__cat { display: inline-block; }
-  html[lang="en"] .label__cat::first-letter { text-transform: uppercase; }
-}
+/* Английский: «Category C & CE» с заглавной (просьба заказчика) */
+html[lang="en"] .label__cat { display: inline-block; }
+html[lang="en"] .label__cat::first-letter { text-transform: uppercase; }
 .choose[data-shown="truck"] .label[data-side="truck"], .choose[data-shown="bus"] .label[data-side="bus"],
 .choose[data-shown="truck-lit"] .label[data-side="truck"], .choose[data-shown="bus-lit"] .label[data-side="bus"],
 .choose:has(.zone--truck:focus-visible) .label[data-side="truck"],

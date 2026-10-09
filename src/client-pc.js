@@ -1,6 +1,6 @@
-// Тексты заказчика для блоков поверх ролика: только английский и только ПК (решение владельца), отдельно для фуры
-// и для автобуса; телефон, другие языки и вариант «оба» — со старыми текстами из locales.js. Текст — как прислал
-// заказчик. Включается в CSS по html[lang=en][data-vehicle=truck|bus] + ПК (см. «Тексты заказчика» в landing.css)
+// Тексты заказчика для блоков поверх ролика: только английский (ПК и телефон, решение владельца), отдельно для фуры
+// и для автобуса; другие языки и вариант «оба» — со старыми текстами из locales.js. Текст — как прислал
+// заказчик. Включается в CSS по html[lang=en][data-vehicle=truck|bus] (см. «Тексты заказчика» в landing.css)
 const LOAN = (cat, driver) => `We perfectly know that obtaining full driving licence Category ${cat} can be quite expensive and therefore we prepared for you a loan with a very low interest rate! You can take out this loan for a year or even two years. A single month's salary as a ${driver} driver will cover all the costs associated with obtaining the licence for these vehicles!`;
 
 module.exports = {
