@@ -134,16 +134,34 @@ window.SiteSound = (() => {
     touched: () => get(KEY) !== null, // пользователь уже нажимал кнопку звука
     setOn(on) { set(KEY, on ? 'on' : 'off'); if (on) unlock(); },
     unlock,
-    // Проиграть файл; если файла нет или звук недоступен — молча ничего
-    async play(url) {
+    // Заранее подготовить файл, чтобы play() звучал сразу: после жеста — декодируем, до жеста — только скачиваем в кэш
+    async warm(url) {
+      try { if (ctx) await load(url); else await fetch(url); } catch (_) { /* без звука */ }
+    },
+    // Проиграть файл; если файла нет или звук недоступен — молча ничего.
+    // pan: −1 (лево) … 1 (право) — откуда звучит, например со стороны машины на экране.
+    // Возвращает { fade(ms) } — плавно заглушить звук за ms (например, вместе с затемнением экрана)
+    async play(url, { pan = 0 } = {}) {
       try {
         const buf = await load(url);
-        if (!buf) return;
+        if (!buf) return null;
         const src = ctx.createBufferSource();
+        const gain = ctx.createGain();
         src.buffer = buf;
-        src.connect(ctx.destination);
+        let out = src.connect(gain);
+        if (pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = pan; out = out.connect(p); }
+        out.connect(ctx.destination);
         src.start();
-      } catch (_) { /* без звука */ }
+        return {
+          fade(ms) { // плавная S-кривая (косинус): без резкого начала и без обрыва в конце
+            const t = ctx.currentTime, d = ms / 1000, v = gain.gain.value;
+            const curve = Float32Array.from({ length: 64 }, (_, i) => v * (1 + Math.cos(Math.PI * i / 63)) / 2);
+            gain.gain.cancelScheduledValues(t);
+            gain.gain.setValueCurveAtTime(curve, t, d);
+            src.stop(t + d + 0.05);
+          },
+        };
+      } catch (_) { return null; /* без звука */ }
     },
   };
 })();
