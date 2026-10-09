@@ -22,6 +22,7 @@
   const SWITCH_DELAY = 150;   // мс: задержка перед уходом из рамки / сменой машины
   const LIT_HOLD = 1400;      // мс: сколько горят фары до затемнения (владелец: было 1600, потом 800, ×1,5 = 1200, +0,2 с)
   const FADE_OUT = 375;       // мс: затемнение перед переходом (как .blackout в choose.css; было 500, потом 250)
+  const SOUND_FADE = 900;     // мс: мотор стихает дольше затемнения — начинает раньше и заканчивает вместе с ним
   const FADE_IN = 400;        // мс: проявление слоя (как transition у .layer в choose.css)
 
   const root = document.getElementById('choose');
@@ -221,10 +222,10 @@
 
     const url = `${root.dataset.next}?vehicle=${side}`;
     if (reduceMotion) { setTimeout(() => location.assign(url), 350); return; }
+    // мотор плавно стихает и замолкает вместе с концом затемнения: на главную приходят в тишине (файл не обрезаем)
+    if (sound) setTimeout(() => sound.then((s) => s && s.fade(SOUND_FADE)), LIT_HOLD + FADE_OUT - SOUND_FADE);
     setTimeout(() => {
       root.classList.add('is-leaving');
-      // мотор стихает вместе с затемнением: на главную приходят уже в тишине (файл звука не обрезаем)
-      if (sound) sound.then((s) => s && s.fade(FADE_OUT));
       setTimeout(() => location.assign(url), FADE_OUT);
     }, LIT_HOLD);
   }

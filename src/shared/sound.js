@@ -150,11 +150,12 @@ window.SiteSound = (() => {
         src.connect(gain).connect(ctx.destination);
         src.start();
         return {
-          fade(ms) {
-            const t = ctx.currentTime;
-            gain.gain.setValueAtTime(gain.gain.value, t);
-            gain.gain.linearRampToValueAtTime(0, t + ms / 1000);
-            src.stop(t + ms / 1000 + 0.05);
+          fade(ms) { // плавная S-кривая (косинус): без резкого начала и без обрыва в конце
+            const t = ctx.currentTime, d = ms / 1000, v = gain.gain.value;
+            const curve = Float32Array.from({ length: 64 }, (_, i) => v * (1 + Math.cos(Math.PI * i / 63)) / 2);
+            gain.gain.cancelScheduledValues(t);
+            gain.gain.setValueCurveAtTime(curve, t, d);
+            src.stop(t + d + 0.05);
           },
         };
       } catch (_) { return null; /* без звука */ }
