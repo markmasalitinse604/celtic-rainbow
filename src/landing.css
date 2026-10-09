@@ -312,3 +312,15 @@ img { display: block; max-width: 100%; }
   .ride__next .icon { animation: none; }
   .dots__dot::before { transition: none; }
 }
+
+/* ---------- Фура, ПК, английский: тексты заказчика (src/truck-pc.js) ----------
+   Рядом со старыми элементами (.tpc-def) лежат новые (.tpc). Включается, только когда выбрана фура,
+   язык en (html[data-tpc]) и экран не телефонный; без плана, преподавателя, сомнений и дисклеймера */
+.tpc { display: none; }
+@media (min-aspect-ratio: 9/10) and (min-width: 761px) {
+  html[data-tpc][data-vehicle="truck"] .tpc { display: block; }
+  html[data-tpc][data-vehicle="truck"] span.tpc { display: inline; }
+  html[data-tpc][data-vehicle="truck"] .tpc-nl { display: block; }
+  html[data-tpc][data-vehicle="truck"] .tpc-def { display: none !important; }
+  html[data-tpc][data-vehicle="truck"] .rcard:not(.rcard--intro) .tpc { margin: 0; font-size: 18px; line-height: 1.55; }
+}

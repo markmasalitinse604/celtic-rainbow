@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{htmlLang}}">
+<html lang="{{htmlLang}}"{{tpcOn}}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -67,30 +67,30 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
       <ol class="ride__cards">
         <li class="rcard rcard--intro is-on" data-i="0">
           <p class="eyebrow">{{brandFull}}</p>
-          <h1 class="rcard__title rcard__title--xl">{{jTitle}}</h1>
-          <p class="rcard__lead">{{jLead}}</p>
+          <h1 class="rcard__title rcard__title--xl">{{jTitleH1}}</h1>
+          <p class="rcard__lead tpc-def">{{jLead}}</p>{{tpcLead}}
         </li>
         <li class="rcard" data-i="1">
-          <p class="eyebrow">{{jWhyLabel}}</p>
-          <h2 class="rcard__title">{{jW1Title}}</h2>
-          <p>{{jW1Text}}</p>
+          <p class="eyebrow tpc-def">{{jWhyLabel}}</p>
+          <h2 class="rcard__title tpc-def">{{jW1Title}}</h2>
+          <p class="tpc-def">{{jW1Text}}</p>{{tpcCard1}}
         </li>
         <li class="rcard" data-i="2">
-          <p class="eyebrow">{{jWhyLabel}}</p>
-          <h2 class="rcard__title">{{jW2Title}}</h2>
-          <p>{{jW2Text}}</p>
+          <p class="eyebrow tpc-def">{{jWhyLabel}}</p>
+          <h2 class="rcard__title tpc-def">{{jW2Title}}</h2>
+          <p class="tpc-def">{{jW2Text}}</p>{{tpcCard2}}
         </li>
         <li class="rcard" data-i="3">
-          <p class="eyebrow">{{jWhyLabel}}</p>
-          <h2 class="rcard__title">{{jW3Title}}</h2>
-          <p>{{jW3Text}}</p>
+          <p class="eyebrow tpc-def">{{jWhyLabel}}</p>
+          <h2 class="rcard__title tpc-def">{{jW3Title}}</h2>
+          <p class="tpc-def">{{jW3Text}}</p>{{tpcCard3}}
         </li>
         <li class="rcard" data-i="4">
-          <p class="eyebrow">{{jFinalLabel}}</p>
-          <h2 class="rcard__title">{{jFinalTitle}}</h2>
-          <p>{{jFinalText}}</p>
+          <p class="eyebrow tpc-def">{{jFinalLabel}}</p>
+          <h2 class="rcard__title tpc-def">{{jFinalTitle}}</h2>
+          <p class="tpc-def">{{jFinalText}}</p>{{tpcCard4}}
           <div class="actions">
-            <a class="btn btn--gold" href="#plan">{{jCtaPlan}}</a>
+            <a class="btn btn--gold tpc-def" href="#plan">{{jCtaPlan}}</a>
             <a class="btn btn--ghost" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>WhatsApp</span></a>
           </div>
         </li>
@@ -109,7 +109,7 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
   </section>
 
   <!-- ПЛАН: права → шаги к категории + сообщение в WhatsApp (plan.js) -->
-  <section class="sec" id="plan" aria-labelledby="plan-title">
+  <section class="sec tpc-def" id="plan" aria-labelledby="plan-title">
     <div class="wrap plan">
       <div class="plan__intro">
         <p class="eyebrow">{{planTitle}}</p>
@@ -131,7 +131,7 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
   </section>
 
   <!-- ПРЕПОДАВАТЕЛЬ -->
-  <section class="sec sec--alt" id="teacher" aria-labelledby="teacher-title">
+  <section class="sec sec--alt tpc-def" id="teacher" aria-labelledby="teacher-title">
     <div class="wrap teacher">
       <div class="teacher__photo">{{teacherPhoto}}</div>
       <div class="teacher__text">
@@ -148,7 +148,7 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
   </section>
 
   <!-- СОМНЕНИЯ -->
-  <section class="sec" id="doubts" aria-labelledby="doubts-title">
+  <section class="sec tpc-def" id="doubts" aria-labelledby="doubts-title">
     <div class="wrap wrap--narrow">
       <h2 class="sec__title" id="doubts-title">{{jDoubtsTitle}}</h2>
       <div class="faq">{{faq}}</div>
@@ -164,7 +164,7 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
       <img src="../assets/ride/land/120.webp" alt="" loading="lazy" decoding="async">
     </picture>
     <div class="wrap final__inner">
-      <h2 class="final__title" id="final-title">{{jEndTitle}}</h2>
+      <h2 class="final__title" id="final-title"><span class="tpc-def">{{jEndTitle}}</span>{{tpcEndTitle}}</h2>
       <p class="sec__lead">{{jEndText}}</p>
       <div class="actions">
         <a class="btn btn--gold btn--lg" href="{{waHref}}" target="_blank" rel="noopener" data-track="whatsapp">{{iconChat}}<span>{{wa}}</span></a>
@@ -178,7 +178,7 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
 <footer class="footer">
   <div class="wrap footer__inner">
     <p class="footer__brand"><img src="../assets/logo.webp" alt="" width="36" height="36"><span>© {{year}} {{brandFull}}</span></p>
-    <p class="footer__note">{{footer}}</p>
+    <p class="footer__note tpc-def">{{footer}}</p>
   </div>
 </footer>
 

@@ -159,6 +159,14 @@
     ride.classList.add('ride--ready');
   }
 
+  // Куда ведёт «Далее» с последней карточки: план, а если он скрыт (фура на ПК в английском) — финал
+  function afterRide() {
+    const plan = document.getElementById('plan');
+    return plan.getClientRects().length
+      ? { s: plan, h: document.getElementById('plan-title') }
+      : { s: document.getElementById('final'), h: document.getElementById('final-title') };
+  }
+
   // ---------- Карточки и счётчик ----------
   let active = -1;
   function setCard(p) {
@@ -174,8 +182,11 @@
     });
     dots.forEach((d, k) => d.classList.toggle('is-on', k === i));
     // «Далее»: доступное имя — куда ведёт (следующая карточка, с последней — план)
-    const to = i + 1 < cards.length ? cards[i + 1].querySelector('.rcard__title') : document.getElementById('plan-title');
-    if (to) nextBtn.setAttribute('aria-label', `${nextBtn.dataset.label}: ${to.textContent.trim()}`);
+    // (у фуры на ПК в английском у карточек нет заголовка и нет плана — тогда просто «Далее» / финал, см. src/truck-pc.js)
+    const title = i + 1 < cards.length ? cards[i + 1].querySelector('.rcard__title') : afterRide().h;
+    const to = title && title.getClientRects().length ? title : null;
+    const shown = to && ([...to.querySelectorAll('.tpc, .tpc-def')].find((e) => e.getClientRects().length) || to);
+    nextBtn.setAttribute('aria-label', shown ? `${nextBtn.dataset.label}: ${shown.textContent.trim()}` : nextBtn.dataset.label);
     // стрелка «Далее» снова подпрыгивает 3 раза (анимация конечная, см. landing.css)
     nextBtn.querySelector('.icon')?.getAnimations().forEach((a) => { a.cancel(); a.play(); });
   }
@@ -192,7 +203,7 @@
   const stopGo = () => { cancelAnimationFrame(go); go = 0; goToken++; };
   ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, stopGo, { passive: true }));
   function cardTop(i) { // начало карточки i (чуть дальше порога, чтобы она точно стала активной); за последней — план
-    if (i >= AT.length) return document.getElementById('plan').getBoundingClientRect().top + scrollY;
+    if (i >= AT.length) return afterRide().s.getBoundingClientRect().top + scrollY;
     const r = ride.getBoundingClientRect();
     return r.top + scrollY + Math.min(1, AT[i] + 0.012) * (r.height - innerHeight);
   }
@@ -202,7 +213,7 @@
     const done = () => {
       go = 0;
       if (i >= AT.length) { // ушли к плану — фокус на его заголовок
-        const h = document.getElementById('plan-title');
+        const h = afterRide().h;
         h.setAttribute('tabindex', '-1');
         h.focus({ preventScroll: true });
       }
