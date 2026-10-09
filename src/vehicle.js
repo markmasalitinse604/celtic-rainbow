@@ -16,13 +16,13 @@
   window.SiteVehicle = { kind, V };
   document.documentElement.dataset.vehicle = kind;
 
-  // Кнопка категории в шапке: ПК — «Грузовик · C & CE», телефон — «C & CE»; в варианте «оба» — «C, CE & D»
+  // Кнопка категории в шапке: ПК — «Грузовик C & CE» (через пробел, без «·» — решение владельца), телефон — «C & CE»; в варианте «оба» — «C, CE & D»
   const chip = document.getElementById('vehicle-chip');
   if (chip && kind !== 'both') {
     const name = chip.dataset[kind];
-    chip.querySelector('.hud__chip-long').textContent = `${name} · ${V}`;
+    chip.querySelector('.hud__chip-long').textContent = `${name} ${V}`;
     chip.querySelector('.hud__chip-short').textContent = V;
-    chip.setAttribute('aria-label', `${chip.dataset.label}: ${name} · ${V}`);
+    chip.setAttribute('aria-label', `${chip.dataset.label}: ${name} ${V}`);
   }
   if (kind === 'both') return;
 
