@@ -104,7 +104,7 @@ const stampRefs = (html) => html
 // {cat} в текстах: в статичном HTML — вариант «оба» (C, CE & D), vehicle.js меняет на «C & CE» или D.
 // Грузовик — две категории: C & CE (владелец просил писать их вместе везде, где показана категория)
 const CAT_BOTH = 'C, CE & D';
-const CLIENT_PC = require('./src/client-pc.js'); // тексты заказчика: ПК, только en, фура и автобус
+const CLIENT_PC = require('./src/client-pc.js'); // тексты заказчика: en и ru, фура и автобус
 const txt = (s) => esc(s).split('{cat}').join(`<span data-cat>${CAT_BOTH}</span>`);
 const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE', es: 'es_ES' };
 
@@ -125,7 +125,8 @@ function tpcBlocks(lang, t) {
     + `<p class="tpc rcard__lead" data-v="${v}">${esc(x.cards[k][1])}</p>`) : '';
   return {
     tpcOn: c ? ' data-tpc' : '',
-    jTitleH1: c ? txt(t.jTitle).replace(/^(Your road to) (.+)$/, '$1 <span class="tpc-nl">$2</span>') : txt(t.jTitle),
+    jTitleH1: c && t.jTitle.startsWith(c.titleBreak + ' ')
+      ? `${txt(c.titleBreak)} <span class="tpc-nl">${txt(t.jTitle.slice(c.titleBreak.length + 1))}</span>` : txt(t.jTitle),
     tpcLead: c ? both((x, v) => `<p class="tpc rcard__lead" data-v="${v}">${esc(x.lead)}</p>`) : '',
     tpcCard1: card(0), tpcCard2: card(1), tpcCard3: card(2), tpcCard4: card(3),
     tpcEndTitle: c ? `<span class="tpc">${esc(c.endTitle)}</span>` : '',
@@ -150,7 +151,7 @@ function blocks(lang, t) {
     iconInfo: icon('i-info'),
     framesBus: hasBusFrames ? ' data-frames-bus="../assets/ride-bus"' : '',
     hasBusFrames: String(hasBusFrames),
-    // ПК, только en (src/client-pc.js): второй вариант текстов рядом со старым, переключает CSS.
+    // Тексты заказчика (src/client-pc.js, en и ru): второй вариант текстов рядом со старым, переключает CSS.
     // Старые элементы — .tpc-def, новые — .tpc; в других языках новых нет и ничего не меняется
     ...tpcBlocks(lang, t),
     rideDots: Array.from({ length: 5 }, (_, i) => `<button type="button" class="dots__dot" data-go="${i}" tabindex="-1"></button>`).join(''),
