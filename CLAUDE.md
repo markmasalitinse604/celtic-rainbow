@@ -191,7 +191,7 @@
   элементами (`.tpc-def`) новые (`.tpc`; тексты машин — с `data-v="truck"` / `"bus"`). Включает CSS в конце `landing.css`:
   `html[data-tpc][data-vehicle="truck|bus"]` + `(min-aspect-ratio: 9/10) and (min-width: 761px)`.
 - Что меняется в этом режиме: первый экран — заголовок с переносом «Your road to / a better future» и текст заказчика;
-  блоки 2–5 поверх ролика — текст заказчика (у фуры без заголовков, у автобуса с заголовками заказчика: Non-stop
+  блоки 2–5 поверх ролика — текст заказчика (с заголовками заказчика, одинаковыми у фуры и автобуса: Non-stop
   assistance, Financial help, Finding a job assistance, Irish driving licence is world recognizable), в последнем —
   только кнопка WhatsApp; скрыты план, преподаватель, сомнения и дисклеймер в подвале; финал — «Your road starts with
   just one message». «Далее» с последней карточки ведёт к финалу (`afterRide()` в `ride.js`).
