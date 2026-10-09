@@ -74,11 +74,11 @@ function renderHeader(lang, t, { root, home, langHref, landing }) {
       </summary>
       <ul class="lang-menu__list">${langs}</ul>
     </details>
-    ${landing && !hasAmbient ? '' : `<button type="button" class="hud__pill hud__sound" id="sound-btn" aria-pressed="false"
+    <button type="button" class="hud__pill hud__sound" id="sound-btn" aria-pressed="false"
       aria-label="${esc(t.soundOnAria)}" data-on-aria="${esc(t.soundOnAria)}" data-off-aria="${esc(t.soundOffAria)}"${landing ? ' data-sound-auto' : ''}>
       ${hudIcon('mute')}
       <span class="hud__sound-label">${esc(t.soundLabel)}</span>
-    </button>`}
+    </button>
     <a class="hud__pill hud__wa" href="${esc(wa(t.waHello))}" target="_blank" rel="noopener" data-track="whatsapp">
       ${hudIcon('chat')}<span>WhatsApp</span>
     </a>
@@ -113,7 +113,7 @@ const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE', es: 'es_
 const hasBusFrames = ['hd', 'land', 'port'].every((d) => fs.existsSync(`src/assets/ride-bus/${d}/001.webp`));
 if (!hasBusFrames) console.warn('Внимание: нет кадров автобуса (src/assets/ride-bus/{hd,land,port}) — для автобуса показываем фуру');
 // Фоновый звук главной: подключается, только если файл есть и AMBIENT_ON = true.
-// Выключен по просьбе владельца: на главной нет ни звуковой дорожки, ни кнопки звука (на экране выбора — как было)
+// Выключен по просьбе владельца: на главной нет звуковой дорожки; кнопка звука в шапке осталась (владелец попросил вернуть)
 const AMBIENT_ON = false;
 const AMBIENT = 'assets/media/ambient.m4a';
 const hasAmbient = AMBIENT_ON && fs.existsSync(`src/${AMBIENT}`);
