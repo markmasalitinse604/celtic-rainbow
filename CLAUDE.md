@@ -193,8 +193,8 @@
   кончается на ~50% высоты, машина ниже — проверено 360×740, 375×667, 390×844, 430×932, 768×1024.
 - Что меняется в этом режиме: первый экран — заголовок с переносом «Your road to / a better future» и текст заказчика;
   блоки 2–5 поверх ролика — текст заказчика (с заголовками заказчика, одинаковыми у фуры и автобуса: Non-stop
-  assistance, Financial help, Finding a job assistance, Irish driving licence is world recognizable), в последнем —
-  только кнопка WhatsApp; скрыты план, преподаватель, сомнения и дисклеймер в подвале; финал — «Your road starts with
+  assistance, Financial help, Finding a job assistance, Irish driving licence is world recognizable), в последнем
+  кнопок нет (WhatsApp владелец попросил убрать); скрыты план, преподаватель, сомнения и дисклеймер в подвале; финал — «Your road starts with
   just one message». «Далее» с последней карточки ведёт к финалу (`afterRide()` в `ride.js`).
 - Шапка в английском: «International Driving School» того же размера, что «Celtic Rainbow» (на экране выбора и на главной
   при выбранной машине, `hud.css`; на телефоне названия нет). Экран выбора, английский: «Category C & CE» / «Category D» с заглавной.
