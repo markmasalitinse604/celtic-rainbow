@@ -20,8 +20,10 @@
   }
   const HYST = 0.012;         // рамку показанной машины расширяем на столько (доля фото), чтобы у края не мигало
   const SWITCH_DELAY = 150;   // мс: задержка перед уходом из рамки / сменой машины
-  const LIT_HOLD = 800;       // мс: сколько горят фары до затемнения (владелец попросил переход вдвое быстрее, было 1600)
-  const FADE_OUT = 250;       // мс: затемнение перед переходом (как .blackout в choose.css; было 500)
+  const LIT_HOLD = 1400;      // мс: сколько горят фары до затемнения (владелец: было 1600, потом 800, ×1,5 = 1200, +0,2 с)
+  const FADE_OUT = 375;       // мс: затемнение перед переходом (как .blackout в choose.css; было 500, потом 250)
+  const SOUND_FADE = 1200;    // мс: мотор стихает дольше затемнения — начинает раньше и заканчивает вместе с ним
+  const SOUND_PAN = 0.35;     // насколько звук мотора смещён к своей машине (0 — по центру, 1 — только в одном ухе)
   const FADE_IN = 400;        // мс: проявление слоя (как transition у .layer в choose.css)
 
   const root = document.getElementById('choose');
@@ -204,8 +206,9 @@
   // ---------- Выбор ----------
   function playSound(side) {
     // только если звук включён; при уменьшенной анимации и без файла — тишина; при наведении — никогда
-    if (reduceMotion || !SOUNDS[side] || !window.SiteSound || !SiteSound.isOn()) return;
-    SiteSound.play(SOUNDS[side]);
+    if (reduceMotion || !SOUNDS[side] || !window.SiteSound || !SiteSound.isOn()) return null;
+    // со стороны машины: фура стоит слева, автобус справа (немного, не до упора)
+    return SiteSound.play(SOUNDS[side], { pan: side === 'truck' ? -SOUND_PAN : SOUND_PAN }); // обещание { fade(ms) }
   }
 
   function choose(side) {
@@ -217,10 +220,12 @@
 
     shown = side;
     showScene(`${side}-lit`); // вторая машина исчезает, у выбранной загораются фары
-    playSound(side);
+    const sound = playSound(side);
 
     const url = `${root.dataset.next}?vehicle=${side}`;
     if (reduceMotion) { setTimeout(() => location.assign(url), 350); return; }
+    // мотор плавно стихает и замолкает вместе с концом затемнения: на главную приходят в тишине (файл не обрезаем)
+    if (sound) setTimeout(() => sound.then((s) => s && s.fade(SOUND_FADE)), LIT_HOLD + FADE_OUT - SOUND_FADE);
     setTimeout(() => {
       root.classList.add('is-leaving');
       setTimeout(() => location.assign(url), FADE_OUT);
@@ -249,11 +254,18 @@
   }
   let tipTimer = 0;
   const hideTip = () => { clearTimeout(tipTimer); tip.hidden = true; };
+  // звуки мотора — заранее, чтобы при выборе машины играли без задержки (только если звук включён)
+  const warmSounds = () => {
+    if (reduceMotion || !SiteSound.isOn()) return;
+    Object.values(SOUNDS).forEach((u) => SiteSound.warm(u));
+  };
   btn.addEventListener('click', () => {
     SiteSound.setOn(!SiteSound.isOn()); // жест пользователя — здесь же создаётся аудиоконтекст
     renderSound();
     hideTip();
+    warmSounds();
   });
+  if (document.readyState === 'complete') warmSounds(); else addEventListener('load', warmSounds);
   renderSound();
   addEventListener('pageshow', renderSound); // вернулись «Назад» или меняли звук на другой странице
 
