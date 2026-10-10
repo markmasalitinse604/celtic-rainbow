@@ -118,11 +118,17 @@ window.SiteSound = (() => {
     });
   }
   // Звук включён ещё с прошлого раза: браузер даст его запустить только после первого жеста на странице
+  // На телефоне касание (pointerdown) разрешения не даёт — только отпускание пальца без прокрутки (pointerup / touchend /
+  // click), поэтому слушаем всё и перестаём, только когда звук действительно заработал
+  const GESTURES = ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'];
+  const waitGesture = (on) => GESTURES.forEach((e) => (on ? addEventListener : removeEventListener)(e, onGesture, true));
   function onGesture() {
-    removeEventListener('pointerdown', onGesture, true);
-    removeEventListener('keydown', onGesture, true);
-    if (isOn()) { unlock(); ambStart(); }
+    if (!isOn()) return;
+    unlock(); ambStart();
+    if (ctx && ctx.state === 'running') waitGesture(false);
+    else if (ctx) ctx.resume().then(() => { if (ctx.state === 'running') waitGesture(false); }).catch(() => {});
   }
+
   document.addEventListener('visibilitychange', () => {
     if (!amb || !ctx) return;
     if (document.hidden) ctx.suspend().catch(() => {});
@@ -161,7 +167,7 @@ window.SiteSound = (() => {
       amb = { urls: engine ? [spec.idle, spec.drive] : [spec], mix: engine ? MIX.engine : MIX.loop, layers: null };
       if (isOn()) {
         if (ctx) ambStart();
-        else { addEventListener('pointerdown', onGesture, true); addEventListener('keydown', onGesture, true); }
+        else waitGesture(true);
       }
     },
     touched: () => get(KEY) !== null, // пользователь уже нажимал кнопку звука
