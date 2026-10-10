@@ -322,9 +322,11 @@
     overScene();
     request();
   });
-  // Фоновый звук (если файл есть и звук включён): громкость и скорость следуют за прокруткой — см. shared/sound.js.
-  // При «уменьшить движение» звука нет
-  const ambient = JSON.parse(document.getElementById('site-data').textContent).ambient;
+  // Фоновый звук (если файлы есть и звук включён) — см. shared/sound.js: мотор выбранной машины (холостой ход, а при
+  // прокрутке — разгон и езда), иначе петля ветра. При «уменьшить движение» звука нет
+  const data = JSON.parse(document.getElementById('site-data').textContent);
+  const vk = window.SiteVehicle && window.SiteVehicle.kind;
+  const ambient = (data.engine && data.engine[vk]) || data.ambient;
   if (ambient && !reduceMotion && window.SiteSound) window.SiteSound.setAmbient(ambient);
 
   load(pickSet()); // сцена — первый экран, кадры грузим сразу

@@ -2,8 +2,8 @@
 // Аудиоконтекст создаётся только по жесту пользователя (кнопка звука, выбор машины, клик или клавиша),
 // иначе браузер его заблокирует.
 // Экран выбора: свою кнопку и звук мотора ведёт choose.js (SiteSound.play).
-// Главная: кнопка с data-sound-auto подключается здесь, фоновую петлю включает ride.js (SiteSound.setAmbient);
-// громкость и скорость петли следуют за скоростью прокрутки, на скрытой вкладке звук на паузе.
+// Главная: кнопка с data-sound-auto подключается здесь, фоновый звук включает ride.js (SiteSound.setAmbient):
+// петля ветра или мотор (холостой ход + езда); всё следует за скоростью прокрутки, на скрытой вкладке звук на паузе.
 window.SiteSound = (() => {
   const KEY = 'sound';
   const get = (k) => { try { return localStorage.getItem(k); } catch (_) { return null; } };
@@ -30,10 +30,25 @@ window.SiteSound = (() => {
     return buffers[url];
   }
 
-  // ---------- Фоновая петля главной ----------
-  // Файл сам по себе бесшовный (конец сведён с началом при нарезке), играет одним источником с loop = true.
-  // Тихие края от кодека AAC отрезаем (loopStart / loopEnd), чтобы на стыке не было провала.
-  let amb = null; // { url, src, gain, speed, lastY, lastT, raf }
+  // ---------- Фоновый звук главной ----------
+  // Два режима (setAmbient):
+  //  • одна петля (строка url) — ветер/гул: громкость и скорость воспроизведения растут со скоростью прокрутки;
+  //  • мотор ({ idle, drive }) — две петли играют одновременно: стоим — слышен холостой ход, листают — мотор
+  //    «разгоняется» (появляется петля езды, обороты растут), перестали — «тормозит» обратно к холостому.
+  //    Разгон быстрее торможения, как у настоящего мотора.
+  // Файлы бесшовные (конец сведён с началом при нарезке, см. assets-src/sound/make-loops.sh), каждый играет
+  // одним источником с loop = true; тихие края от кодека AAC отрезаем (loopStart / loopEnd), чтобы на стыке не было провала.
+  let amb = null; // { urls, mix, layers: [{ src, gain }], speed, lastY, lastT, raf }
+  const MIX = {
+    // одна петля: громкость 0.35…0.9, скорость 1…1.12
+    loop: [(x) => [0.35 + x * 0.55, 1 + x * 0.12]],
+    // мотор: холостой ход стихает, но не до нуля (он под ездой), езда появляется; обороты обеих петель растут
+    engine: [
+      (x) => [0.5 - x * 0.25, 1 + x * 0.18], // холостой: тише и «дальше» (владелец), под ездой не пропадает совсем
+      (x) => [x * 0.95, 0.88 + x * 0.24],
+    ],
+  };
+  const UP = 0.1, DOWN = 0.035; // доля приближения скорости за кадр: разгон быстрее, торможение плавнее
   function edges(buf) {
     const d = buf.getChannelData(0), n = d.length, lim = 1e-4, max = Math.min(n >> 2, 4800);
     let a = 0, b = n - 1;
@@ -41,56 +56,79 @@ window.SiteSound = (() => {
     while (n - 1 - b < max && Math.abs(d[b]) < lim) b--;
     return [a / buf.sampleRate, (b + 1) / buf.sampleRate];
   }
+  function ambApply(tc) { // текущая скорость → громкость и обороты каждой петли
+    const t = ctx.currentTime;
+    amb.layers.forEach((l, k) => {
+      const [g, r] = amb.mix[k](amb.speed);
+      l.gain.gain.setTargetAtTime(g, t, tc);
+      l.src.playbackRate.setTargetAtTime(r, t, tc);
+    });
+  }
   function ambTick(now) { // скорость прокрутки → громкость и скорость воспроизведения
-    if (!amb || !amb.src) return;
+    if (!amb || !amb.layers) return;
     const dt = Math.max(0.001, (now - amb.lastT) / 1000);
     const pps = Math.abs(scrollY - amb.lastY) / dt;
     amb.lastY = scrollY; amb.lastT = now;
-    amb.speed += (Math.min(1, pps / 2500) - amb.speed) * 0.08;
-    const t = ctx.currentTime;
-    amb.gain.gain.setTargetAtTime(0.35 + amb.speed * 0.55, t, 0.05);
-    amb.src.playbackRate.setTargetAtTime(1 + amb.speed * 0.12, t, 0.05);
-    // прокрутка стоит и скорость затухла — цикл засыпает до следующей прокрутки (не крутим JS 60 раз в секунду впустую)
-    if (pps === 0 && amb.speed < 0.002) { amb.speed = 0; amb.raf = 0; return; }
+    const target = Math.min(1, pps / 2500);
+    amb.speed += (target - amb.speed) * (target > amb.speed ? UP : DOWN);
+    ambApply(0.05);
+    // прокрутка стоит и скорость затухла — цикл засыпает до следующей прокрутки (не крутим JS 60 раз в секунду впустую);
+    // петли продолжают играть сами, без JS
+    if (pps === 0 && amb.speed < 0.002) { amb.speed = 0; ambApply(0.2); amb.raf = 0; return; }
     amb.raf = requestAnimationFrame(ambTick);
   }
   addEventListener('scroll', () => {
-    if (!amb || !amb.src || amb.raf) return;
-    amb.lastY = scrollY; amb.lastT = performance.now();
+    if (!amb || !amb.layers || amb.raf) return;
+    // проснулись: lastY не трогаем — это место, где прокрутка стояла, и путь от него и есть скорость
+    // (раньше lastY сбрасывался на новое место, и скорость всегда выходила нулевой); время — как будто прошёл кадр
+    amb.lastT = performance.now() - 16;
     amb.raf = requestAnimationFrame(ambTick);
   }, { passive: true });
   async function ambStart() {
-    if (!amb || amb.src || amb.loading || !isOn() || document.hidden || !ctx) return;
+    if (!amb || amb.layers || amb.loading || !isOn() || document.hidden || !ctx) return;
     amb.loading = true;
     try {
-      const buf = await load(amb.url);
-      if (!buf || amb.src || !isOn()) return;
-      const [a, b] = edges(buf);
-      const src = ctx.createBufferSource();
-      src.buffer = buf; src.loop = true; src.loopStart = a; src.loopEnd = b;
-      amb.gain = ctx.createGain();
-      amb.gain.gain.setValueAtTime(0, ctx.currentTime);
-      amb.gain.gain.setTargetAtTime(0.35, ctx.currentTime, 0.15); // мягкое появление
-      src.connect(amb.gain).connect(ctx.destination);
-      src.start(0, a);
-      amb.src = src; amb.speed = 0; amb.lastY = scrollY; amb.lastT = performance.now();
+      const bufs = await Promise.all(amb.urls.map(load));
+      if (bufs.some((b) => !b) || amb.layers || !isOn()) return;
+      amb.speed = 0;
+      amb.layers = bufs.map((buf, k) => {
+        const [a, b] = edges(buf);
+        const src = ctx.createBufferSource();
+        src.buffer = buf; src.loop = true; src.loopStart = a; src.loopEnd = b;
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.setTargetAtTime(amb.mix[k](0)[0], ctx.currentTime, 0.15); // мягкое появление
+        src.playbackRate.value = amb.mix[k](0)[1];
+        src.connect(gain).connect(ctx.destination);
+        src.start(0, a);
+        return { src, gain };
+      });
+      amb.lastY = scrollY; amb.lastT = performance.now();
       amb.raf = requestAnimationFrame(ambTick);
     } catch (_) { /* без звука */ } finally { if (amb) amb.loading = false; }
   }
   function ambStop() {
-    if (!amb || !amb.src) return;
-    const src = amb.src, g = amb.gain;
-    amb.src = null;
+    if (!amb || !amb.layers) return;
+    const layers = amb.layers;
+    amb.layers = null;
     cancelAnimationFrame(amb.raf); amb.raf = 0;
-    g.gain.setTargetAtTime(0, ctx.currentTime, 0.08);
-    setTimeout(() => { try { src.stop(); } catch (_) { /* уже остановлен */ } src.disconnect(); }, 400);
+    layers.forEach(({ src, gain }) => {
+      gain.gain.setTargetAtTime(0, ctx.currentTime, 0.08);
+      setTimeout(() => { try { src.stop(); } catch (_) { /* уже остановлен */ } src.disconnect(); }, 400);
+    });
   }
   // Звук включён ещё с прошлого раза: браузер даст его запустить только после первого жеста на странице
+  // На телефоне касание (pointerdown) разрешения не даёт — только отпускание пальца без прокрутки (pointerup / touchend /
+  // click), поэтому слушаем всё и перестаём, только когда звук действительно заработал
+  const GESTURES = ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'];
+  const waitGesture = (on) => GESTURES.forEach((e) => (on ? addEventListener : removeEventListener)(e, onGesture, true));
   function onGesture() {
-    removeEventListener('pointerdown', onGesture, true);
-    removeEventListener('keydown', onGesture, true);
-    if (isOn()) { unlock(); ambStart(); }
+    if (!isOn()) return;
+    unlock(); ambStart();
+    if (ctx && ctx.state === 'running') waitGesture(false);
+    else if (ctx) ctx.resume().then(() => { if (ctx.state === 'running') waitGesture(false); }).catch(() => {});
   }
+
   document.addEventListener('visibilitychange', () => {
     if (!amb || !ctx) return;
     if (document.hidden) ctx.suspend().catch(() => {});
@@ -122,13 +160,14 @@ window.SiteSound = (() => {
 
   return {
     isOn,
-    // Фоновая петля (главная): играет, пока звук включён и вкладка видна
-    setAmbient(url) {
-      if (!url || amb) return;
-      amb = { url, src: null };
+    // Фоновый звук главной: url — одна петля, { idle, drive } — мотор (см. выше). Играет, пока звук включён и вкладка видна
+    setAmbient(spec) {
+      if (!spec || amb) return;
+      const engine = typeof spec === 'object';
+      amb = { urls: engine ? [spec.idle, spec.drive] : [spec], mix: engine ? MIX.engine : MIX.loop, layers: null };
       if (isOn()) {
         if (ctx) ambStart();
-        else { addEventListener('pointerdown', onGesture, true); addEventListener('keydown', onGesture, true); }
+        else waitGesture(true);
       }
     },
     touched: () => get(KEY) !== null, // пользователь уже нажимал кнопку звука

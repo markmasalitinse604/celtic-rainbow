@@ -117,6 +117,12 @@ if (!hasBusFrames) console.warn('Внимание: нет кадров авто�
 const AMBIENT_ON = false;
 const AMBIENT = 'assets/media/ambient.m4a';
 const hasAmbient = AMBIENT_ON && fs.existsSync(`src/${AMBIENT}`);
+// Звук мотора на главной для выбранной машины: две бесшовные петли — холостой ход и езда (см. shared/sound.js,
+// петли режет assets-src/sound/make-loops.sh). Подключается, только если оба файла есть; вместо ветра (AMBIENT)
+const ENGINE = Object.fromEntries(['truck', 'bus']
+  .map((v) => [v, { idle: `assets/media/engine-${v}-idle.m4a`, drive: `assets/media/engine-${v}-drive.m4a` }])
+  .filter(([, f]) => fs.existsSync(`src/${f.idle}`) && fs.existsSync(`src/${f.drive}`))
+  .map(([v, f]) => [v, { idle: `../${f.idle}`, drive: `../${f.drive}` }]));
 
 // Блоки главной, которые собираются из словаря
 function tpcBlocks(lang, t) {
@@ -194,6 +200,7 @@ function blocks(lang, t) {
       phone: PHONE, lic: t.lic, waPlan: t.waPlan, waCat: t.waCat,
       steps: { eu: t.stepsEu, nonEu: t.stepsNonEu, none: t.stepsNone },
       ambient: hasAmbient ? `../${AMBIENT}` : null,
+      engine: ENGINE,
     }).replace(/</g, '\\u003c'),
   };
 }
