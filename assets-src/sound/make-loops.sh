@@ -20,12 +20,14 @@ loop() {
 }
 
 SRC=assets-src/sound/bus-idle-to-drive-off.mp3   # freesound: bus idle to drive off (0–6 с холостой, 8–12 с едет)
+# холостой — только ровный кусок 2,9–5,5 с: в 1,5–2,9 с гул и шипение нарастают на ~6 дБ, и в петле это слышалось
+# как «пшик» на каждом круге (владелец); с 5,5 с снова всплеск
 # холостой — «дальше»: меньше верха (издалека его не слышно), владелец попросил дальше/тише
-loop "$SRC" 1.5 4.0 0.5 2  engine-bus-idle.m4a "treble=g=-6:f=2000:t=s:w=0.7,lowpass=f=4000"
+loop "$SRC" 2.9 2.2 0.4 1.5 engine-bus-idle.m4a "treble=g=-6:f=2000:t=s:w=0.7,lowpass=f=4000"
 loop "$SRC" 9.0 2.0 0.5 -8 engine-bus-drive.m4a
 
 # Фура. Езда — из проезжающей фуры (freesound: 1,75–4,25 с едет ровно, дальше проезд мимо — не брать: скачок и Доплер).
 # Холостого хода в записи нет — берём холостой автобуса на 12% ниже по тону (asetrate) — тяжелее, как у фуры.
 TRUCK=assets-src/sound/truck-driving.mp3
-loop "$SRC"   1.5  4.0 0.5 2 engine-truck-idle.m4a  "asetrate=42240,aresample=48000,treble=g=-6:f=2000:t=s:w=0.7,lowpass=f=3600"
+loop "$SRC"   2.9  2.2 0.4 1.5 engine-truck-idle.m4a  "asetrate=42240,aresample=48000,treble=g=-6:f=2000:t=s:w=0.7,lowpass=f=3600"
 loop "$TRUCK" 1.85 2.0 0.4 4.5 engine-truck-drive.m4a
