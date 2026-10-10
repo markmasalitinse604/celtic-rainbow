@@ -7,18 +7,19 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 OUT=src/assets/media
 
-# loop <источник> <начало> <длина L> <свод C> <громкость dB> <выход>
+# loop <источник> <начало> <длина L> <свод C> <громкость dB> <выход> [доп. фильтры]
 loop() {
-  local src=$1 s=$2 L=$3 C=$4 vol=$5 out=$6
+  local src=$1 s=$2 L=$3 C=$4 vol=$5 out=$6 extra=${7:+,$7}
   ffmpeg -hide_banner -loglevel error -y -ss "$s" -t "$(echo "$L + $C" | bc)" -i "$src" -filter_complex "
     [0:a]aresample=48000,asplit=3[a][b][c];
     [a]atrim=start=$L:end=$(echo "$L + $C" | bc),asetpts=PTS-STARTPTS,afade=t=out:d=$C:curve=qsin[tail];
     [b]atrim=start=0:end=$C,asetpts=PTS-STARTPTS,afade=t=in:d=$C:curve=qsin[head];
     [tail][head]amix=inputs=2:normalize=0[joint];
     [c]atrim=start=$C:end=$L,asetpts=PTS-STARTPTS[mid];
-    [joint][mid]concat=n=2:v=0:a=1,volume=${vol}dB[o]" -map "[o]" -c:a aac -b:a 96k "$OUT/$out"
+    [joint][mid]concat=n=2:v=0:a=1,volume=${vol}dB${extra}[o]" -map "[o]" -c:a aac -b:a 96k "$OUT/$out"
 }
 
 SRC=assets-src/sound/bus-idle-to-drive-off.mp3   # freesound: bus idle to drive off (0–6 с холостой, 8–12 с едет)
-loop "$SRC" 1.5 4.0 0.5 2  engine-bus-idle.m4a
+# холостой — «дальше»: меньше верха (издалека его не слышно), владелец попросил дальше/тише
+loop "$SRC" 1.5 4.0 0.5 2  engine-bus-idle.m4a "treble=g=-6:f=2000:t=s:w=0.7,lowpass=f=4000"
 loop "$SRC" 9.0 2.0 0.5 -8 engine-bus-drive.m4a
