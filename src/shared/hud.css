@@ -18,9 +18,9 @@
 .hud__brand-text { display: flex; flex-direction: column; line-height: 1.1; white-space: nowrap; }
 .hud__name { font-size: 17px; font-weight: 800; }
 .hud__sub { font-size: 12.5px; font-weight: 600; opacity: .85; }
-/* Английский и русский: «International Driving School» того же размера, что «Celtic Rainbow» (просьба заказчика) —
+/* Все языки: «International Driving School» того же размера, что «Celtic Rainbow» (просьба заказчика) —
    на экране выбора и на главной, когда машина выбрана (html[data-tpc], см. src/client-pc.js). На телефоне названия нет */
-html:is([lang="en"], [lang="ru"]) .hud:not(.hud--landing) .hud__sub,
+html .hud:not(.hud--landing) .hud__sub,
 html[data-tpc][data-vehicle="truck"] .hud__sub, html[data-tpc][data-vehicle="bus"] .hud__sub { font-size: 17px; font-weight: 800; opacity: 1; }
 .hud__brand:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; border-radius: 8px; }
 
