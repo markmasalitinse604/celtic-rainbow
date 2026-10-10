@@ -1,5 +1,5 @@
 // Тексты заказчика для блоков поверх ролика (ПК и телефон, решение владельца), отдельно для фуры и для автобуса.
-// Английский — как прислал заказчик; русский — перевод по просьбе владельца. Другие языки и вариант «оба» —
+// Английский — как прислал заказчик; ru, pl, pt, es — наш перевод по просьбе владельца. Вариант «оба» —
 // со старыми текстами из locales.js. Включается в CSS по html[data-tpc][data-vehicle=truck|bus]
 // (см. «Тексты заказчика» в landing.css). titleBreak — начало заголовка первого экрана, после него перенос строки
 const NB = ' ';
@@ -36,4 +36,52 @@ const ru = (() => {
   };
 })();
 
-module.exports = { en, ru };
+// Польский — нейтральный императив и «Ty / Twój» (как весь польский сайт), без «Pan/Pani»
+const pl = (() => {
+  const H = ['Wsparcie na każdym etapie', 'Pomoc finansowa', 'Pomoc w znalezieniu pracy', 'Irlandzkie prawo jazdy uznawane na całym świecie'];
+  const loan = (cat, driver) => `Doskonale wiemy, że zdobycie pełnego prawa jazdy kategorii ${cat} może być dość kosztowne, dlatego przygotowaliśmy dla Ciebie pożyczkę z bardzo niskim oprocentowaniem! Możesz ją wziąć na rok, a nawet na dwa lata. Jedna miesięczna pensja ${driver} pokryje wszystkie koszty zdobycia prawa jazdy na te pojazdy!`;
+  const assist = (cat) => `Zapewnimy Ci nowoczesne materiały do nauki. Zapiszemy Cię na egzaminy teoretyczne i praktyczne, a także na lekcje jazdy i badania lekarskie. Będziemy Cię prowadzić i wspierać, aż zdobędziesz pełne prawo jazdy kategorii ${cat}!`;
+  const job = (cat) => `Gdy będziesz mieć prawo jazdy kategorii ${cat}, nasz zespół zrobi wszystko, aby szybko znaleźć Ci dobrze płatną pracę. Obecnie w Irlandii brakuje 3500 kierowców ciężarówek i 1500 kierowców autobusów.`;
+  const world = (cat) => `Z irlandzkim prawem jazdy kategorii ${cat} możesz pracować jako kierowca na całym świecie. Irlandzkie prawo jazdy możesz też wymienić na prawo jazdy dowolnego innego kraju Unii Europejskiej.`;
+  const lead = (bus) => `Przygotujemy Cię do zdania egzaminu teoretycznego i CPC za pierwszym razem! Następnie najlepsi instruktorzy przygotują Cię do zdania egzaminu praktycznego${bus ? ' na autobus' : ''}!`;
+  return {
+    titleBreak: 'Twoja droga',
+    truck: { lead: lead(false), cards: [[H[0], assist(CE)], [H[1], loan(CED, 'kierowcy ciężarówki')], [H[2], job('C, CE lub D')], [H[3], world('C, CE lub D')]] },
+    bus: { lead: lead(true), cards: [[H[0], assist('D')], [H[1], loan('D', 'kierowcy autobusu')], [H[2], job('D')], [H[3], world('D')]] },
+    endTitle: 'Twoja droga zaczyna się od zaledwie jednej wiadomości',
+  };
+})();
+
+// Португальский (Бразилия) — «você»
+const pt = (() => {
+  const H = ['Apoio em cada etapa', 'Ajuda financeira', 'Ajuda para encontrar trabalho', 'A carteira irlandesa é reconhecida no mundo todo'];
+  const loan = (cat, driver) => `Sabemos muito bem que tirar a carteira completa da categoria ${cat} pode sair caro, por isso preparamos para você um empréstimo com juros muito baixos! Você pode fazer esse empréstimo por um ano ou até por dois. Um único salário mensal de ${driver} cobre todos os custos para tirar a carteira desses veículos!`;
+  const assist = (cat) => `Vamos oferecer a você materiais de estudo modernos. Vamos agendar suas provas teórica e prática e também suas aulas de direção e exames médicos. Vamos orientar e apoiar você até você conseguir a carteira completa da categoria ${cat}!`;
+  const job = (cat) => `Quando você tiver a carteira da categoria ${cat}, nossa equipe vai fazer de tudo para encontrar rapidamente um trabalho bem pago para você. Hoje a Irlanda precisa muito de 3500 motoristas de caminhão e 1500 motoristas de ônibus.`;
+  const world = (cat) => `Com a carteira irlandesa da categoria ${cat}, você pode trabalhar como motorista no mundo todo. Você também pode trocar a carteira irlandesa pela de qualquer outro país da União Europeia.`;
+  const lead = (bus) => `Vamos preparar você para passar nas provas de teoria e CPC de primeira! Depois, os melhores instrutores vão deixar você pronto para passar na prova prática${bus ? ' de ônibus' : ''}!`;
+  return {
+    titleBreak: 'Seu caminho',
+    truck: { lead: lead(false), cards: [[H[0], assist(CE)], [H[1], loan(CED, 'motorista de caminhão')], [H[2], job('C, CE ou D')], [H[3], world('C, CE ou D')]] },
+    bus: { lead: lead(true), cards: [[H[0], assist('D')], [H[1], loan('D', 'motorista de ônibus')], [H[2], job('D')], [H[3], world('D')]] },
+    endTitle: 'Seu caminho começa com apenas uma mensagem',
+  };
+})();
+
+// Испанский — «tú»
+const es = (() => {
+  const H = ['Apoyo en cada paso', 'Ayuda financiera', 'Ayuda para encontrar trabajo', 'El carné irlandés se reconoce en todo el mundo'];
+  const loan = (cat, driver) => `Sabemos muy bien que sacarse el carné completo de la categoría ${cat} puede salir caro, ¡por eso hemos preparado para ti un préstamo con un interés muy bajo! Puedes pedirlo para un año o incluso para dos. ¡Un solo sueldo mensual de ${driver} cubre todos los gastos para sacarte el carné de estos vehículos!`;
+  const assist = (cat) => `Te daremos materiales de estudio modernos. Reservaremos tus exámenes teórico y práctico, y también tus clases de conducir y los reconocimientos médicos. ¡Te guiaremos y apoyaremos hasta que consigas tu carné completo de la categoría ${cat}!`;
+  const job = (cat) => `Cuando tengas el carné de la categoría ${cat}, nuestro equipo hará todo lo posible para encontrarte rápido un trabajo bien pagado. Ahora mismo Irlanda necesita con urgencia 3500 camioneros y 1500 conductores de autobús.`;
+  const world = (cat) => `Con el carné irlandés de la categoría ${cat} puedes trabajar como conductor en todo el mundo. También puedes canjear tu carné irlandés por el de cualquier otro país de la Unión Europea.`;
+  const lead = (bus) => `¡Te preparamos para aprobar los exámenes de teoría y CPC a la primera! ¡Después, los mejores instructores te dejarán listo para aprobar el examen práctico${bus ? ' de autobús' : ''}!`;
+  return {
+    titleBreak: 'Tu camino',
+    truck: { lead: lead(false), cards: [[H[0], assist(CE)], [H[1], loan(CED, 'camionero')], [H[2], job('C, CE o D')], [H[3], world('C, CE o D')]] },
+    bus: { lead: lead(true), cards: [[H[0], assist('D')], [H[1], loan('D', 'conductor de autobús')], [H[2], job('D')], [H[3], world('D')]] },
+    endTitle: 'Tu camino empieza con solo un mensaje',
+  };
+})();
+
+module.exports = { en, ru, pl, pt, es };
