@@ -7,10 +7,10 @@ const CE = `C${NB}&${NB}CE`, CED = `C,${NB}CE${NB}&${NB}D`;
 
 const en = (() => {
   const H = ['Non-stop assistance', 'Financial help', 'Finding a job assistance', 'Irish driving licence is world recognizable'];
-  const loan = (cat, driver) => `We perfectly know that obtaining full driving licence Category ${cat} can be quite expensive and therefore we prepared for you a loan with a very low interest rate! You can take out this loan for a year or even two years. A single month's salary as a ${driver} driver will cover all the costs associated with obtaining the licence for these vehicles!`;
+  const loan = (cat, driver) => `We know perfectly that obtaining your full driving licence Category ${cat} can be quite expensive and therefore we prepared for you a loan with a very low interest rate! You can take out this loan for a year or even two years. A single month's salary as a ${driver} driver will cover all the costs associated with obtaining the licence for these vehicles!`;
   const assist = (cat) => `We will provide you with state of the art learning materials. We will book your theory and road tests and we will also book your driving lessons and medical exams. We will be guiding and assisting you until you obtain your full Category ${cat} licence!`;
   const job = (cat) => `When you have your licence category ${cat}, our staff will make every effort to quickly find you a well-paid job. At the moment Ireland badly needs 3500 truck drivers and 1500 bus drivers.`;
-  const world = (cat) => `Having Irish driving licence category ${cat} you can work as a driver all over the World. You can also exchange your Irish driving licence for one from any other European Union country.`;
+  const world = (cat) => `Having your Irish driving licence category ${cat} you can work as a driver all over the World. You can also exchange your Irish driving licence for one from any other European Union country.`;
   const lead = (bus) => `We will train you to pass theory and CPC tests the very First Time! Next, the best driving instructors make you ready to successfully pass your ${bus ? 'BUS ' : ''}road test!`;
   return {
     titleBreak: 'Your road to',
