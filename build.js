@@ -99,7 +99,8 @@ const stamp = (file) => crypto.createHash('md5').update(fs.readFileSync(file)).d
 // (все свои .css и .js, а также картинки экрана выбора; путь в HTML — относительный, от ../ до корня dist)
 const stampRefs = (html) => html
   .replace(/"((?:\.\.\/)+)([\w/-]+\.(?:css|js))"/g, (_, up, src) => `"${up}${src}?v=${stamp(`dist/${src}`)}"`)
-  .replace(/choose-assets\/img\/[\w-]+\.webp/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`);
+  .replace(/choose-assets\/img\/[\w-]+\.webp/g, (src) => `${src}?v=${stamp(`dist/${src}`)}`)
+  .replace(/assets\/ride(?:-bus)?\/(?:hd|land|port)\/\d{3}\.webp(?!\?)/g, (src) => `${src}?v=${FRAMES_V}`);
 
 // {cat} в текстах: в статичном HTML — вариант «оба» (C, CE & D), vehicle.js меняет на «C & CE» или D.
 // Грузовик — две категории: C & CE (владелец просил писать их вместе везде, где показана категория)
@@ -111,6 +112,16 @@ const OG_LOCALE = { pl: 'pl_PL', pt: 'pt_BR', ru: 'ru_RU', en: 'en_IE', es: 'es_
 // Кадры ролика: src/assets/ride/{hd,land,port} — фура. Если появится src/assets/ride-bus/{hd,land,port},
 // ride.js возьмёт его для ?vehicle=bus; пока его нет — везде фура и пометка busSoon для автобуса
 const hasBusFrames = ['hd', 'land', 'port'].every((d) => fs.existsSync(`src/assets/ride-bus/${d}/001.webp`));
+// ?v=<хэш всех кадров> у ссылок на кадры (HTML, ride.js, preload-home.js): перенарезали кадры — ссылки
+// меняются, и браузер не возьмёт старые кадры из суточного кэша (netlify.toml). Один хэш на фуру и автобус
+const FRAMES_V = (() => {
+  const h = crypto.createHash('md5');
+  for (const set of ['ride', 'ride-bus']) for (const d of ['hd', 'land', 'port']) {
+    const dir = `src/assets/${set}/${d}`;
+    if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir).sort()) h.update(f).update(fs.readFileSync(`${dir}/${f}`));
+  }
+  return h.digest('hex').slice(0, 8);
+})();
 if (!hasBusFrames) console.warn('Внимание: нет кадров автобуса (src/assets/ride-bus/{hd,land,port}) — для автобуса показываем фуру');
 // Фоновый звук главной: подключается, только если файл есть и AMBIENT_ON = true.
 // Выключен по просьбе владельца: на главной нет звуковой дорожки; кнопка звука в шапке осталась (владелец попросил вернуть)
@@ -159,6 +170,7 @@ function blocks(lang, t) {
     iconInfo: icon('i-info'),
     framesBus: hasBusFrames ? ' data-frames-bus="../assets/ride-bus"' : '',
     hasBusFrames: String(hasBusFrames),
+    framesV: FRAMES_V,
     // Тексты заказчика (src/client-pc.js, en и ru): второй вариант текстов рядом со старым, переключает CSS.
     // Старые элементы — .tpc-def, новые — .tpc; в других языках новых нет и ничего не меняется
     ...tpcBlocks(lang, t),
@@ -255,7 +267,7 @@ for (const lang of Object.keys(LANGS)) {
     if (!(key in t)) throw new Error(`choose, ${lang}: в словаре нет ключа "${key}"`);
     return esc(t[key]);
   })
-    .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}" data-frames="../../assets/ride"${hasBusFrames ? ' data-frames-bus="../../assets/ride-bus"' : ''}`);
+    .replace('data-sounds="{}"', `data-sounds="${esc(JSON.stringify(sounds))}" data-frames="../../assets/ride" data-frames-v="${FRAMES_V}"${hasBusFrames ? ' data-frames-bus="../../assets/ride-bus"' : ''}`);
   html = stampRefs(html);
   fs.mkdirSync(`dist/${lang}/choose`, { recursive: true });
   fs.writeFileSync(`dist/${lang}/choose/index.html`, html);

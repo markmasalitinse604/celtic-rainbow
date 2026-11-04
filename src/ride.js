@@ -46,6 +46,7 @@
   // Кадры автобуса (src/assets/ride-bus) — только если они есть (data-frames-bus ставит build.js)
   const isBus = window.SiteVehicle && window.SiteVehicle.kind === 'bus';
   const base = isBus && ride.dataset.framesBus ? ride.dataset.framesBus : ride.dataset.frames;
+  const FV = ride.dataset.framesV ? `?v=${ride.dataset.framesV}` : ''; // версия кадров (build.js, FRAMES_V)
 
   const canvas = ride.querySelector('.ride__canvas');
   const ctx = canvas.getContext('2d');
@@ -113,7 +114,7 @@
       };
       img.onload = () => (img.decode ? img.decode().then(ready, ready) : ready());
       img.onerror = worker;
-      img.src = `${base}/${s.dir}/${String(i + 1).padStart(3, '0')}.webp`;
+      img.src = `${base}/${s.dir}/${String(i + 1).padStart(3, '0')}.webp${FV}`;
     };
     for (let k = 0; k < 6; k++) worker(); // 6 загрузок параллельно
   }

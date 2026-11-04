@@ -6,6 +6,7 @@
   const root = document.getElementById('choose');
   if (!root || !root.dataset.frames || (navigator.connection && navigator.connection.saveData)) return;
   const base = { truck: root.dataset.frames, bus: root.dataset.framesBus || root.dataset.frames };
+  const FV = root.dataset.framesV ? `?v=${root.dataset.framesV}` : ''; // версия кадров, как в ride.js
   // тот же выбор набора кадров, что в ride.js (pickSet)
   const dir = () => (innerWidth / innerHeight < 0.9 ? 'port'
     : innerWidth * Math.min(devicePixelRatio || 1, 2) > 1500 ? 'hd' : 'land');
@@ -15,7 +16,7 @@
   const queue = [], seen = new Set();
   let active = 0, started = false;
   function add(kind, idx, front) {
-    const urls = idx.map((i) => `${base[kind]}/${dir()}/${String(i + 1).padStart(3, '0')}.webp`).filter((u) => !seen.has(u));
+    const urls = idx.map((i) => `${base[kind]}/${dir()}/${String(i + 1).padStart(3, '0')}.webp${FV}`).filter((u) => !seen.has(u));
     urls.forEach((u) => seen.add(u));
     if (front) queue.unshift(...urls); else queue.push(...urls);
     pump();
