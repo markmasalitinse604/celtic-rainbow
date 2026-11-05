@@ -32,8 +32,8 @@
        (автобус — если выбран и его кадры есть). Скрипт, а не <link> в разметке: машина известна только в браузере -->
   <script>(function(){var d=document,q=new URLSearchParams(location.search).get('vehicle'),v=q;
 try{if(v!=='truck'&&v!=='bus')v=localStorage.getItem('vehicle')}catch(e){}
-var b='../assets/'+(v==='bus'&&{{hasBusFrames}}?'ride-bus':'ride');d.documentElement.dataset.frames=b;
-[['(min-aspect-ratio: 9/10)',b+'/land/001.webp 1280w, '+b+'/hd/001.webp 1920w'],['(max-aspect-ratio: 9/10)',b+'/port/001.webp 720w']].forEach(function(x){
+var b='../assets/'+(v==='bus'&&{{hasBusFrames}}?'ride-bus':'ride');d.documentElement.dataset.frames=b;var V='.webp?v={{framesV}}';
+[['(min-aspect-ratio: 9/10)',b+'/land/001'+V+' 1280w, '+b+'/hd/001'+V+' 1920w'],['(max-aspect-ratio: 9/10)',b+'/port/001'+V+' 720w']].forEach(function(x){
 var l=d.createElement('link');l.rel='preload';l.as='image';l.media=x[0];l.setAttribute('imagesrcset',x[1]);l.setAttribute('imagesizes','max(100vw, 177vh)');l.setAttribute('fetchpriority','high');d.head.appendChild(l);});})();</script>
   <!-- Экономия трафика (Save-Data): статичная версия — один кадр и карточки списком -->
   <script>if(navigator.connection&&navigator.connection.saveData)document.documentElement.classList.add('save-data');</script>
@@ -49,7 +49,7 @@ var l=d.createElement('link');l.rel='preload';l.as='image';l.media=x[0];l.setAtt
   <!-- ДОРОГА: одна «прилипающая» сцена с роликом: вступление и 4 карточки «профессии» поверх него (ride.js).
        Шаги к категории — только в плане ниже (решение владельца: на ролике они его дублировали).
        Без JS и при экономии трафика — один кадр и карточки обычным списком -->
-  <section class="ride" id="ride" aria-label="{{jTitle}}" data-frames="../assets/ride"{{framesBus}}>
+  <section class="ride" id="ride" aria-label="{{jTitle}}" data-frames="../assets/ride" data-frames-v="{{framesV}}"{{framesBus}}>
     <div class="ride__sticky">
       <picture class="ride__still">
         <source media="(max-aspect-ratio: 9/10)" srcset="../assets/ride/port/001.webp 720w" sizes="max(100vw, 56vh)">
@@ -157,11 +157,11 @@ document.querySelectorAll('.ride__still source, .ride__still img').forEach(funct
 
   {{gallery}}
 
-  <!-- ФИНАЛ: последний кадр ролика фоном -->
+  <!-- ФИНАЛ: первый кадр ролика фоном (решение владельца; было — последний) -->
   <section class="final" id="final" aria-labelledby="final-title">
     <picture class="final__bg">
-      <source media="(max-aspect-ratio: 9/10)" srcset="../assets/ride/port/120.webp">
-      <img src="../assets/ride/land/120.webp" alt="" loading="lazy" decoding="async">
+      <source media="(max-aspect-ratio: 9/10)" srcset="../assets/ride/port/001.webp">
+      <img src="../assets/ride/land/001.webp" alt="" loading="lazy" decoding="async">
     </picture>
     <div class="wrap final__inner">
       <h2 class="final__title" id="final-title"><span class="tpc-def">{{jEndTitle}}</span>{{tpcEndTitle}}</h2>

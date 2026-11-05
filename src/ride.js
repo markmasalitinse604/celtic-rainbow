@@ -39,13 +39,14 @@
   // Наборы кадров: полный размер для больших и Retina-экранов, облегчённый для небольших
   // и вертикальный (отдельный ролик 9:16) для телефонов. Каждое устройство грузит только свой.
   const SETS = {
-    hd: { dir: 'hd', count: 120 },     // 1920×1086
-    land: { dir: 'land', count: 120 }, // 1280×724
-    port: { dir: 'port', count: 120, ay: 0.8 }, // 720×1274; машина в нижней трети — обрезаем больше неба, чем дороги
+    hd: { dir: 'hd', count: 120 },     // 1920×1080 (фура: зимний ролик)
+    land: { dir: 'land', count: 120 }, // 1280×720
+    port: { dir: 'port', count: 120, ay: 0.8 }, // 720×1280 (зимние вертикальные ролики фуры и автобуса); машина в нижней трети — обрезаем больше неба, чем дороги
   };
   // Кадры автобуса (src/assets/ride-bus) — только если они есть (data-frames-bus ставит build.js)
   const isBus = window.SiteVehicle && window.SiteVehicle.kind === 'bus';
   const base = isBus && ride.dataset.framesBus ? ride.dataset.framesBus : ride.dataset.frames;
+  const FV = ride.dataset.framesV ? `?v=${ride.dataset.framesV}` : ''; // версия кадров (build.js, FRAMES_V)
 
   const canvas = ride.querySelector('.ride__canvas');
   const ctx = canvas.getContext('2d');
@@ -113,7 +114,7 @@
       };
       img.onload = () => (img.decode ? img.decode().then(ready, ready) : ready());
       img.onerror = worker;
-      img.src = `${base}/${s.dir}/${String(i + 1).padStart(3, '0')}.webp`;
+      img.src = `${base}/${s.dir}/${String(i + 1).padStart(3, '0')}.webp${FV}`;
     };
     for (let k = 0; k < 6; k++) worker(); // 6 загрузок параллельно
   }
